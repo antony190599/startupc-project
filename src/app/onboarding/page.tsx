@@ -27,6 +27,8 @@ const formSchema = z.object({
   category: z.string().min(1, "La categoría es requerida"),
   industry: z.string().min(1, "La industria es requerida"),
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
+  ruc: z.string().optional(),
+  foundingYear: z.string().optional(),
   
   
   // Paso 2: Impacto y Origen
@@ -215,6 +217,8 @@ export default function FormularioPage() {
       industry: "",
       category: "",
       description: "",
+      ruc: "",
+      foundingYear: "",
       stage: "",
       problem: "",
       customerProfile: "",
@@ -519,7 +523,46 @@ export default function FormularioPage() {
                         </FormItem>
                       )}
                     />
-                    
+
+                    {/* Información de la empresa - Solo para Aceleración */}
+                    {form.watch("programType") === "aceleracion" && (
+                      <div className="space-y-6 pt-6 border-t">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Información de la Empresa</h3>
+                          <p className="text-sm text-gray-600 mb-4">Información adicional para empresas en aceleración (opcional)</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="ruc"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>RUC (opcional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="20123456789" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="foundingYear"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Año de fundación (opcional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="2020" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
 
 
                   </CardContent>
