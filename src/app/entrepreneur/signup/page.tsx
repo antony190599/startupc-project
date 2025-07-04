@@ -16,7 +16,7 @@ const useSignup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const signup = async (userData: { name: string; email: string; password: string }) => {
+  const signup = async (userData: { firstname: string; lastname: string; email: string; password: string }) => {
     setIsLoading(true);
     setError("");
 
@@ -54,7 +54,8 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    firstname: "",
+    lastname: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -71,8 +72,12 @@ export default function SignupPage() {
   };
 
   const validateForm = () => {
-    if (!formData.name.trim()) {
+    if (!formData.firstname.trim()) {
       setError("El nombre es requerido");
+      return false;
+    }
+    if (!formData.lastname.trim()) {
+      setError("El apellido es requerido");
       return false;
     }
     if (!formData.email.trim()) {
@@ -101,7 +106,8 @@ export default function SignupPage() {
 
     try {
       await signup({
-        name: formData.name,
+        firstname: formData.firstname,
+        lastname: formData.lastname,
         email: formData.email,
         password: formData.password,
       });
@@ -146,13 +152,27 @@ export default function SignupPage() {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="name">Nombre y apellidos</Label>
+              <Label htmlFor="firstname">Nombres</Label>
               <Input
-                id="name"
-                name="name"
+                id="firstname"
+                name="firstname"
                 type="text"
                 placeholder="Juan Pérez"
-                value={formData.name}
+                value={formData.firstname}
+                onChange={handleInputChange}
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="lastname">Apellidos</Label>
+              <Input
+                id="lastname"
+                name="lastname"
+                type="text"
+                placeholder="Pérez"
+                value={formData.lastname}
                 onChange={handleInputChange}
                 required
                 disabled={isLoading}

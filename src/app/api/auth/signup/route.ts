@@ -4,10 +4,10 @@ import { hashPassword } from "@/lib/auth/password";
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json();
+    const { firstname, lastname, email, password } = await request.json();
 
     // Validate input
-    if (!name || !email || !password) {
+    if (!firstname || !lastname || !email || !password) {
       return NextResponse.json(
         { error: "Todos los campos son requeridos" },
         { status: 400 }
@@ -49,14 +49,16 @@ export async function POST(request: NextRequest) {
     // Create user
     const user = await prisma.user.create({
       data: {
-        name,
+        firstname,
+        lastname,
         email,
         role: "business",
         password: hashedPassword,
       },
       select: {
         id: true,
-        name: true,
+        firstname: true,
+        lastname: true,
         email: true,
         createdAt: true,
       },
@@ -69,7 +71,8 @@ export async function POST(request: NextRequest) {
         message: "Usuario registrado exitosamente",
         user: {
           id: user.id,
-          name: user.name,
+          firstname: user.firstname,
+          lastname: user.lastname,
           email: user.email,
         },
         autoLogin: true, // Flag to indicate automatic login should happen

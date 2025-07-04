@@ -488,6 +488,14 @@ export default function FormularioPage() {
                             }
                           }}
                         />
+                        {form.watch("videoFile") && (
+                          <div className="mt-2 text-sm text-gray-600">
+                            <span className="font-medium">Video seleccionado:</span>{" "}
+                            <span className="truncate">
+                              {form.watch("videoFile")?.name}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="text-sm text-gray-500">

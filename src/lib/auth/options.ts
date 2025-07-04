@@ -67,7 +67,8 @@ export const authOptions: NextAuthOptions = {
                 return {
                     id: user.id,
                     email: user.email,
-                    name: user.name,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
                     image: user.image,
                 }
             },
@@ -127,7 +128,8 @@ export const authOptions: NextAuthOptions = {
                     await prisma.user.update({
                         where: { id: userExists.id },
                         data: {
-                            name: user.name || userExists.name,
+                            firstname: user.name || userExists.firstname,
+                            lastname: userExists.lastname ?? "",
                             image: newAvatar || userExists.image || null,
                         },
                     });
@@ -149,7 +151,8 @@ export const authOptions: NextAuthOptions = {
                     where: { id: token.sub as string },
                     select: {
                         id: true,
-                        name: true,
+                        firstname: true,
+                        lastname: true,
                         email: true,
                         image: true,
                     }
@@ -180,7 +183,8 @@ export const authOptions: NextAuthOptions = {
                 where: { email },
                 select: {
                     id: true,
-                    name: true,
+                    firstname: true,
+                    lastname: true,
                     email: true,
                     image: true,
                     createdAt: true,
