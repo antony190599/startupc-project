@@ -20,27 +20,33 @@ import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react"
 const formSchema = z.object({
   // Paso 1: Datos Generales
   projectName: z.string().min(1, "El nombre del proyecto es requerido"),
+  website: z.string().min(1, "La página web o perfil de redes sociales es requerido"),
   category: z.string().min(1, "La categoría es requerida"),
+  industry: z.string().min(1, "La industria es requerida"),
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
-  stage: z.string().min(1, "La etapa es requerida"),
+  
   
   // Paso 2: Impacto y Origen
   opportunityValue: z.string().min(10, "Debe explicar por qué es valiosa la oportunidad"),
+  stage: z.string().min(1, "La etapa es requerida"),
   projectOrigin: z.string().min(1, "El origen del proyecto es requerido"),
-  specificSupport: z.string().min(10, "Debe especificar el apoyo que busca"),
+  problem: z.string().min(10, "Debe explicar el problema o oportunidad que su proyecto resuelve"),
+  customerProfile: z.string().min(10, "Debe describir el perfil de tu usuario / cliente objetivo"),
+  impact: z.string().min(10, "Debe explicar el impacto positivo de tu proyecto o potencial de impacto"),
   
   // Paso 3: Presentación
   videoUrl: z.string().optional(),
   videoFile: z.any().optional(),
+  specificSupport: z.string().min(10, "Debe especificar el apoyo que busca"),
+
   
   // Paso 4: Equipo
   teamMembers: z.array(z.object({
-    fullName: z.string().min(1, "El nombre completo es requerido"),
+    fullName: z.string().min(1, "El nombre es requerido"),
+    lastName: z.string().min(1, "El apellido es requerido"),
     dni: z.string().min(8, "El DNI debe tener al menos 8 caracteres"),
     howMet: z.string().min(10, "Debe explicar cómo se conocieron"),
     studentCode: z.string().min(1, "El código del alumno es requerido"),
-    names: z.string().min(1, "Los nombres son requeridos"),
-    surnames: z.string().min(1, "Los apellidos son requeridos"),
     career: z.string().min(1, "La carrera es requerida"),
     cycle: z.string().min(1, "El ciclo es requerido"),
     phone: z.string().min(9, "El teléfono debe tener al menos 9 dígitos"),
@@ -54,6 +60,7 @@ const formSchema = z.object({
   // Paso 5: Preferencias Personales
   favoriteSport: z.string().min(1, "El deporte favorito es requerido"),
   favoriteHobby: z.string().min(1, "El hobby favorito es requerido"),
+  favoriteMovieGenre: z.string().min(1, "El género de películas favorito es requerido"),
   
   // Paso 6: Consentimiento
   privacyConsent: z.boolean().refine((val) => val === true, {
@@ -64,31 +71,47 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 // Datos estáticos para las opciones
-const categories = [
-  "Tecnología",
-  "Salud",
+const parentCategories = [
+    "Tech",
+    "No Tech"
+];
+
+const industries = [
+  "Ambiental",
+  "Agricultura",
+  "Biotecnología",
+  "Comunicaciones",
+  "Comida y bebida",
+  "Construcción",
+  "Consultoría",
+  "Cuidado de la salud",
   "Educación",
-  "Finanzas",
-  "Comercio",
-  "Servicios",
+  "Electrónica",
+  "Energía",
+  "Entretenimiento",
+  "Financiera",
+  "Ingeniería",
+  "Indumentaria",
+  "Logística",
+  "Manufactura",
+  "Química",
+  "Retail",
+  "Tecnología",
   "Otros"
-]
+];
 
 const stages = [
-  "Idea",
-  "Validación",
-  "Desarrollo",
-  "Lanzamiento",
-  "Escalamiento"
-]
+  "Idea de negocio",
+  "MVP (Prototipo mínimo viable)",
+];
+
 
 const projectOrigins = [
-  "Experiencia personal",
-  "Observación del mercado",
-  "Investigación académica",
-  "Recomendación",
-  "Otros"
-]
+  "Proyecto de un curso",
+  "Proyecto de tesis",
+  "Idea de empredimiento",
+  "Inqubalab",
+];
 
 const universities = [
   "Universidad Nacional Mayor de San Marcos",
@@ -102,7 +125,7 @@ const universities = [
   "Universidad San Ignacio de Loyola",
   "Universidad ESAN",
   "Otras"
-]
+];
 
 const sources = [
   "Redes sociales",
@@ -112,32 +135,37 @@ const sources = [
   "Eventos",
   "Internet",
   "Otros"
-]
+];
 
 const sports = [
   "Fútbol",
   "Basketball",
-  "Tennis",
-  "Swimming",
-  "Running",
-  "Cycling",
-  "Gym",
-  "Yoga",
-  "Martial Arts",
-  "Other"
-]
+  "Natación",
+  "Voleibol",
+];
 
 const hobbies = [
-  "Reading",
-  "Music",
-  "Gaming",
-  "Cooking",
-  "Traveling",
-  "Photography",
-  "Painting",
-  "Dancing",
-  "Writing",
-  "Other"
+  "Lectura",
+  "Música",
+  "Videojuegos",
+  "Cocinar",
+  "Viajar",
+  "Fotografía",
+  "Pintura",
+  "Bailar",
+  "Escribir",
+  "Otro"
+];
+
+const moviesGenres = [
+    "Acción",
+    "Aventura",
+    "Ciencia ficción",
+    "Comedia",
+    "Drama",
+    "Fantasía",
+    "Suspense",
+    "Terror",
 ]
 
 const steps = [
@@ -157,9 +185,14 @@ export default function FormularioPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       projectName: "",
+      website: "",
+      industry: "",
       category: "",
       description: "",
       stage: "",
+      problem: "",
+      customerProfile: "",
+      impact: "",
       opportunityValue: "",
       projectOrigin: "",
       specificSupport: "",
@@ -167,11 +200,10 @@ export default function FormularioPage() {
       teamMembers: [
         {
           fullName: "",
+          lastName: "",
           dni: "",
           howMet: "",
           studentCode: "",
-          names: "",
-          surnames: "",
           career: "",
           cycle: "",
           phone: "",
@@ -184,6 +216,7 @@ export default function FormularioPage() {
       ],
       favoriteSport: "",
       favoriteHobby: "",
+      favoriteMovieGenre: "",
       privacyConsent: false,
     },
   })
@@ -213,13 +246,13 @@ export default function FormularioPage() {
     let isValid = false
     switch (currentStep) {
       case 0: // Datos Generales
-        isValid = await form.trigger(['projectName', 'category', 'description', 'stage'])
+        isValid = await form.trigger(['projectName', 'category', 'description', 'website', 'industry'])
         break
       case 1: // Impacto y Origen
-        isValid = await form.trigger(['opportunityValue', 'projectOrigin', 'specificSupport'])
+        isValid = await form.trigger(['opportunityValue', 'projectOrigin', 'stage', 'problem', 'customerProfile', 'impact'])
         break
       case 2: // Presentación
-        isValid = await form.trigger(['videoUrl', 'videoFile'])
+        isValid = await form.trigger(['videoUrl', 'videoFile', 'specificSupport'])
         // Additional custom validation for video requirement
         const formData = form.getValues()
         const hasVideoUrl = formData.videoUrl && formData.videoUrl.trim() !== ""
@@ -236,7 +269,7 @@ export default function FormularioPage() {
         isValid = await form.trigger(['teamMembers'])
         break
       case 4: // Preferencias Personales
-        isValid = await form.trigger(['favoriteSport', 'favoriteHobby'])
+        isValid = await form.trigger(['favoriteSport', 'favoriteHobby', 'favoriteMovieGenre'])
         break
       case 5: // Consentimiento
         isValid = await form.trigger(['privacyConsent'])
@@ -266,11 +299,10 @@ export default function FormularioPage() {
   const addTeamMember = () => {
     append({
       fullName: "",
+      lastName: "",
       dni: "",
       howMet: "",
       studentCode: "",
-      names: "",
-      surnames: "",
       career: "",
       cycle: "",
       phone: "",
@@ -337,7 +369,7 @@ export default function FormularioPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {categories.map((category) => (
+                              {parentCategories.map((category) => (
                                 <SelectItem key={category} value={category}>
                                   {category}
                                 </SelectItem>
@@ -348,6 +380,22 @@ export default function FormularioPage() {
                         </FormItem>
                       )}
                     />
+                    
+
+                    <FormField
+                      control={form.control}
+                      name="website"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pagina Web o perfil de redes sociales</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://www.example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
 
                     <FormField
                       control={form.control}
@@ -369,28 +417,33 @@ export default function FormularioPage() {
 
                     <FormField
                       control={form.control}
-                      name="stage"
+                      name="industry"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Etapa del proyecto</FormLabel>
+                          <FormLabel>Industria a la que pertenece tu proyecto o emprendimiento</FormLabel>
                           <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="grid grid-cols-1 gap-3"
-                            >
-                              {stages.map((stage) => (
-                                <div key={stage} className="flex items-center space-x-2">
-                                  <RadioGroupItem value={stage} id={stage} />
-                                  <Label htmlFor={stage}>{stage}</Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Seleccione la industria" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {industries.map((industry) => (
+                                  <SelectItem key={industry} value={industry}>
+                                    {industry}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    
+
+
                   </CardContent>
                 </Card>
               )}
@@ -402,30 +455,13 @@ export default function FormularioPage() {
                     <CardTitle>Impacto y Origen</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="opportunityValue"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>¿Por qué es valiosa la oportunidad?</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Explique el valor y potencial de su oportunidad"
-                              className="min-h-[120px]"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
+                    
                     <FormField
                       control={form.control}
                       name="projectOrigin"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Origen del proyecto</FormLabel>
+                          <FormLabel>El proyecto proviene de:</FormLabel>
                           <FormControl>
                             <RadioGroup
                               onValueChange={field.onChange}
@@ -447,13 +483,38 @@ export default function FormularioPage() {
 
                     <FormField
                       control={form.control}
-                      name="specificSupport"
+                      name="stage"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Apoyo puntual que buscas</FormLabel>
+                            <FormLabel>En que etapa se encuentra el proyecto?</FormLabel>
+                            <FormControl>
+                                <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="grid grid-cols-1 gap-3"
+                                >
+                                    {stages.map((stage) => (
+                                        <div key={stage} className="flex items-center space-x-2">
+                                            <RadioGroupItem value={stage} id={stage} />
+                                            <Label htmlFor={stage}>{stage}</Label>
+                                        </div>
+                                    ))}
+                                </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="problem"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cual es el problema u oportunidad que tu proyecto resuelve?</FormLabel>
                           <FormControl>
                             <Textarea 
-                              placeholder="Describa el tipo de apoyo específico que necesita"
+                              placeholder="Explique el problema o oportunidad que su proyecto resuelve"
                               className="min-h-[120px]"
                               {...field} 
                             />
@@ -462,6 +523,63 @@ export default function FormularioPage() {
                         </FormItem>
                       )}
                     />
+
+                    <FormField
+                      control={form.control}
+                      name="opportunityValue"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>¿Por qué es valiosa la oportunidad?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Explique el valor y potencial de su oportunidad"
+                              className="min-h-[120px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="customerProfile"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Describe el perfil de tu usuario / cliente objetivo</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe el perfil de tu usuario / cliente objetivo"
+                              className="min-h-[120px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="impact"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cual es el impacto positivo de tu proyecto o potencial de impacto?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe el impacto positivo de tu proyecto o potencial de impacto"
+                              className="min-h-[120px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+
+                    
                   </CardContent>
                 </Card>
               )}
@@ -519,6 +637,24 @@ export default function FormularioPage() {
                         )}
                       />
                     </div>
+
+                    <FormField
+                      control={form.control}
+                      name="specificSupport"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Apoyo puntual que buscas</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describa el tipo de apoyo específico que necesita"
+                              className="min-h-[120px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </CardContent>
                 </Card>
               )}
@@ -554,9 +690,23 @@ export default function FormularioPage() {
                             name={`teamMembers.${index}.fullName`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Nombre completo</FormLabel>
+                                <FormLabel>Nombres</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Nombre completo" {...field} />
+                                  <Input placeholder="Nombres" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`teamMembers.${index}.lastName`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Apellidos</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Apellidos" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -605,34 +755,6 @@ export default function FormularioPage() {
                                 <FormLabel>Código del alumno</FormLabel>
                                 <FormControl>
                                   <Input placeholder="20230001" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`teamMembers.${index}.names`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Nombres</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Juan Carlos" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`teamMembers.${index}.surnames`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Apellidos</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="García López" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -848,6 +970,35 @@ export default function FormularioPage() {
                           </Select>
                           <FormMessage />
                         </FormItem>
+                      )}
+                    />
+
+                    //Si tuvieras que elegir un género de películas para ver, ¿cuál elegirías?This question is required.*
+                    <FormField
+                      control={form.control}
+                      name="favoriteMovieGenre"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Si tuvieras que elegir un género de películas para ver, ¿cuál elegirías?</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Seleccione su género de películas favorito" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {moviesGenres.map((genre) => (
+                                  <SelectItem key={genre} value={genre}>
+                                    {genre}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+
                       )}
                     />
                   </CardContent>
