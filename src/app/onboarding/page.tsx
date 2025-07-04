@@ -18,6 +18,9 @@ import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react"
 
 // Schema de validación
 const formSchema = z.object({
+  // Paso 0: Selección de Programa
+  programType: z.string().min(1, "Debe seleccionar un tipo de programa"),
+  
   // Paso 1: Datos Generales
   projectName: z.string().min(1, "El nombre del proyecto es requerido"),
   website: z.string().min(1, "La página web o perfil de redes sociales es requerido"),
@@ -53,7 +56,7 @@ const formSchema = z.object({
     universityEmail: z.string().email("Debe ser un email válido"),
     contactEmail: z.string().email("Debe ser un email válido"),
     linkedin: z.string().url("Debe ser una URL válida").optional().or(z.literal("")),
-    university: z.array(z.string()).min(1, "Debe seleccionar al menos una universidad"),
+    university: z.string().min(1, "Debe seleccionar una universidad"),
     source: z.string().min(1, "La fuente es requerida"),
   })).min(1, "Debe agregar al menos un integrante"),
   
@@ -168,7 +171,29 @@ const moviesGenres = [
     "Terror",
 ]
 
+const programTypes = [
+  {
+    id: "inqubalab",
+    title: "Inqubalab",
+    description: "Programa de incubación para ideas de negocio",
+    icon: "🚀"
+  },
+  {
+    id: "idea-feedback",
+    title: "Idea Feedback",
+    description: "Programa de retroalimentación para ideas",
+    icon: "💡"
+  },
+  {
+    id: "aceleracion",
+    title: "Aceleración",
+    description: "Programa de aceleración para startups",
+    icon: "⚡"
+  }
+]
+
 const steps = [
+  { id: "seleccion-programa", title: "Selección de Programa", description: "Elija el programa que desea" },
   { id: "datos-generales", title: "Datos Generales", description: "Información básica del proyecto" },
   { id: "impacto-origen", title: "Impacto y Origen", description: "Valor y origen del proyecto" },
   { id: "presentacion", title: "Presentación", description: "Video de presentación" },
@@ -184,6 +209,7 @@ export default function FormularioPage() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      programType: "",
       projectName: "",
       website: "",
       industry: "",
@@ -210,7 +236,7 @@ export default function FormularioPage() {
           universityEmail: "",
           contactEmail: "",
           linkedin: "",
-          university: [],
+          university: "",
           source: "",
         }
       ],
@@ -245,13 +271,16 @@ export default function FormularioPage() {
     // Step-specific validation
     let isValid = false
     switch (currentStep) {
-      case 0: // Datos Generales
+      case 0: // Selección de Programa
+        isValid = await form.trigger(['programType'])
+        break
+      case 1: // Datos Generales
         isValid = await form.trigger(['projectName', 'category', 'description', 'website', 'industry'])
         break
-      case 1: // Impacto y Origen
+      case 2: // Impacto y Origen
         isValid = await form.trigger(['opportunityValue', 'projectOrigin', 'stage', 'problem', 'customerProfile', 'impact'])
         break
-      case 2: // Presentación
+      case 3: // Presentación
         isValid = await form.trigger(['videoUrl', 'videoFile', 'specificSupport'])
         // Additional custom validation for video requirement
         const formData = form.getValues()
@@ -265,13 +294,13 @@ export default function FormularioPage() {
           isValid = false
         }
         break
-      case 3: // Equipo
+      case 4: // Equipo
         isValid = await form.trigger(['teamMembers'])
         break
-      case 4: // Preferencias Personales
+      case 5: // Preferencias Personales
         isValid = await form.trigger(['favoriteSport', 'favoriteHobby', 'favoriteMovieGenre'])
         break
-      case 5: // Consentimiento
+      case 6: // Consentimiento
         isValid = await form.trigger(['privacyConsent'])
         break
       default:
@@ -309,7 +338,7 @@ export default function FormularioPage() {
       universityEmail: "",
       contactEmail: "",
       linkedin: "",
-      university: [],
+      university: "",
       source: "",
     })
   }
@@ -335,8 +364,57 @@ export default function FormularioPage() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div ref={formRef}>
-              {/* Paso 1: Datos Generales */}
+              {/* Paso 0: Selección de Programa */}
               {currentStep === 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Seleccione el Programa</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="programType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="sr-only">Tipo de Programa</FormLabel>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {programTypes.map((program) => (
+                              <div
+                                key={program.id}
+                                className={`relative cursor-pointer rounded-lg border-2 p-6 transition-all hover:border-primary ${
+                                  field.value === program.id
+                                    ? "border-primary bg-primary/5"
+                                    : "border-gray-200 hover:border-primary/50"
+                                }`}
+                                onClick={() => field.onChange(program.id)}
+                              >
+                                <div className="flex flex-col items-center text-center space-y-3">
+                                  <div className="text-3xl">{program.icon}</div>
+                                  <div>
+                                    <h3 className="font-semibold text-lg">{program.title}</h3>
+                                    <p className="text-sm text-gray-600 mt-1">{program.description}</p>
+                                  </div>
+                                </div>
+                                {field.value === program.id && (
+                                  <div className="absolute top-2 right-2">
+                                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Paso 1: Datos Generales */}
+              {currentStep === 1 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Datos Generales</CardTitle>
@@ -449,7 +527,7 @@ export default function FormularioPage() {
               )}
 
               {/* Paso 2: Impacto y Origen */}
-              {currentStep === 1 && (
+              {currentStep === 2 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Impacto y Origen</CardTitle>
@@ -585,7 +663,7 @@ export default function FormularioPage() {
               )}
 
               {/* Paso 3: Presentación */}
-              {currentStep === 2 && (
+              {currentStep === 3 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Presentación</CardTitle>
@@ -660,7 +738,7 @@ export default function FormularioPage() {
               )}
 
               {/* Paso 4: Equipo */}
-              {currentStep === 3 && (
+              {currentStep === 4 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Equipo</CardTitle>
@@ -781,9 +859,34 @@ export default function FormularioPage() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Ciclo</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="6to ciclo" {...field} />
-                                </FormControl>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Seleccione el ciclo" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {Array.from({ length: 10 }, (_, i) => i + 1).map((cycle) => {
+                                      const ordinalMap: { [key: number]: string } = {
+                                        1: "1er",
+                                        2: "2do", 
+                                        3: "3er",
+                                        4: "4to",
+                                        5: "5to",
+                                        6: "6to",
+                                        7: "7mo",
+                                        8: "8vo",
+                                        9: "9no",
+                                        10: "10mo"
+                                      }
+                                      return (
+                                        <SelectItem key={cycle} value={cycle.toString()}>
+                                          {ordinalMap[cycle]} Ciclo
+                                        </SelectItem>
+                                      )
+                                    })}
+                                  </SelectContent>
+                                </Select>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -852,25 +955,20 @@ export default function FormularioPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Universidad</FormLabel>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                {universities.map((university) => (
-                                  <div key={university} className="flex items-center space-x-2">
-                                    <Checkbox
-                                      id={`${university}-${index}`}
-                                      checked={field.value?.includes(university)}
-                                      onCheckedChange={(checked) => {
-                                        const currentUniversities = field.value || []
-                                        if (checked) {
-                                          field.onChange([...currentUniversities, university])
-                                        } else {
-                                          field.onChange(currentUniversities.filter(u => u !== university))
-                                        }
-                                      }}
-                                    />
-                                    <Label htmlFor={`${university}-${index}`}>{university}</Label>
-                                  </div>
-                                ))}
-                              </div>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Seleccione una universidad" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {universities.map((university) => (
+                                    <SelectItem key={university} value={university}>
+                                      {university}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -917,7 +1015,7 @@ export default function FormularioPage() {
               )}
 
               {/* Paso 5: Preferencias Personales */}
-              {currentStep === 4 && (
+              {currentStep === 5 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Preferencias Personales</CardTitle>
@@ -1006,7 +1104,7 @@ export default function FormularioPage() {
               )}
 
               {/* Paso 6: Consentimiento */}
-              {currentStep === 5 && (
+              {currentStep === 6 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Consentimiento</CardTitle>
