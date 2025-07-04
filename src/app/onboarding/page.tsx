@@ -15,6 +15,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react"
+import { saveOnboardingStep, getOnboardingStep, OnboardingStep } from "@/lib/utils/functions/onboarding"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 // Schema de validación
 const formSchema = z.object({
@@ -60,6 +63,7 @@ const formSchema = z.object({
     contactEmail: z.string().email("Debe ser un email válido"),
     linkedin: z.string().url("Debe ser una URL válida").optional().or(z.literal("")),
     university: z.string().min(1, "Debe seleccionar una universidad"),
+    otherUniversity: z.string().optional(),
   })).min(1, "Debe agregar al menos un integrante"),
   
   // Paso 5: Preferencias Personales
@@ -76,104 +80,103 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 // Datos estáticos para las opciones
-const parentCategories = [
-    "Tech",
-    "No Tech"
-];
+const parentCategories = {
+  tech: "Tech",
+  noTech: "No Tech"
+};
 
-const industries = [
-  "Ambiental",
-  "Agricultura",
-  "Biotecnología",
-  "Comunicaciones",
-  "Comida y bebida",
-  "Construcción",
-  "Consultoría",
-  "Cuidado de la salud",
-  "Educación",
-  "Electrónica",
-  "Energía",
-  "Entretenimiento",
-  "Financiera",
-  "Ingeniería",
-  "Indumentaria",
-  "Logística",
-  "Manufactura",
-  "Química",
-  "Retail",
-  "Tecnología",
-  "Otros"
-];
+const industries = {
+  ambiental: "Ambiental",
+  agricultura: "Agricultura",
+  biotecnologia: "Biotecnología",
+  comunicaciones: "Comunicaciones",
+  comidaBebida: "Comida y bebida",
+  construccion: "Construcción",
+  consultoria: "Consultoría",
+  cuidadoSalud: "Cuidado de la salud",
+  educacion: "Educación",
+  electronica: "Electrónica",
+  energia: "Energía",
+  entretenimiento: "Entretenimiento",
+  financiera: "Financiera",
+  ingenieria: "Ingeniería",
+  indumentaria: "Indumentaria",
+  logistica: "Logística",
+  manufactura: "Manufactura",
+  quimica: "Química",
+  retail: "Retail",
+  tecnologia: "Tecnología",
+  otros: "Otros"
+};
 
-const stages = [
-  "Idea de negocio",
-  "MVP (Prototipo mínimo viable)",
-];
+const stages = {
+  ideaNegocio: "Idea de negocio",
+  mvp: "MVP (Prototipo mínimo viable)",
+};
 
+const projectOrigins = {
+  proyectoCurso: "Proyecto de un curso",
+  proyectoTesis: "Proyecto de tesis",
+  ideaEmprendimiento: "Idea de empredimiento",
+  inqubalab: "Inqubalab",
+};
 
-const projectOrigins = [
-  "Proyecto de un curso",
-  "Proyecto de tesis",
-  "Idea de empredimiento",
-  "Inqubalab",
-];
+const universities = {
+  unmsm: "Universidad Nacional Mayor de San Marcos",
+  pucp: "Pontificia Universidad Católica del Perú",
+  ulima: "Universidad de Lima",
+  up: "Universidad del Pacífico",
+  udep: "Universidad de Piura",
+  uch: "Universidad Cayetano Heredia",
+  utec: "Universidad de Ingeniería y Tecnología",
+  upc: "Universidad Peruana de Ciencias Aplicadas (Laureate)",
+  upn: "Universidad Privada del Norte (Laureate)",
+  usil: "Universidad San Ignacio de Loyola",
+  esan: "Universidad ESAN",
+  cibertec: "Cibertec (Laureate)",
+  otras: "Otras"
+};
 
-const universities = [
-  "Universidad Nacional Mayor de San Marcos",
-  "Pontificia Universidad Católica del Perú",
-  "Universidad de Lima",
-  "Universidad del Pacífico",
-  "Universidad de Piura",
-  "Universidad Cayetano Heredia",
-  "Universidad de Ingeniería y Tecnología",
-  "Universidad Peruana de Ciencias Aplicadas (Laureate)",
-  "Universidad Privada del Norte (Laureate)",
-  "Universidad San Ignacio de Loyola",
-  "Universidad ESAN",
-  "Cibertec (Laureate)",
-  "Otras"
-];
+const sources = {
+  redesSociales: "Redes sociales",
+  amigos: "Amigos",
+  familia: "Familia",
+  universidad: "Universidad",
+  eventos: "Eventos",
+  internet: "Internet",
+  otros: "Otros"
+};
 
-const sources = [
-  "Redes sociales",
-  "Amigos",
-  "Familia",
-  "Universidad",
-  "Eventos",
-  "Internet",
-  "Otros"
-];
+const sports = {
+  futbol: "Fútbol",
+  basketball: "Basketball",
+  natacion: "Natación",
+  voleibol: "Voleibol",
+};
 
-const sports = [
-  "Fútbol",
-  "Basketball",
-  "Natación",
-  "Voleibol",
-];
+const hobbies = {
+  lectura: "Lectura",
+  musica: "Música",
+  videojuegos: "Videojuegos",
+  cocinar: "Cocinar",
+  viajar: "Viajar",
+  fotografia: "Fotografía",
+  pintura: "Pintura",
+  bailar: "Bailar",
+  escribir: "Escribir",
+  otro: "Otro"
+};
 
-const hobbies = [
-  "Lectura",
-  "Música",
-  "Videojuegos",
-  "Cocinar",
-  "Viajar",
-  "Fotografía",
-  "Pintura",
-  "Bailar",
-  "Escribir",
-  "Otro"
-];
-
-const moviesGenres = [
-    "Acción",
-    "Aventura",
-    "Ciencia ficción",
-    "Comedia",
-    "Drama",
-    "Fantasía",
-    "Suspense",
-    "Terror",
-]
+const moviesGenres = {
+  accion: "Acción",
+  aventura: "Aventura",
+  cienciaFiccion: "Ciencia ficción",
+  comedia: "Comedia",
+  drama: "Drama",
+  fantasia: "Fantasía",
+  suspense: "Suspense",
+  terror: "Terror",
+};
 
 const programTypes = [
   {
@@ -194,7 +197,7 @@ const programTypes = [
     description: "Programa de aceleración para startups",
     icon: "⚡"
   }
-]
+];
 
 const steps = [
   { id: "seleccion-programa", title: "Selección de Programa", description: "Elija el programa que desea" },
@@ -208,7 +211,11 @@ const steps = [
 
 export default function FormularioPage() {
   const [currentStep, setCurrentStep] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isInitializing, setIsInitializing] = useState(true)
   const formRef = useRef<HTMLDivElement>(null)
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -244,6 +251,7 @@ export default function FormularioPage() {
           contactEmail: "",
           linkedin: "",
           university: "",
+          otherUniversity: "",
         }
       ],
       favoriteSport: "",
@@ -259,123 +267,230 @@ export default function FormularioPage() {
   })
 
   const onSubmit = async (data: FormData) => {
-    // Validate all fields before submission
-    const isValid = await form.trigger()
-    if (!isValid) {
-      console.log("Form has validation errors")
+    if (!session?.user) {
+      alert("Debe iniciar sesión para continuar")
       return
     }
-    
-    console.log("Form data:", data)
-    // Aquí se enviaría la data al backend
-    alert("Formulario enviado exitosamente!")
+
+    setIsLoading(true)
+    try {
+      // Validate all fields before submission
+      const isValid = await form.trigger()
+      if (!isValid) {
+        console.log("Form has validation errors")
+        return
+      }
+      
+      // Save final step
+      await saveOnboardingStep('consent', {
+        privacyConsent: data.privacyConsent
+      })
+      
+      alert("Formulario enviado exitosamente!")
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      alert("Error al enviar el formulario. Intente nuevamente.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const nextStep = async () => {
-    console.log("Form data:", form.getValues()) 
-    
-    // Step-specific validation
-    let isValid = false
-    switch (currentStep) {
-      case 0: // Selección de Programa
-        isValid = await form.trigger(['programType'])
-        break
-      case 1: // Datos Generales
-        isValid = await form.trigger(['projectName', 'category', 'description', 'website', 'industry'])
-        break
-      case 2: // Impacto y Origen
-        isValid = await form.trigger(['opportunityValue', 'projectOrigin', 'stage', 'problem', 'customerProfile', 'impact'])
-        break
-      case 3: // Presentación
-        isValid = await form.trigger(['videoUrl', 'videoFile', 'specificSupport'])
-        // Additional custom validation for video requirement
-        const formData = form.getValues()
-        const hasVideoUrl = formData.videoUrl && formData.videoUrl.trim() !== ""
-        const hasVideoFile = formData.videoFile
-        if (!hasVideoUrl && !hasVideoFile) {
-          form.setError('videoUrl', { 
-            type: 'manual', 
-            message: 'Debe subir un video o proporcionar una URL de video' 
-          })
-          isValid = false
-        }
-        break
-      case 4: // Equipo
-        isValid = await form.trigger(['teamMembers', 'source'])
-        
-        // Custom validation for howMet - only required if 2+ team members
-        const teamMembers = form.getValues('teamMembers')
-        const howMet = form.getValues('howMet')
-        
-        if (teamMembers.length >= 2) {
-          if (!howMet || howMet.trim().length < 10) {
-            form.setError('howMet', { 
+    if (!session?.user) {
+      alert("Debe iniciar sesión para continuar")
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      console.log("Form data:", form.getValues()) 
+      
+      // Step-specific validation
+      let isValid = false
+      let stepData: any = {}
+      
+      switch (currentStep) {
+        case 0: // Selección de Programa
+          isValid = await form.trigger(['programType'])
+          if (isValid) {
+            stepData = { programType: form.getValues('programType') }
+          }
+          break
+        case 1: // Datos Generales
+          isValid = await form.trigger(['projectName', 'category', 'description', 'website', 'industry'])
+          if (isValid) {
+            const data = form.getValues()
+            stepData = {
+              projectName: data.projectName,
+              website: data.website,
+              category: data.category,
+              industry: data.industry,
+              description: data.description,
+              ruc: data.ruc,
+              foundingYear: data.foundingYear,
+            }
+          }
+          break
+        case 2: // Impacto y Origen
+          isValid = await form.trigger(['opportunityValue', 'projectOrigin', 'stage', 'problem', 'customerProfile', 'impact'])
+          if (isValid) {
+            const data = form.getValues()
+            stepData = {
+              opportunityValue: data.opportunityValue,
+              stage: data.stage,
+              projectOrigin: data.projectOrigin,
+              problem: data.problem,
+              customerProfile: data.customerProfile,
+              impact: data.impact,
+            }
+          }
+          break
+        case 3: // Presentación
+          isValid = await form.trigger(['videoUrl', 'videoFile', 'specificSupport'])
+          // Additional custom validation for video requirement
+          const formData = form.getValues()
+          const hasVideoUrl = formData.videoUrl && formData.videoUrl.trim() !== ""
+          const hasVideoFile = formData.videoFile
+          if (!hasVideoUrl && !hasVideoFile) {
+            form.setError('videoUrl', { 
               type: 'manual', 
-              message: 'Debe explicar cómo se conocieron (mínimo 10 caracteres)' 
+              message: 'Debe subir un video o proporcionar una URL de video' 
             })
             isValid = false
-          } else {
-            form.clearErrors('howMet')
           }
-        }
-
-        // Custom validation for Laureate university fields
-        const laureateUniversities = [
-          "Universidad Peruana de Ciencias Aplicadas (Laureate)",
-          "Universidad Privada del Norte (Laureate)",
-          "Cibertec (Laureate)"
-        ]
-
-        for (let i = 0; i < teamMembers.length; i++) {
-          const member = teamMembers[i]
-          const isLaureateUniversity = laureateUniversities.includes(member.university)
+          if (isValid) {
+            stepData = {
+              videoUrl: formData.videoUrl,
+              videoFileName: formData.videoFile?.name,
+              specificSupport: formData.specificSupport,
+            }
+          }
+          break
+        case 4: // Equipo
+          isValid = await form.trigger(['teamMembers', 'source'])
           
-          if (isLaureateUniversity) {
-            // Validate student code
-            if (!member.studentCode || member.studentCode.trim() === '') {
-              form.setError(`teamMembers.${i}.studentCode`, {
-                type: 'manual',
-                message: 'El código de alumno es requerido para estudiantes de Laureate'
+          // Custom validation for howMet - only required if 2+ team members
+          const teamMembers = form.getValues('teamMembers')
+          const howMet = form.getValues('howMet')
+          
+          if (teamMembers.length >= 2) {
+            if (!howMet || howMet.trim().length < 10) {
+              form.setError('howMet', { 
+                type: 'manual', 
+                message: 'Debe explicar cómo se conocieron (mínimo 10 caracteres)' 
               })
               isValid = false
-            }
-            
-            // Validate cycle
-            if (!member.cycle || member.cycle.trim() === '') {
-              form.setError(`teamMembers.${i}.cycle`, {
-                type: 'manual',
-                message: 'El ciclo es requerido para estudiantes de Laureate'
-              })
-              isValid = false
-            }
-            
-            // Validate university email
-            if (!member.universityEmail || member.universityEmail.trim() === '') {
-              form.setError(`teamMembers.${i}.universityEmail`, {
-                type: 'manual',
-                message: 'El correo universitario es requerido para estudiantes de Laureate'
-              })
-              isValid = false
+            } else {
+              form.clearErrors('howMet')
             }
           }
+
+          // Custom validation for Laureate university fields
+          const laureateUniversities = [
+            "Universidad Peruana de Ciencias Aplicadas (Laureate)",
+            "Universidad Privada del Norte (Laureate)",
+            "Cibertec (Laureate)"
+          ]
+
+          for (let i = 0; i < teamMembers.length; i++) {
+            const member = teamMembers[i]
+            const isLaureateUniversity = laureateUniversities.includes(member.university)
+            
+            if (isLaureateUniversity) {
+              // Validate student code
+              if (!member.studentCode || member.studentCode.trim() === '') {
+                form.setError(`teamMembers.${i}.studentCode`, {
+                  type: 'manual',
+                  message: 'El código de alumno es requerido para estudiantes de Laureate'
+                })
+                isValid = false
+              }
+              
+              // Validate cycle
+              if (!member.cycle || member.cycle.trim() === '') {
+                form.setError(`teamMembers.${i}.cycle`, {
+                  type: 'manual',
+                  message: 'El ciclo es requerido para estudiantes de Laureate'
+                })
+                isValid = false
+              }
+              
+              // Validate university email
+              if (!member.universityEmail || member.universityEmail.trim() === '') {
+                form.setError(`teamMembers.${i}.universityEmail`, {
+                  type: 'manual',
+                  message: 'El correo universitario es requerido para estudiantes de Laureate'
+                })
+                isValid = false
+              }
+            }
+
+            // Validate other university name when "otras" is selected
+            if (member.university === "otras") {
+              if (!member.otherUniversity || member.otherUniversity.trim() === '') {
+                form.setError(`teamMembers.${i}.otherUniversity`, {
+                  type: 'manual',
+                  message: 'Debe especificar el nombre de la universidad'
+                })
+                isValid = false
+              }
+            }
+          }
+          
+          if (isValid) {
+            stepData = {
+              howMet: howMet,
+              source: form.getValues('source'),
+              teamMembers: teamMembers,
+            }
+          }
+          break
+        case 5: // Preferencias Personales
+          isValid = await form.trigger(['favoriteSport', 'favoriteHobby', 'favoriteMovieGenre'])
+          if (isValid) {
+            const data = form.getValues()
+            stepData = {
+              favoriteSport: data.favoriteSport,
+              favoriteHobby: data.favoriteHobby,
+              favoriteMovieGenre: data.favoriteMovieGenre,
+            }
+          }
+          break
+        case 6: // Consentimiento
+          isValid = await form.trigger(['privacyConsent'])
+          break
+        default:
+          isValid = false
+      }
+      
+      console.log("Is valid:", isValid)
+      if (isValid && currentStep < steps.length - 1) {
+        // Save step data to API
+        const stepNames: OnboardingStep[] = [
+          'program-selection',
+          'general-data', 
+          'impact-origin',
+          'presentation',
+          'team',
+          'preferences',
+          'consent'
+        ]
+        
+        if (stepData && Object.keys(stepData).length > 0) {
+          await saveOnboardingStep(stepNames[currentStep], stepData)
         }
-        break
-      case 5: // Preferencias Personales
-        isValid = await form.trigger(['favoriteSport', 'favoriteHobby', 'favoriteMovieGenre'])
-        break
-      case 6: // Consentimiento
-        isValid = await form.trigger(['privacyConsent'])
-        break
-      default:
-        isValid = false
-    }
-    
-    console.log("Is valid:", isValid)
-    if (isValid && currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1)
-      setTimeout(() => {
-        formRef.current?.scrollIntoView({ behavior: "smooth" })
-      }, 100)
+        
+        setCurrentStep(currentStep + 1)
+        setTimeout(() => {
+          formRef.current?.scrollIntoView({ behavior: "smooth" })
+        }, 100)
+      }
+    } catch (error) {
+      console.error('Error saving step:', error)
+      alert("Error al guardar el paso. Intente nuevamente.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -401,16 +516,134 @@ export default function FormularioPage() {
       contactEmail: "",
       linkedin: "",
       university: "",
+      otherUniversity: "",
     })
   }
 
+  // Initialize form with existing data
+  useEffect(() => {
+    const initializeForm = async () => {
+      if (status === 'loading') return
+      
+      if (status === 'unauthenticated') {
+        router.push('/login')
+        return
+      }
+      
+      if (!session?.user) return
+      
+      try {
+        // Load existing data for all steps
+        const stepNames: OnboardingStep[] = [
+          'program-selection',
+          'general-data', 
+          'impact-origin',
+          'presentation',
+          'team',
+          'preferences',
+          'consent'
+        ]
+        
+        let lastCompletedStep = -1
+        
+        for (let i = 0; i < stepNames.length; i++) {
+          try {
+            const response = await getOnboardingStep(stepNames[i])
+            if (response.data) {
+              lastCompletedStep = i
+              
+              // Populate form with existing data
+              switch (i) {
+                case 0: // program-selection
+                  form.setValue('programType', response.data.programType)
+                  break
+                case 1: // general-data
+                  form.setValue('projectName', response.data.projectName || '')
+                  form.setValue('website', response.data.website || '')
+                  form.setValue('category', response.data.category || '')
+                  form.setValue('industry', response.data.industry || '')
+                  form.setValue('description', response.data.description || '')
+                  form.setValue('ruc', response.data.ruc || '')
+                  form.setValue('foundingYear', response.data.foundingYear || '')
+                  break
+                case 2: // impact-origin
+                  form.setValue('opportunityValue', response.data.opportunityValue || '')
+                  form.setValue('stage', response.data.stage || '')
+                  form.setValue('projectOrigin', response.data.projectOrigin || '')
+                  form.setValue('problem', response.data.problem || '')
+                  form.setValue('customerProfile', response.data.customerProfile || '')
+                  form.setValue('impact', response.data.impact || '')
+                  break
+                case 3: // presentation
+                  form.setValue('videoUrl', response.data.videoUrl || '')
+                  form.setValue('specificSupport', response.data.specificSupport || '')
+                  break
+                case 4: // team
+                  form.setValue('howMet', response.data.howMet || '')
+                  form.setValue('source', response.data.source || '')
+                  if (response.data.teamMembers && response.data.teamMembers.length > 0) {
+                    // Clear existing team members and add the loaded ones
+                    form.setValue('teamMembers', response.data.teamMembers)
+                  }
+                  break
+                case 5: // preferences
+                  form.setValue('favoriteSport', response.data.favoriteSport || '')
+                  form.setValue('favoriteHobby', response.data.favoriteHobby || '')
+                  form.setValue('favoriteMovieGenre', response.data.favoriteMovieGenre || '')
+                  break
+                case 6: // consent
+                  form.setValue('privacyConsent', response.data.privacyConsent || false)
+                  break
+              }
+            } else {
+              break // Stop at first incomplete step
+            }
+          } catch (error) {
+            console.error(`Error loading step ${stepNames[i]}:`, error)
+            break
+          }
+        }
+        
+        // Set current step to the next incomplete step
+        if (lastCompletedStep >= 0) {
+          setCurrentStep(Math.min(lastCompletedStep + 1, steps.length - 1))
+        }
+        
+      } catch (error) {
+        console.error('Error initializing form:', error)
+      } finally {
+        setIsInitializing(false)
+      }
+    }
+    
+    initializeForm()
+  }, [session, status, router, form])
+
   // Focus automático en el primer campo de cada paso
   useEffect(() => {
+    if (isInitializing) return
+    
     const firstInput = formRef.current?.querySelector('input, textarea, select') as HTMLElement
     if (firstInput) {
       setTimeout(() => firstInput.focus(), 100)
     }
-  }, [currentStep])
+  }, [currentStep, isInitializing])
+
+  // Show loading state while initializing
+  if (isInitializing || status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="container mx-auto max-w-4xl px-4">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Cargando formulario...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -514,9 +747,9 @@ export default function FormularioPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {parentCategories.map((category) => (
-                                <SelectItem key={category} value={category}>
-                                  {category}
+                              {Object.entries(parentCategories).map(([key, value]) => (
+                                <SelectItem key={key} value={key}>
+                                  {value}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -573,13 +806,13 @@ export default function FormularioPage() {
                                   <SelectValue placeholder="Seleccione la industria" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent>
-                                {industries.map((industry) => (
-                                  <SelectItem key={industry} value={industry}>
-                                    {industry}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
+                                                          <SelectContent>
+                              {Object.entries(industries).map(([key, value]) => (
+                                <SelectItem key={key} value={key}>
+                                  {value}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
                             </Select>
                           </FormControl>
                           <FormMessage />
@@ -655,10 +888,10 @@ export default function FormularioPage() {
                               defaultValue={field.value}
                               className="grid grid-cols-1 gap-3"
                             >
-                              {projectOrigins.map((origin) => (
-                                <div key={origin} className="flex items-center space-x-2">
-                                  <RadioGroupItem value={origin} id={origin} />
-                                  <Label htmlFor={origin}>{origin}</Label>
+                              {Object.entries(projectOrigins).map(([key, value]) => (
+                                <div key={key} className="flex items-center space-x-2">
+                                  <RadioGroupItem value={key} id={key} />
+                                  <Label htmlFor={key}>{value}</Label>
                                 </div>
                               ))}
                             </RadioGroup>
@@ -680,12 +913,12 @@ export default function FormularioPage() {
                                     defaultValue={field.value}
                                     className="grid grid-cols-1 gap-3"
                                 >
-                                    {stages.map((stage) => (
-                                        <div key={stage} className="flex items-center space-x-2">
-                                            <RadioGroupItem value={stage} id={stage} />
-                                            <Label htmlFor={stage}>{stage}</Label>
-                                        </div>
-                                    ))}
+                                                                    {Object.entries(stages).map(([key, value]) => (
+                                    <div key={key} className="flex items-center space-x-2">
+                                        <RadioGroupItem value={key} id={key} />
+                                        <Label htmlFor={key}>{value}</Label>
+                                    </div>
+                                ))}
                                 </RadioGroup>
                             </FormControl>
                             <FormMessage />
@@ -871,10 +1104,10 @@ export default function FormularioPage() {
                                 defaultValue={field.value}
                                 className="grid grid-cols-1 gap-3"
                               >
-                                {sources.map((source) => (
-                                  <div key={source} className="flex items-center space-x-2">
-                                    <RadioGroupItem value={source} id={source} />
-                                    <Label htmlFor={source}>{source}</Label>
+                                {Object.entries(sources).map(([key, value]) => (
+                                  <div key={key} className="flex items-center space-x-2">
+                                    <RadioGroupItem value={key} id={key} />
+                                    <Label htmlFor={key}>{value}</Label>
                                   </div>
                                 ))}
                               </RadioGroup>
@@ -959,9 +1192,9 @@ export default function FormularioPage() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {universities.map((university) => (
-                                    <SelectItem key={university} value={university}>
-                                      {university}
+                                  {Object.entries(universities).map(([key, value]) => (
+                                    <SelectItem key={key} value={key}>
+                                      {value}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -970,6 +1203,23 @@ export default function FormularioPage() {
                             </FormItem>
                           )}
                         />
+
+                        {/* Campo para especificar otra universidad */}
+                        {form.watch(`teamMembers.${index}.university`) === "otras" && (
+                          <FormField
+                            control={form.control}
+                            name={`teamMembers.${index}.otherUniversity`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Especifique el nombre de la universidad</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Ingrese el nombre de su universidad" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
 
                         {/* Fields only for Laureate universities */}
                         {(() => {
@@ -987,17 +1237,19 @@ export default function FormularioPage() {
                                 <p className="text-sm text-blue-800 font-medium mb-3">
                                   Información adicional para estudiantes de Laureate
                                 </p>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                                   <FormField
                                     control={form.control}
                                     name={`teamMembers.${index}.studentCode`}
                                     render={({ field }) => (
-                                      <FormItem>
+                                      <FormItem className="flex flex-col h-full">
                                         <FormLabel>Código de Alumno</FormLabel>
                                         <FormControl>
                                           <Input placeholder="20230001" {...field} />
                                         </FormControl>
-                                        <FormMessage />
+                                        <div className="flex-1 min-h-[20px] flex items-end">
+                                          <FormMessage />
+                                        </div>
                                       </FormItem>
                                     )}
                                   />
@@ -1006,7 +1258,7 @@ export default function FormularioPage() {
                                     control={form.control}
                                     name={`teamMembers.${index}.cycle`}
                                     render={({ field }) => (
-                                      <FormItem>
+                                      <FormItem className="flex flex-col h-full">
                                         <FormLabel>Ciclo en el que te encuentras</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                           <FormControl>
@@ -1036,7 +1288,9 @@ export default function FormularioPage() {
                                             })}
                                           </SelectContent>
                                         </Select>
-                                        <FormMessage />
+                                        <div className="flex-1 min-h-[20px] flex items-end">
+                                          <FormMessage />
+                                        </div>
                                       </FormItem>
                                     )}
                                   />
@@ -1045,12 +1299,14 @@ export default function FormularioPage() {
                                     control={form.control}
                                     name={`teamMembers.${index}.universityEmail`}
                                     render={({ field }) => (
-                                      <FormItem>
+                                      <FormItem className="flex flex-col h-full">
                                         <FormLabel>Correo universitario</FormLabel>
                                         <FormControl>
                                           <Input placeholder="alumno@university.edu.pe" {...field} />
                                         </FormControl>
-                                        <FormMessage />
+                                        <div className="flex-1 min-h-[20px] flex items-end">
+                                          <FormMessage />
+                                        </div>
                                       </FormItem>
                                     )}
                                   />
@@ -1190,9 +1446,9 @@ export default function FormularioPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {sports.map((sport) => (
-                                <SelectItem key={sport} value={sport}>
-                                  {sport}
+                              {Object.entries(sports).map(([key, value]) => (
+                                <SelectItem key={key} value={key}>
+                                  {value}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -1215,9 +1471,9 @@ export default function FormularioPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {hobbies.map((hobby) => (
-                                <SelectItem key={hobby} value={hobby}>
-                                  {hobby}
+                              {Object.entries(hobbies).map(([key, value]) => (
+                                <SelectItem key={key} value={key}>
+                                  {value}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -1242,9 +1498,9 @@ export default function FormularioPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {moviesGenres.map((genre) => (
-                                  <SelectItem key={genre} value={genre}>
-                                    {genre}
+                                {Object.entries(moviesGenres).map(([key, value]) => (
+                                  <SelectItem key={key} value={key}>
+                                    {value}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -1300,7 +1556,7 @@ export default function FormularioPage() {
                 type="button"
                 variant="outline"
                 onClick={prevStep}
-                disabled={currentStep === 0}
+                disabled={currentStep === 0 || isLoading || isInitializing}
                 className="flex items-center"
               >
                 <ChevronLeft className="h-4 w-4 mr-2" />
@@ -1312,14 +1568,35 @@ export default function FormularioPage() {
                   <Button
                     type="button"
                     onClick={nextStep}
+                    disabled={isLoading || isInitializing}
                     className="flex items-center"
                   >
-                    Siguiente
-                    <ChevronRight className="h-4 w-4 ml-2" />
+                    {isLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        Siguiente
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                      </>
+                    )}
                   </Button>
                 ) : (
-                  <Button type="submit" className="flex items-center">
-                    Enviar Formulario
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading || isInitializing}
+                    className="flex items-center"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Enviando...
+                      </>
+                    ) : (
+                      'Enviar Formulario'
+                    )}
                   </Button>
                 )}
               </div>

@@ -57,9 +57,13 @@ model User {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
+  projectApplicationId String?
+  projectApplication   ProjectApplication? @relation(fields: [projectApplicationId], references: [id], onDelete: Cascade)
+
   accounts Account[]
   sessions Session[]
   profile  Profile?
+  teamMember TeamMember?
 }
 
 model Profile {
@@ -86,3 +90,92 @@ model VerificationToken {
 
   @@unique([identifier, token])
 } 
+
+model ProjectApplication {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Paso 0: Selección de Programa
+  programType String? // inqubalab, idea-feedback, aceleracion
+
+  // Paso 1: Datos Generales
+  projectName   String?
+  website       String?
+  category      String? // tech, noTech
+  industry      String? // ambiental, agricultura, biotecnologia, etc.
+  description   String?
+  ruc           String?
+  foundingYear  String?
+
+  // Paso 2: Impacto y Origen
+  opportunityValue String?
+  stage            String? // ideaNegocio, mvp
+  projectOrigin    String? // proyectoCurso, proyectoTesis, ideaEmprendimiento, inqubalab
+  problem          String?
+  customerProfile  String?
+  impact           String?
+
+  // Paso 3: Presentación
+  videoUrl        String?
+  videoFileName   String? // Para almacenar el nombre del archivo subido
+  specificSupport String?
+
+  // Paso 4: Equipo
+  howMet String? // Solo requerido si hay 2+ miembros
+  source String?  // redesSociales, amigos, familia, universidad, eventos, internet, otros
+
+  // Paso 5: Preferencias Personales
+  favoriteSport      String? // futbol, basketball, natacion, voleibol
+  favoriteHobby      String? // lectura, musica, videojuegos, cocinar, viajar, fotografia, pintura, bailar, escribir, otro
+  favoriteMovieGenre String? // accion, aventura, cienciaFiccion, comedia, drama, fantasia, suspense, terror
+
+  // Paso 6: Consentimiento
+  privacyConsent Boolean?
+
+  onboardingStep String?
+  
+
+  // Relación con integrantes del equipo
+  teamMembers TeamMember[]
+  users User[]
+
+  @@map("project_applications")
+}
+
+model TeamMember {
+  id String @id @default(cuid())
+
+  // Información personal
+  fullName String
+  lastName String
+  dni      String
+
+  // User
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Información académica
+  studentCode String? // Requerido para universidades Laureate
+  career      String
+  cycle       String? // Requerido para universidades Laureate
+
+  // Información de contacto
+  phone           String
+  universityEmail String? // Requerido para universidades Laureate
+  contactEmail    String
+  linkedin        String?
+
+  // Universidad
+  university      String // unmsm, pucp, ulima, up, udep, uch, utec, upc, upn, usil, esan, cibertec, otras
+  otherUniversity String? // Requerido cuando university = "otras"
+
+  // Relación con la aplicación
+  projectApplication   ProjectApplication @relation(fields: [projectApplicationId], references: [id], onDelete: Cascade)
+  projectApplicationId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("team_members")
+}

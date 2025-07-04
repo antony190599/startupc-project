@@ -19,20 +19,21 @@ const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
     return (
       <div
         ref={ref}
-        className={cn("flex items-center justify-between", className)}
+        className={cn("w-full", className)}
         {...props}
       >
-        {steps.map((step, index) => {
-          const isCompleted = index < currentStep
-          const isCurrent = index === currentStep
-          const isUpcoming = index > currentStep
+        <div className="grid" style={{ gridTemplateColumns: `repeat(${steps.length}, 1fr)` }}>
+          {steps.map((step, index) => {
+            const isCompleted = index < currentStep
+            const isCurrent = index === currentStep
+            const isUpcoming = index > currentStep
 
-          return (
-            <React.Fragment key={step.id}>
-              <div className="flex flex-col items-center">
+            return (
+              <div key={step.id} className="flex flex-col items-center relative">
+                {/* Step circle */}
                 <div
                   className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors",
+                    "flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors z-10 bg-background",
                     isCompleted &&
                       "border-primary bg-primary text-primary-foreground",
                     isCurrent &&
@@ -47,10 +48,17 @@ const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
                     <span>{index + 1}</span>
                   )}
                 </div>
-                <div className="mt-2 text-center">
+                
+                {/* Connecting line */}
+                {index < steps.length - 1 && (
+                  <div className="absolute top-5 left-1/2 w-full h-0.5 bg-muted-foreground/25 -z-10" />
+                )}
+                
+                {/* Step title */}
+                <div className="mt-2 text-center px-1">
                   <div
                     className={cn(
-                      "text-sm font-medium",
+                      "text-xs font-medium leading-tight",
                       isCompleted && "text-primary",
                       isCurrent && "text-primary",
                       isUpcoming && "text-muted-foreground"
@@ -60,9 +68,9 @@ const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
                   </div>
                 </div>
               </div>
-            </React.Fragment>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
     )
   }

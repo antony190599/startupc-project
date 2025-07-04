@@ -1,127 +1,196 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { getOnboardingStatus } from '@/lib/utils/functions/onboarding'
+import { CheckCircle, ArrowRight, PlayCircle } from 'lucide-react'
+
+interface OnboardingStatus {
+  hasApplication: boolean
+  currentStep: string | null
+  completedSteps: string[]
+  progress: number
+  isComplete: boolean
+  applicationId?: string
+  createdAt?: string
+  updatedAt?: string
+}
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
+    const loadOnboardingStatus = async () => {
+      if (status === 'loading') return
+      
+      if (status === 'unauthenticated') {
+        router.push('/login')
+        return
+      }
+      
+      if (!session?.user) return
+      
+      try {
+        const status = await getOnboardingStatus()
+        setOnboardingStatus(status)
+      } catch (error) {
+        console.error('Error loading onboarding status:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }, [status, router]);
+    
+    loadOnboardingStatus()
+  }, [session, status, router])
 
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4">Cargando...</p>
-        </div>
-      </div>
-    );
+  const getStepName = (step: string) => {
+    const stepNames: { [key: string]: string } = {
+      'program-selection': 'Selección de Programa',
+      'general-data': 'Datos Generales',
+      'impact-origin': 'Impacto y Origen',
+      'presentation': 'Presentación',
+      'team': 'Equipo',
+      'preferences': 'Preferencias',
+      'consent': 'Consentimiento'
+    }
+    return stepNames[step] || step
   }
 
-  if (!session) {
-    return null;
+  if (isLoading || status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="container mx-auto max-w-4xl px-4">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Cargando dashboard...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Bienvenido, {session.user?.name || "Usuario"}
-            </h1>
-            <p className="text-gray-600 mt-2">
-              {session.user?.email}
-            </p>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto max-w-4xl px-4">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+          <p className="text-gray-600">Bienvenido, {session?.user?.name || session?.user?.email}</p>
+        </div>
+
+        {onboardingStatus && (
+          <div className="space-y-6">
+            {/* Onboarding Progress Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  {onboardingStatus.isComplete ? (
+                    <CheckCircle className="h-6 w-6 text-green-600" />
+                  ) : (
+                    <PlayCircle className="h-6 w-6 text-blue-600" />
+                  )}
+                  Formulario de Proyecto
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">
+                    Progreso del formulario
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {onboardingStatus.progress}% completado
+                  </span>
+                </div>
+                
+                <Progress value={onboardingStatus.progress} className="w-full" />
+                
+                <div className="space-y-2">
+                  {onboardingStatus.completedSteps.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">
+                        Pasos completados:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {onboardingStatus.completedSteps.map((step) => (
+                          <span
+                            key={step}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                          >
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            {getStepName(step)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-4">
+                  {onboardingStatus.isComplete ? (
+                    <div className="text-center">
+                      <p className="text-green-600 font-medium mb-2">
+                        ¡Formulario completado exitosamente!
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Tu aplicación ha sido enviada y está siendo revisada.
+                      </p>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => router.push('/onboarding')}
+                      className="w-full"
+                    >
+                      {onboardingStatus.hasApplication ? 'Continuar Formulario' : 'Comenzar Formulario'}
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                </div>
+
+                {onboardingStatus.hasApplication && onboardingStatus.applicationId && (
+                  <div className="pt-4 border-t">
+                    <p className="text-xs text-gray-500">
+                      ID de aplicación: {onboardingStatus.applicationId}
+                    </p>
+                    {onboardingStatus.createdAt && (
+                      <p className="text-xs text-gray-500">
+                        Creado: {new Date(onboardingStatus.createdAt).toLocaleDateString()}
+                      </p>
+                    )}
+                    {onboardingStatus.updatedAt && (
+                      <p className="text-xs text-gray-500">
+                        Última actualización: {new Date(onboardingStatus.updatedAt).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Additional dashboard content can be added here */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Próximos pasos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  {onboardingStatus.isComplete 
+                    ? "Tu aplicación está siendo revisada. Te notificaremos cuando tengamos novedades."
+                    : "Completa el formulario de proyecto para continuar con el proceso de aplicación."
+                  }
+                </p>
+              </CardContent>
+            </Card>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => signOut({ callbackUrl: "/" })}
-          >
-            Cerrar sesión
-          </Button>
-        </div>
-
-        {/* Dashboard Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Perfil de Usuario</CardTitle>
-              <CardDescription>
-                Información de tu cuenta
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p><strong>Nombre:</strong> {session.user?.name}</p>
-                <p><strong>Email:</strong> {session.user?.email}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Acciones Rápidas</CardTitle>
-              <CardDescription>
-                Funciones principales
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Button className="w-full" variant="outline">
-                  Editar Perfil
-                </Button>
-                <Button className="w-full" variant="outline">
-                  Configuración
-                </Button>
-                <Button className="w-full" variant="outline">
-                  Ver Actividad
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Estado de Sesión</CardTitle>
-              <CardDescription>
-                Información de tu sesión actual
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p><strong>Estado:</strong> <span className="text-green-600">Activa</span></p>
-                <p><strong>Proveedor:</strong> Credentials</p>
-                <p><strong>Último acceso:</strong> Ahora</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Success Message */}
-        <Card className="mt-8 bg-green-50 border-green-200">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-green-800">
-                ¡Sesión iniciada exitosamente!
-              </h3>
-              <p className="text-green-600 mt-2">
-                Has sido autenticado correctamente con Next Auth.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        )}
       </div>
     </div>
-  );
+  )
 } 

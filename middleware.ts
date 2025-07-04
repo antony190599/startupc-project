@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { parse } from "@/lib/middleware/utils";
 import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
-
+import { getToken } from "next-auth/jwt";
 
 export const config = {
     matcher: [
@@ -18,6 +18,15 @@ export const config = {
 
 export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
     const { domain, path, key, fullKey } = parse(req);
+
+    // Protect onboarding route
+    if (path === '/onboarding') {
+        const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+        
+        if (!token) {
+            return NextResponse.redirect(new URL('/login', req.url));
+        }
+    }
 
     return NextResponse.next({
         request: {

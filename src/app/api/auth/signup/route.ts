@@ -63,6 +63,18 @@ export async function POST(request: NextRequest) {
         createdAt: true,
       },
     });
+    // Create project application
+    await prisma.projectApplication.create({
+      data: {
+        onboardingStep: "seleccion-programa",
+        users: {
+          connect: {
+            id: user.id,
+          },
+        },
+      },
+    });
+
 
     // Create a session for the newly registered user
     // We'll use Next Auth's signIn function to create a proper session
