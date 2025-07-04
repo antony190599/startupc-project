@@ -30,7 +30,7 @@ const formSchema = z.object({
   specificSupport: z.string().min(10, "Debe especificar el apoyo que busca"),
   
   // Paso 3: Presentación
-  videoUrl: z.string().url("Debe ser una URL válida").optional().or(z.literal("")),
+  videoUrl: z.string().optional(),
   videoFile: z.any().optional(),
   
   // Paso 4: Equipo
@@ -193,7 +193,14 @@ export default function FormularioPage() {
     name: "teamMembers",
   })
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
+    // Validate all fields before submission
+    const isValid = await form.trigger()
+    if (!isValid) {
+      console.log("Form has validation errors")
+      return
+    }
+    
     console.log("Form data:", data)
     // Aquí se enviaría la data al backend
     alert("Formulario enviado exitosamente!")
@@ -201,7 +208,43 @@ export default function FormularioPage() {
 
   const nextStep = async () => {
     console.log("Form data:", form.getValues()) 
-    const isValid = await form.trigger()
+    
+    // Step-specific validation
+    let isValid = false
+    switch (currentStep) {
+      case 0: // Datos Generales
+        isValid = await form.trigger(['projectName', 'category', 'description', 'stage'])
+        break
+      case 1: // Impacto y Origen
+        isValid = await form.trigger(['opportunityValue', 'projectOrigin', 'specificSupport'])
+        break
+      case 2: // Presentación
+        isValid = await form.trigger(['videoUrl', 'videoFile'])
+        // Additional custom validation for video requirement
+        const formData = form.getValues()
+        const hasVideoUrl = formData.videoUrl && formData.videoUrl.trim() !== ""
+        const hasVideoFile = formData.videoFile
+        if (!hasVideoUrl && !hasVideoFile) {
+          form.setError('videoUrl', { 
+            type: 'manual', 
+            message: 'Debe subir un video o proporcionar una URL de video' 
+          })
+          isValid = false
+        }
+        break
+      case 3: // Equipo
+        isValid = await form.trigger(['teamMembers'])
+        break
+      case 4: // Preferencias Personales
+        isValid = await form.trigger(['favoriteSport', 'favoriteHobby'])
+        break
+      case 5: // Consentimiento
+        isValid = await form.trigger(['privacyConsent'])
+        break
+      default:
+        isValid = false
+    }
+    
     console.log("Is valid:", isValid)
     if (isValid && currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
