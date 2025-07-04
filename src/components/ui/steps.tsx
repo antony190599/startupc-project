@@ -58,21 +58,8 @@ const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
                   >
                     {step.title}
                   </div>
-                  {step.description && (
-                    <div className="text-xs text-muted-foreground">
-                      {step.description}
-                    </div>
-                  )}
                 </div>
               </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={cn(
-                    "h-0.5 flex-1 transition-colors",
-                    isCompleted ? "bg-primary" : "bg-muted-foreground/25"
-                  )}
-                />
-              )}
             </React.Fragment>
           )
         })}

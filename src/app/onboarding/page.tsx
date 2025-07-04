@@ -46,20 +46,20 @@ const formSchema = z.object({
 
   
   // Paso 4: Equipo
+  howMet: z.string().optional(),
+  source: z.string().min(1, "La fuente es requerida"),
   teamMembers: z.array(z.object({
     fullName: z.string().min(1, "El nombre es requerido"),
     lastName: z.string().min(1, "El apellido es requerido"),
     dni: z.string().min(8, "El DNI debe tener al menos 8 caracteres"),
-    howMet: z.string().min(10, "Debe explicar cómo se conocieron"),
-    studentCode: z.string().min(1, "El código del alumno es requerido"),
+    studentCode: z.string().optional(),
     career: z.string().min(1, "La carrera es requerida"),
-    cycle: z.string().min(1, "El ciclo es requerido"),
+    cycle: z.string().optional(),
     phone: z.string().min(9, "El teléfono debe tener al menos 9 dígitos"),
-    universityEmail: z.string().email("Debe ser un email válido"),
+    universityEmail: z.string().email("Debe ser un email válido").optional().or(z.literal("")),
     contactEmail: z.string().email("Debe ser un email válido"),
     linkedin: z.string().url("Debe ser una URL válida").optional().or(z.literal("")),
     university: z.string().min(1, "Debe seleccionar una universidad"),
-    source: z.string().min(1, "La fuente es requerida"),
   })).min(1, "Debe agregar al menos un integrante"),
   
   // Paso 5: Preferencias Personales
@@ -126,9 +126,11 @@ const universities = [
   "Universidad de Piura",
   "Universidad Cayetano Heredia",
   "Universidad de Ingeniería y Tecnología",
-  "Universidad Peruana de Ciencias Aplicadas",
+  "Universidad Peruana de Ciencias Aplicadas (Laureate)",
+  "Universidad Privada del Norte (Laureate)",
   "Universidad San Ignacio de Loyola",
   "Universidad ESAN",
+  "Cibertec (Laureate)",
   "Otras"
 ];
 
@@ -227,12 +229,13 @@ export default function FormularioPage() {
       projectOrigin: "",
       specificSupport: "",
       videoUrl: "",
+      howMet: "",
+      source: "",
       teamMembers: [
         {
           fullName: "",
           lastName: "",
           dni: "",
-          howMet: "",
           studentCode: "",
           career: "",
           cycle: "",
@@ -241,7 +244,6 @@ export default function FormularioPage() {
           contactEmail: "",
           linkedin: "",
           university: "",
-          source: "",
         }
       ],
       favoriteSport: "",
@@ -299,7 +301,64 @@ export default function FormularioPage() {
         }
         break
       case 4: // Equipo
-        isValid = await form.trigger(['teamMembers'])
+        isValid = await form.trigger(['teamMembers', 'source'])
+        
+        // Custom validation for howMet - only required if 2+ team members
+        const teamMembers = form.getValues('teamMembers')
+        const howMet = form.getValues('howMet')
+        
+        if (teamMembers.length >= 2) {
+          if (!howMet || howMet.trim().length < 10) {
+            form.setError('howMet', { 
+              type: 'manual', 
+              message: 'Debe explicar cómo se conocieron (mínimo 10 caracteres)' 
+            })
+            isValid = false
+          } else {
+            form.clearErrors('howMet')
+          }
+        }
+
+        // Custom validation for Laureate university fields
+        const laureateUniversities = [
+          "Universidad Peruana de Ciencias Aplicadas (Laureate)",
+          "Universidad Privada del Norte (Laureate)",
+          "Cibertec (Laureate)"
+        ]
+
+        for (let i = 0; i < teamMembers.length; i++) {
+          const member = teamMembers[i]
+          const isLaureateUniversity = laureateUniversities.includes(member.university)
+          
+          if (isLaureateUniversity) {
+            // Validate student code
+            if (!member.studentCode || member.studentCode.trim() === '') {
+              form.setError(`teamMembers.${i}.studentCode`, {
+                type: 'manual',
+                message: 'El código de alumno es requerido para estudiantes de Laureate'
+              })
+              isValid = false
+            }
+            
+            // Validate cycle
+            if (!member.cycle || member.cycle.trim() === '') {
+              form.setError(`teamMembers.${i}.cycle`, {
+                type: 'manual',
+                message: 'El ciclo es requerido para estudiantes de Laureate'
+              })
+              isValid = false
+            }
+            
+            // Validate university email
+            if (!member.universityEmail || member.universityEmail.trim() === '') {
+              form.setError(`teamMembers.${i}.universityEmail`, {
+                type: 'manual',
+                message: 'El correo universitario es requerido para estudiantes de Laureate'
+              })
+              isValid = false
+            }
+          }
+        }
         break
       case 5: // Preferencias Personales
         isValid = await form.trigger(['favoriteSport', 'favoriteHobby', 'favoriteMovieGenre'])
@@ -334,7 +393,6 @@ export default function FormularioPage() {
       fullName: "",
       lastName: "",
       dni: "",
-      howMet: "",
       studentCode: "",
       career: "",
       cycle: "",
@@ -343,7 +401,6 @@ export default function FormularioPage() {
       contactEmail: "",
       linkedin: "",
       university: "",
-      source: "",
     })
   }
 
@@ -373,6 +430,9 @@ export default function FormularioPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Seleccione el Programa</CardTitle>
+                    <p className="text-sm text-gray-600">
+                      Elige el programa que mejor se adapte a la etapa de tu proyecto. Cada programa ofrece diferentes niveles de apoyo y recursos.
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <FormField
@@ -422,6 +482,9 @@ export default function FormularioPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Datos Generales</CardTitle>
+                    <p className="text-sm text-gray-600">
+                      Información básica sobre tu proyecto o emprendimiento. Incluye el nombre, categoría, industria y descripción detallada.
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <FormField
@@ -528,7 +591,7 @@ export default function FormularioPage() {
                     {form.watch("programType") === "aceleracion" && (
                       <div className="space-y-6 pt-6 border-t">
                         <div>
-                          <h3 className="text-lg font-semibold mb-4">Información de la Empresa</h3>
+                          <h4 className="text-md font-semibold mb-4">Información de la Empresa</h4>
                           <p className="text-sm text-gray-600 mb-4">Información adicional para empresas en aceleración (opcional)</p>
                         </div>
                         
@@ -574,6 +637,9 @@ export default function FormularioPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Impacto y Origen</CardTitle>
+                    <p className="text-sm text-gray-600">
+                      Cuéntanos sobre el origen de tu proyecto, el problema que resuelve, tu cliente objetivo y el impacto que esperas generar.
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     
@@ -710,6 +776,9 @@ export default function FormularioPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Presentación</CardTitle>
+                    <p className="text-sm text-gray-600">
+                      Comparte un video de presentación de tu proyecto y especifica qué tipo de apoyo estás buscando para tu emprendimiento.
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="space-y-4">
@@ -785,8 +854,36 @@ export default function FormularioPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Equipo</CardTitle>
+                    <p className="text-sm text-gray-600">
+                      Información de todos los integrantes del equipo. Incluye datos académicos, de contacto y cómo se conocieron.
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-6">
+                    <FormField
+                        control={form.control}
+                        name="source"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>¿Cómo se enteró del programa?</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                className="grid grid-cols-1 gap-3"
+                              >
+                                {sources.map((source) => (
+                                  <div key={source} className="flex items-center space-x-2">
+                                    <RadioGroupItem value={source} id={source} />
+                                    <Label htmlFor={source}>{source}</Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                    />
+
                     {fields.map((field, index) => (
                       <div key={field.id} className="border rounded-lg p-6 space-y-4">
                         <div className="flex items-center justify-between">
@@ -851,37 +948,119 @@ export default function FormularioPage() {
 
                         <FormField
                           control={form.control}
-                          name={`teamMembers.${index}.howMet`}
+                          name={`teamMembers.${index}.university`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>¿Cómo y cuándo se conocieron?</FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  placeholder="Describa cómo y cuándo se conocieron los integrantes"
-                                  className="min-h-[100px]"
-                                  {...field} 
-                                />
-                              </FormControl>
+                              <FormLabel>Universidad</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Seleccione una universidad" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {universities.map((university) => (
+                                    <SelectItem key={university} value={university}>
+                                      {university}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name={`teamMembers.${index}.studentCode`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Código del alumno</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="20230001" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                        {/* Fields only for Laureate universities */}
+                        {(() => {
+                          const selectedUniversity = form.watch(`teamMembers.${index}.university`)
+                          const laureateUniversities = [
+                            "Universidad Peruana de Ciencias Aplicadas (Laureate)",
+                            "Universidad Privada del Norte (Laureate)",
+                            "Cibertec (Laureate)"
+                          ]
+                          const isLaureateUniversity = laureateUniversities.includes(selectedUniversity)
+                          
+                          return isLaureateUniversity ? (
+                            <div className="space-y-4 pt-4 border-t">
+                              <div className="bg-blue-50 p-4 rounded-lg">
+                                <p className="text-sm text-blue-800 font-medium mb-3">
+                                  Información adicional para estudiantes de Laureate
+                                </p>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <FormField
+                                    control={form.control}
+                                    name={`teamMembers.${index}.studentCode`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Código de Alumno</FormLabel>
+                                        <FormControl>
+                                          <Input placeholder="20230001" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
 
+                                  <FormField
+                                    control={form.control}
+                                    name={`teamMembers.${index}.cycle`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Ciclo en el que te encuentras</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                          <FormControl>
+                                            <SelectTrigger>
+                                              <SelectValue placeholder="Seleccione el ciclo" />
+                                            </SelectTrigger>
+                                          </FormControl>
+                                          <SelectContent>
+                                            {Array.from({ length: 10 }, (_, i) => i + 1).map((cycle) => {
+                                              const ordinalMap: { [key: number]: string } = {
+                                                1: "1er",
+                                                2: "2do", 
+                                                3: "3er",
+                                                4: "4to",
+                                                5: "5to",
+                                                6: "6to",
+                                                7: "7mo",
+                                                8: "8vo",
+                                                9: "9no",
+                                                10: "10mo"
+                                              }
+                                              return (
+                                                <SelectItem key={cycle} value={cycle.toString()}>
+                                                  {ordinalMap[cycle]} Ciclo
+                                                </SelectItem>
+                                              )
+                                            })}
+                                          </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+
+                                  <FormField
+                                    control={form.control}
+                                    name={`teamMembers.${index}.universityEmail`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Correo universitario</FormLabel>
+                                        <FormControl>
+                                          <Input placeholder="alumno@university.edu.pe" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : null
+                        })()}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
                             name={`teamMembers.${index}.career`}
@@ -898,65 +1077,12 @@ export default function FormularioPage() {
 
                           <FormField
                             control={form.control}
-                            name={`teamMembers.${index}.cycle`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Ciclo</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Seleccione el ciclo" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {Array.from({ length: 10 }, (_, i) => i + 1).map((cycle) => {
-                                      const ordinalMap: { [key: number]: string } = {
-                                        1: "1er",
-                                        2: "2do", 
-                                        3: "3er",
-                                        4: "4to",
-                                        5: "5to",
-                                        6: "6to",
-                                        7: "7mo",
-                                        8: "8vo",
-                                        9: "9no",
-                                        10: "10mo"
-                                      }
-                                      return (
-                                        <SelectItem key={cycle} value={cycle.toString()}>
-                                          {ordinalMap[cycle]} Ciclo
-                                        </SelectItem>
-                                      )
-                                    })}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
                             name={`teamMembers.${index}.phone`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Teléfono</FormLabel>
                                 <FormControl>
                                   <Input placeholder="999888777" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`teamMembers.${index}.universityEmail`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Email universitario</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="alumno@university.edu.pe" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -992,57 +1118,41 @@ export default function FormularioPage() {
                           />
                         </div>
 
-                        <FormField
-                          control={form.control}
-                          name={`teamMembers.${index}.university`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Universidad</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Seleccione una universidad" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {universities.map((university) => (
-                                    <SelectItem key={university} value={university}>
-                                      {university}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        
 
+                        
+
+
+                      </div>
+                    ))}
+
+                    {fields.length >= 2 && (
+                      <div className="space-y-6 pt-6 border-t">
                         <FormField
                           control={form.control}
-                          name={`teamMembers.${index}.source`}
+                          name="howMet"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>¿Cómo se enteró del programa?</FormLabel>
+                              <FormLabel>
+                                ¿Cómo y cuándo se conocieron?
+                                <span className="text-red-500 ml-1">*</span>
+                              </FormLabel>
+                              <p className="text-sm text-gray-600 mb-2">
+                                Este campo es requerido cuando hay 2 o más integrantes en el equipo.
+                              </p>
                               <FormControl>
-                                <RadioGroup
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                  className="grid grid-cols-1 gap-3"
-                                >
-                                  {sources.map((source) => (
-                                    <div key={source} className="flex items-center space-x-2">
-                                      <RadioGroupItem value={source} id={`${source}-${index}`} />
-                                      <Label htmlFor={`${source}-${index}`}>{source}</Label>
-                                    </div>
-                                  ))}
-                                </RadioGroup>
+                                <Textarea 
+                                  placeholder="Describa cómo y cuándo se conocieron los integrantes"
+                                  className="min-h-[100px]"
+                                  {...field} 
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-                    ))}
+                    )}
 
                     <Button
                       type="button"
@@ -1062,6 +1172,9 @@ export default function FormularioPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Preferencias Personales</CardTitle>
+                    <p className="text-sm text-gray-600">
+                      Conoce un poco más sobre tus gustos personales. Esta información nos ayuda a personalizar tu experiencia.
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <FormField
@@ -1151,6 +1264,9 @@ export default function FormularioPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Consentimiento</CardTitle>
+                    <p className="text-sm text-gray-600">
+                      Revisa y acepta los términos y condiciones, así como el aviso de privacidad para completar tu registro.
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <FormField
