@@ -147,7 +147,7 @@ model TeamMember {
   id String @id @default(cuid())
 
   // Información personal
-  fullName String
+  firstName String
   lastName String
   dni      String?
 

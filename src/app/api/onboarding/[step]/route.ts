@@ -41,7 +41,7 @@ const stepSchemas = {
     howMet: z.string().optional(),
     source: z.string().min(1, "Source is required"),
     teamMembers: z.array(z.object({
-      fullName: z.string().min(1, "Full name is required"),
+      firstName: z.string().min(1, "Full name is required"),
       lastName: z.string().min(1, "Last name is required"),
       dni: z.string().min(8, "DNI must be at least 8 characters"),
       studentCode: z.string().optional().nullable(),

@@ -52,7 +52,7 @@ const formSchema = z.object({
   howMet: z.string().optional(),
   source: z.string().min(1, "La fuente es requerida"),
   teamMembers: z.array(z.object({
-    fullName: z.string().min(1, "El nombre es requerido"),
+    firstName: z.string().min(1, "El nombre es requerido"),
     lastName: z.string().min(1, "El apellido es requerido"),
     dni: z.string().min(8, "El DNI debe tener al menos 8 caracteres"),
     studentCode: z.string().optional(),
@@ -240,7 +240,7 @@ export default function FormularioPage() {
       source: "",
       teamMembers: [
         {
-          fullName: "",
+          firstName: "",
           lastName: "",
           dni: "",
           studentCode: "",
@@ -370,7 +370,7 @@ export default function FormularioPage() {
         case 4: // Equipo
 
         const teamMembersFields = form.getValues('teamMembers').flatMap((_, index) => [
-            `teamMembers.${index}.fullName`,
+            `teamMembers.${index}.firstName`,
             `teamMembers.${index}.lastName`,
             `teamMembers.${index}.dni`,
             `teamMembers.${index}.phone`,
@@ -530,25 +530,22 @@ export default function FormularioPage() {
                   case 'team': // team
                     form.setValue('howMet', nextStepData.data.howMet || '')
                     form.setValue('source', nextStepData.data.source || '')
-                    if (nextStepData.data.teamMembers && nextStepData.data.teamMembers.length > 0) {
-                      // Clear existing team members and add the loaded ones
 
-                      const teamMembersRetrieved = {
-                        fullName: nextStepData.data.teamMembers[0].fullName ?? "",
-                        lastName: nextStepData.data.teamMembers[0].lastName ?? "",
-                        dni: nextStepData.data.teamMembers[0].dni ?? "",
-                        studentCode: nextStepData.data.teamMembers[0].studentCode ?? "",
-                        cycle: nextStepData.data.teamMembers[0].cycle ?? "",
-                        phone: nextStepData.data.teamMembers[0].phone ?? "",
-                        universityEmail: nextStepData.data.teamMembers[0].universityEmail ?? "",
-                        contactEmail: nextStepData.data.teamMembers[0].contactEmail ?? "",
-                        linkedin: nextStepData.data.teamMembers[0].linkedin ?? "",
-                        university: nextStepData.data.teamMembers[0].university ?? "",
-                        otherUniversity: nextStepData.data.teamMembers[0].otherUniversity ?? "",
-                      }
-                      
-                      form.setValue('teamMembers', teamMembersRetrieved as any)
-                    }
+                    nextStepData.data.teamMembers.forEach((member: any, index: number) => {
+                        form.setValue(`teamMembers.${index}.firstName`, member.firstName || "")
+                        form.setValue(`teamMembers.${index}.lastName`, member.lastName || "")
+                        form.setValue(`teamMembers.${index}.dni`, member.dni || "")
+                        form.setValue(`teamMembers.${index}.studentCode`, member.studentCode || "")
+                        form.setValue(`teamMembers.${index}.cycle`, member.cycle || "")
+                        form.setValue(`teamMembers.${index}.phone`, member.phone || "")
+                        form.setValue(`teamMembers.${index}.universityEmail`, member.universityEmail || "")
+                        form.setValue(`teamMembers.${index}.contactEmail`, member.contactEmail || "")
+                        form.setValue(`teamMembers.${index}.linkedin`, member.linkedin || "")
+                        form.setValue(`teamMembers.${index}.university`, member.university || "")
+                        form.setValue(`teamMembers.${index}.otherUniversity`, member.otherUniversity || "")
+                        form.setValue(`teamMembers.${index}.career`, member.career || "")
+                    });
+
                     break
                   case 'preferences': // preferences
                     form.setValue('favoriteSport', nextStepData.data.favoriteSport || '')
@@ -588,7 +585,7 @@ export default function FormularioPage() {
 
   const addTeamMember = () => {
     append({
-      fullName: "",
+      firstName: "",
       lastName: "",
       dni: "",
       studentCode: "",
@@ -693,7 +690,23 @@ export default function FormularioPage() {
                   form.setValue('source', response.data.source || '')
                   if (response.data.teamMembers && response.data.teamMembers.length > 0) {
                     // Clear existing team members and add the loaded ones
-                    form.setValue('teamMembers', response.data.teamMembers)
+                    //form.setValue('teamMembers', response.data.teamMembers)
+                    response.data.teamMembers.forEach((member: any, index: number) => {
+                      form.setValue(`teamMembers.${index}.firstName`, member.firstName || "")
+                      form.setValue(`teamMembers.${index}.lastName`, member.lastName || "")
+                      form.setValue(`teamMembers.${index}.dni`, member.dni || "")
+                      form.setValue(`teamMembers.${index}.studentCode`, member.studentCode || "")
+                      form.setValue(`teamMembers.${index}.cycle`, member.cycle || "")
+                      form.setValue(`teamMembers.${index}.phone`, member.phone || "")
+                      form.setValue(`teamMembers.${index}.career`, member.career || "")
+                      form.setValue(`teamMembers.${index}.universityEmail`, member.universityEmail || "")
+                      form.setValue(`teamMembers.${index}.contactEmail`, member.contactEmail || "")
+                      form.setValue(`teamMembers.${index}.linkedin`, member.linkedin || "")
+                      form.setValue(`teamMembers.${index}.university`, member.university || "")
+                      form.setValue(`teamMembers.${index}.otherUniversity`, member.otherUniversity || "")
+                      form.setValue(`teamMembers.${index}.career`, member.career || "")
+                    })
+
                   }
                   break
                 case 5: // preferences
@@ -1241,7 +1254,7 @@ export default function FormularioPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
-                            name={`teamMembers.${index}.fullName`}
+                            name={`teamMembers.${index}.firstName`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Nombres</FormLabel>

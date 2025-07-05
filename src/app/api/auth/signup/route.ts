@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       data: {
         projectApplicationId: projectApplication.id,
         userId: user.id,
-        fullName: user.firstname as string,
+        firstName: user.firstname as string,
         lastName: user.lastname as string,
         contactEmail: user.email as string, // Use user's email as contact email
       },
