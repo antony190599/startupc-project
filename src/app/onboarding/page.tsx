@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react"
-import { saveOnboardingStep, getOnboardingStep, OnboardingStep } from "@/lib/utils/functions/onboarding"
+import { saveOnboardingStep, getOnboardingStep, getCurrentOnboardingStep, OnboardingStep } from "@/lib/utils/functions/onboarding"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
@@ -368,14 +368,27 @@ export default function FormularioPage() {
           }
           break
         case 4: // Equipo
-          isValid = await form.trigger(['teamMembers', 'source'])
+
+        const teamMembersFields = form.getValues('teamMembers').flatMap((_, index) => [
+            `teamMembers.${index}.fullName`,
+            `teamMembers.${index}.lastName`,
+            `teamMembers.${index}.dni`,
+            `teamMembers.${index}.phone`,
+            `teamMembers.${index}.contactEmail`,
+            `teamMembers.${index}.university`,
+            `teamMembers.${index}.linkedin`,
+        ] as const);
+
+          isValid = await form.trigger(['source', ...teamMembersFields] as any)
+          
           
           // Custom validation for howMet - only required if 2+ team members
           const teamMembers = form.getValues('teamMembers')
           const howMet = form.getValues('howMet')
-          
+
           if (teamMembers.length >= 2) {
             if (!howMet || howMet.trim().length < 10) {
+              console.log("howMet", howMet)
               form.setError('howMet', { 
                 type: 'manual', 
                 message: 'Debe explicar cómo se conocieron (mínimo 10 caracteres)' 
@@ -388,15 +401,16 @@ export default function FormularioPage() {
 
           // Custom validation for Laureate university fields
           const laureateUniversities = [
-            "Universidad Peruana de Ciencias Aplicadas (Laureate)",
-            "Universidad Privada del Norte (Laureate)",
-            "Cibertec (Laureate)"
+            "upc",
+            "upn",
+            "cibertec"
           ]
 
           for (let i = 0; i < teamMembers.length; i++) {
             const member = teamMembers[i]
+            console.log("member", member)
             const isLaureateUniversity = laureateUniversities.includes(member.university)
-            
+
             if (isLaureateUniversity) {
               // Validate student code
               if (!member.studentCode || member.studentCode.trim() === '') {
@@ -437,7 +451,7 @@ export default function FormularioPage() {
               }
             }
           }
-          
+
           if (isValid) {
             stepData = {
               howMet: howMet,
@@ -479,6 +493,60 @@ export default function FormularioPage() {
         
         if (stepData && Object.keys(stepData).length > 0) {
           await saveOnboardingStep(stepNames[currentStep], stepData)
+        }
+
+        // get data for the next step but if the next step is the last step, set the current step to the last step
+        if (currentStep < steps.length - 1) {
+          const nextStepData = await getOnboardingStep(stepNames[currentStep + 1])
+
+          // Update the form with the next step data
+          if (nextStepData.data) {
+                // Populate form with existing data
+                switch (stepNames[currentStep + 1]) {
+                  case 'program-selection': // program-selection
+                    form.setValue('programType', nextStepData.data.programType || '')
+                    break
+                  case 'general-data': // general-data
+                    form.setValue('projectName', nextStepData.data.projectName || '')
+                    form.setValue('website', nextStepData.data.website || '')
+                    form.setValue('category', nextStepData.data.category || '')
+                    form.setValue('industry', nextStepData.data.industry || '')
+                    form.setValue('description', nextStepData.data.description || '')
+                    form.setValue('ruc', nextStepData.data.ruc || '')
+                    form.setValue('foundingYear', nextStepData.data.foundingYear || '')
+                    break
+                  case 'impact-origin': // impact-origin
+                    form.setValue('opportunityValue', nextStepData.data.opportunityValue || '')
+                    form.setValue('stage', nextStepData.data.stage || '')
+                    form.setValue('projectOrigin', nextStepData.data.projectOrigin || '')
+                    form.setValue('problem', nextStepData.data.problem || '')
+                    form.setValue('customerProfile', nextStepData.data.customerProfile || '')
+                    form.setValue('impact', nextStepData.data.impact || '')
+                    break
+                  case 'presentation': // presentation
+                    form.setValue('videoUrl', nextStepData.data.videoUrl || '')
+                    form.setValue('specificSupport', nextStepData.data.specificSupport || '')
+                    break
+                  case 'team': // team
+                    form.setValue('howMet', nextStepData.data.howMet || '')
+                    form.setValue('source', nextStepData.data.source || '')
+                    if (nextStepData.data.teamMembers && nextStepData.data.teamMembers.length > 0) {
+                      // Clear existing team members and add the loaded ones
+                      form.setValue('teamMembers', nextStepData.data.teamMembers)
+                    }
+                    break
+                  case 'preferences': // preferences
+                    form.setValue('favoriteSport', nextStepData.data.favoriteSport || '')
+                    form.setValue('favoriteHobby', nextStepData.data.favoriteHobby || '')
+                    form.setValue('favoriteMovieGenre', nextStepData.data.favoriteMovieGenre || '')
+                    break
+                  case 'consent': // consent
+                    form.setValue('privacyConsent', nextStepData.data.privacyConsent || false)
+                    break
+                }
+              
+          }
+          
         }
         
         setCurrentStep(currentStep + 1)
@@ -533,7 +601,28 @@ export default function FormularioPage() {
       if (!session?.user) return
       
       try {
-        // Load existing data for all steps
+        // First, get the current step from the database
+        const currentStepInfo = await getCurrentOnboardingStep()
+        
+        if (currentStepInfo.hasApplication && currentStepInfo.currentStep) {
+          // User has an application, set the current step
+          const stepNames: OnboardingStep[] = [
+            'program-selection',
+            'general-data', 
+            'impact-origin',
+            'presentation',
+            'team',
+            'preferences',
+            'consent'
+          ]
+          
+          const currentStepIndex = stepNames.indexOf(currentStepInfo.currentStep as OnboardingStep)
+          if (currentStepIndex !== -1) {
+            setCurrentStep(currentStepIndex)
+          }
+        }
+        
+        // Load existing data only up to the current step
         const stepNames: OnboardingStep[] = [
           'program-selection',
           'general-data', 
@@ -544,18 +633,24 @@ export default function FormularioPage() {
           'consent'
         ]
         
-        let lastCompletedStep = -1
+        // Determine how many steps to load based on current step
+        let stepsToLoad = 0
+        if (currentStepInfo.hasApplication && currentStepInfo.currentStep) {
+          const currentStepIndex = stepNames.indexOf(currentStepInfo.currentStep as OnboardingStep)
+          if (currentStepIndex !== -1) {
+            stepsToLoad = currentStepIndex + 1 // Load up to and including current step
+          }
+        }
         
-        for (let i = 0; i < stepNames.length; i++) {
+        // Load data only for completed steps (up to current step)
+        for (let i = 0; i < stepsToLoad; i++) {
           try {
             const response = await getOnboardingStep(stepNames[i])
             if (response.data) {
-              lastCompletedStep = i
-              
               // Populate form with existing data
               switch (i) {
                 case 0: // program-selection
-                  form.setValue('programType', response.data.programType)
+                  form.setValue('programType', response.data.programType || '')
                   break
                 case 1: // general-data
                   form.setValue('projectName', response.data.projectName || '')
@@ -595,18 +690,11 @@ export default function FormularioPage() {
                   form.setValue('privacyConsent', response.data.privacyConsent || false)
                   break
               }
-            } else {
-              break // Stop at first incomplete step
             }
           } catch (error) {
             console.error(`Error loading step ${stepNames[i]}:`, error)
-            break
+            // Continue loading other steps even if one fails
           }
-        }
-        
-        // Set current step to the next incomplete step
-        if (lastCompletedStep >= 0) {
-          setCurrentStep(Math.min(lastCompletedStep + 1, steps.length - 1))
         }
         
       } catch (error) {
@@ -1483,7 +1571,6 @@ export default function FormularioPage() {
                       )}
                     />
 
-                    //Si tuvieras que elegir un género de películas para ver, ¿cuál elegirías?This question is required.*
                     <FormField
                       control={form.control}
                       name="favoriteMovieGenre"

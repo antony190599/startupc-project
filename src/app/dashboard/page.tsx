@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { getOnboardingStatus } from '@/lib/utils/functions/onboarding'
+import { getOnboardingStatus, getCurrentOnboardingStep } from '@/lib/utils/functions/onboarding'
 import { CheckCircle, ArrowRight, PlayCircle } from 'lucide-react'
 
 interface OnboardingStatus {
@@ -39,7 +39,13 @@ export default function DashboardPage() {
       
       try {
         const status = await getOnboardingStatus()
-        setOnboardingStatus(status)
+        const currentStep = await getCurrentOnboardingStep()
+        
+        // Update the status with the current step information
+        setOnboardingStatus({
+          ...status,
+          currentStep: currentStep.currentStep
+        })
       } catch (error) {
         console.error('Error loading onboarding status:', error)
       } finally {

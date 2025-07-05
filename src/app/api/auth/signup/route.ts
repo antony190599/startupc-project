@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         { error: "Ya existe una cuenta con este email" },
         { status: 409 }
       );
-    }
+    }    
 
     // Hash password
     const hashedPassword = await hashPassword(password);
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       },
     });
     // Create project application
-    await prisma.projectApplication.create({
+    const projectApplication = await prisma.projectApplication.create({
       data: {
         onboardingStep: "seleccion-programa",
         users: {
@@ -74,6 +74,18 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Create team member
+    await prisma.teamMember.create({
+      data: {
+        projectApplicationId: projectApplication.id,
+        userId: user.id,
+        fullName: user.firstname as string,
+        lastName: user.lastname as string,
+        contactEmail: user.email as string, // Use user's email as contact email
+      },
+    });
+       
 
 
     // Create a session for the newly registered user

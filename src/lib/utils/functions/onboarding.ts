@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { fetcher } from './fetcher'
 
 export type OnboardingStep = 
@@ -131,6 +133,26 @@ export async function getOnboardingStatus(): Promise<{
     return response.data
   } catch (error) {
     console.error('Error getting onboarding status:', error)
+    throw error
+  }
+}
+
+// Get current onboarding step
+export async function getCurrentOnboardingStep(): Promise<{
+  hasApplication: boolean
+  currentStep: string | null
+  applicationId?: string
+  createdAt?: string
+  updatedAt?: string
+}> {
+  try {
+    const response = await fetcher('/api/onboarding/current-step', {
+      method: 'GET',
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error getting current onboarding step:', error)
     throw error
   }
 } 

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "team_members" ALTER COLUMN "dni" DROP NOT NULL,
+ALTER COLUMN "career" DROP NOT NULL,
+ALTER COLUMN "phone" DROP NOT NULL,
+ALTER COLUMN "university" DROP NOT NULL;

@@ -44,16 +44,63 @@ const stepSchemas = {
       fullName: z.string().min(1, "Full name is required"),
       lastName: z.string().min(1, "Last name is required"),
       dni: z.string().min(8, "DNI must be at least 8 characters"),
-      studentCode: z.string().optional(),
+      studentCode: z.string().optional().nullable(),
       career: z.string().min(1, "Career is required"),
-      cycle: z.string().optional(),
+      cycle: z.string().optional().nullable(),
       phone: z.string().min(9, "Phone must be at least 9 characters"),
-      universityEmail: z.string().email("Must be a valid email").optional().or(z.literal("")),
+      universityEmail: z.string().email("Must be a valid email").optional().nullable().or(z.literal("")),
       contactEmail: z.string().email("Must be a valid email"),
       linkedin: z.string().url("Must be a valid URL").optional().or(z.literal("")),
       university: z.string().min(1, "University is required"),
-      otherUniversity: z.string().optional(),
+      otherUniversity: z.string().optional().nullable(),
     })).min(1, "At least one team member is required"),
+  }).refine((data) => {
+    // Custom validation for howMet - only required if 2+ team members
+    if (data.teamMembers.length >= 2) {
+      if (!data.howMet || data.howMet.trim().length < 10) {
+        return false;
+      }
+    }
+    return true;
+  }, {
+    message: "Debe explicar cómo se conocieron (mínimo 10 caracteres) cuando hay 2 o más integrantes",
+    path: ["howMet"]
+  }).refine((data) => {
+    // Custom validation for Laureate university fields
+    const laureateUniversities = ["upc", "upn", "cibertec"];
+    
+    for (let i = 0; i < data.teamMembers.length; i++) {
+      const member = data.teamMembers[i];
+      const isLaureateUniversity = laureateUniversities.includes(member.university);
+      
+      if (isLaureateUniversity) {
+        // Validate student code
+        if (!member.studentCode || member.studentCode.trim() === '') {
+          return false;
+        }
+        
+        // Validate cycle
+        if (!member.cycle || member.cycle.trim() === '') {
+          return false;
+        }
+        
+        // Validate university email
+        if (!member.universityEmail || member.universityEmail.trim() === '') {
+          return false;
+        }
+      }
+
+      // Validate other university name when "otras" is selected
+      if (member.university === "otras") {
+        if (!member.otherUniversity || member.otherUniversity.trim() === '') {
+          return false;
+        }
+      }
+    }
+    return true;
+  }, {
+    message: "Los campos adicionales son requeridos para estudiantes de Laureate o cuando se selecciona 'otras' universidad",
+    path: ["teamMembers"]
   }),
   
   'preferences': z.object({
@@ -81,7 +128,9 @@ const stepMapping = {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { step: string } }
+  args: {
+    params: Promise<{ step: string }>;
+  }
 ) {
   try {
     // Validate session
@@ -93,7 +142,9 @@ export async function POST(
       )
     }
 
-    const { step } = params
+    const { step } = await args.params
+
+    console.log('step', step) 
     const body = await request.json()
 
     // Validate step
@@ -208,12 +259,30 @@ export async function POST(
         break
     }
 
+    // Updatethe next Step
+    // Get the current step number from the step mapping
+    const currentStepNumber = stepMapping[step as keyof typeof stepMapping]
+    
+    // Calculate the next step number
+    const nextStepNumber = currentStepNumber + 1
+
+
+    //  Get the next step key from stepMapping
+    const nextStepKey = Object.keys(stepMapping)[nextStepNumber]
+    
+    // Update the onboarding step with the next step number
+    if (nextStepKey) {
+      updateData.onboardingStep = nextStepKey
+    }
+    
     // Update the application
     const updatedApplication = await prisma.projectApplication.update({
       where: { id: projectApplication.id },
       data: updateData,
       include: { teamMembers: true }
     })
+
+    console.log(`Updated onboarding step to: ${step} for user: ${user.email}`)
 
     return NextResponse.json({
       success: true,
@@ -275,10 +344,6 @@ export async function GET(
         { status: 404 }
       )
     }
-
-    console.log(prisma)
-
-    
 
     // Get project application
     const projectApplication = await prisma.projectApplication.findFirst({

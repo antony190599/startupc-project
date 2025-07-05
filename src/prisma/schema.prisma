@@ -134,7 +134,7 @@ model ProjectApplication {
   privacyConsent Boolean?
 
   onboardingStep String?
-  
+
 
   // Relación con integrantes del equipo
   teamMembers TeamMember[]
@@ -149,7 +149,7 @@ model TeamMember {
   // Información personal
   fullName String
   lastName String
-  dni      String
+  dni      String?
 
   // User
   userId String @unique
@@ -157,17 +157,17 @@ model TeamMember {
 
   // Información académica
   studentCode String? // Requerido para universidades Laureate
-  career      String
+  career      String?
   cycle       String? // Requerido para universidades Laureate
 
   // Información de contacto
-  phone           String
+  phone           String?
   universityEmail String? // Requerido para universidades Laureate
   contactEmail    String
   linkedin        String?
 
   // Universidad
-  university      String // unmsm, pucp, ulima, up, udep, uch, utec, upc, upn, usil, esan, cibertec, otras
+  university      String? // unmsm, pucp, ulima, up, udep, uch, utec, upc, upn, usil, esan, cibertec, otras
   otherUniversity String? // Requerido cuando university = "otras"
 
   // Relación con la aplicación
