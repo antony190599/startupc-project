@@ -46,47 +46,48 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        firstname,
-        lastname,
-        email,
-        role: "business",
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-        firstname: true,
-        lastname: true,
-        email: true,
-        createdAt: true,
-      },
-    });
-    // Create project application
-    const projectApplication = await prisma.projectApplication.create({
-      data: {
-        onboardingStep: "seleccion-programa",
-        users: {
-          connect: {
-            id: user.id,
+    // Transaction: create user, project application, and team member
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          firstname,
+          lastname,
+          email,
+          role: "business",
+          password: hashedPassword,
+        },
+        select: {
+          id: true,
+          firstname: true,
+          lastname: true,
+          email: true,
+          createdAt: true,
+        },
+      });
+
+      const projectApplication = await tx.projectApplication.create({
+        data: {
+          onboardingStep: "seleccion-programa",
+          users: {
+            connect: {
+              id: user.id,
+            },
           },
         },
-      },
-    });
+      });
 
-    // Create team member
-    await prisma.teamMember.create({
-      data: {
-        projectApplicationId: projectApplication.id,
-        userId: user.id,
-        firstName: user.firstname as string,
-        lastName: user.lastname as string,
-        contactEmail: user.email as string, // Use user's email as contact email
-      },
-    });
-       
+      const teamMember = await tx.teamMember.create({
+        data: {
+          projectApplicationId: projectApplication.id,
+          userId: user.id,
+          firstName: user.firstname as string,
+          lastName: user.lastname as string,
+          contactEmail: user.email as string, // Use user's email as contact email
+        },
+      });
 
+      return { user, projectApplication, teamMember };
+    });
 
     // Create a session for the newly registered user
     // We'll use Next Auth's signIn function to create a proper session
@@ -94,10 +95,10 @@ export async function POST(request: NextRequest) {
       {
         message: "Usuario registrado exitosamente",
         user: {
-          id: user.id,
-          firstname: user.firstname,
-          lastname: user.lastname,
-          email: user.email,
+          id: result.user.id,
+          firstname: result.user.firstname,
+          lastname: result.user.lastname,
+          email: result.user.email,
         },
         autoLogin: true, // Flag to indicate automatic login should happen
       },
