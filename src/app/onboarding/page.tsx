@@ -275,7 +275,7 @@ export default function FormularioPage() {
     setIsLoading(true)
     try {
       // Validate all fields before submission
-      const isValid = await form.trigger()
+      const isValid = await form.trigger(['privacyConsent'])
       if (!isValid) {
         console.log("Form has validation errors")
         return
@@ -532,7 +532,22 @@ export default function FormularioPage() {
                     form.setValue('source', nextStepData.data.source || '')
                     if (nextStepData.data.teamMembers && nextStepData.data.teamMembers.length > 0) {
                       // Clear existing team members and add the loaded ones
-                      form.setValue('teamMembers', nextStepData.data.teamMembers)
+
+                      const teamMembersRetrieved = {
+                        fullName: nextStepData.data.teamMembers[0].fullName ?? "",
+                        lastName: nextStepData.data.teamMembers[0].lastName ?? "",
+                        dni: nextStepData.data.teamMembers[0].dni ?? "",
+                        studentCode: nextStepData.data.teamMembers[0].studentCode ?? "",
+                        cycle: nextStepData.data.teamMembers[0].cycle ?? "",
+                        phone: nextStepData.data.teamMembers[0].phone ?? "",
+                        universityEmail: nextStepData.data.teamMembers[0].universityEmail ?? "",
+                        contactEmail: nextStepData.data.teamMembers[0].contactEmail ?? "",
+                        linkedin: nextStepData.data.teamMembers[0].linkedin ?? "",
+                        university: nextStepData.data.teamMembers[0].university ?? "",
+                        otherUniversity: nextStepData.data.teamMembers[0].otherUniversity ?? "",
+                      }
+                      
+                      form.setValue('teamMembers', teamMembersRetrieved as any)
                     }
                     break
                   case 'preferences': // preferences
@@ -1313,9 +1328,9 @@ export default function FormularioPage() {
                         {(() => {
                           const selectedUniversity = form.watch(`teamMembers.${index}.university`)
                           const laureateUniversities = [
-                            "Universidad Peruana de Ciencias Aplicadas (Laureate)",
-                            "Universidad Privada del Norte (Laureate)",
-                            "Cibertec (Laureate)"
+                            "upc",
+                            "upn",
+                            "cibertec"
                           ]
                           const isLaureateUniversity = laureateUniversities.includes(selectedUniversity)
                           
@@ -1672,7 +1687,10 @@ export default function FormularioPage() {
                   </Button>
                 ) : (
                   <Button 
-                    type="submit" 
+                    type="button" 
+                    onClick={() => {
+                        onSubmit(form.getValues())
+                    }}
                     disabled={isLoading || isInitializing}
                     className="flex items-center"
                   >
