@@ -179,3 +179,4 @@ model TeamMember {
 
   @@map("team_members")
 }
+

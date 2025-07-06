@@ -8,8 +8,14 @@ export async function getUserViaToken(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   })) as {
     email?: string;
+    role?: string;
     user?: UserProps;
   };
+
+  // Add role to user if available
+  if (session?.user && session?.role) {
+    session.user.role = session.role as any;
+  }
 
   return session?.user;
 }

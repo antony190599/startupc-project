@@ -12,25 +12,49 @@ export const config = {
        * 3. /_proxy/ (proxies for third-party services)
        * 4. Metadata files: favicon.ico, sitemap.xml, robots.txt, manifest.webmanifest
        */
-      "/((?!api/|_next/|_proxy/|favicon.ico|sitemap.xml|robots.txt|manifest.webmanifest).*)",
+      "/((?!api/|_next/|_proxy/|_static/|favicon.ico|sitemap.xml|robots.txt|manifest.webmanifest).*)",
     ],
-  };
+};
 
 export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
-    const { domain, path, key, fullKey } = parse(req);
+    const { path } = parse(req);
 
-    // Protect onboarding route
-    if (path === '/onboarding') {
-        const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-        
-        if (!token) {
-            return NextResponse.redirect(new URL('/login', req.url));
-        }
+    // Páginas públicas que no requieren autenticación
+    const publicPages = /^\/(login|signup|$)/; // Ruta raíz, login y signup son públicas
+    if (publicPages.test(path)) {
+        return NextResponse.next();
     }
+    
+    // Get user token with role information
+    const token = await getToken({ 
+        req, 
+        secret: process.env.NEXTAUTH_SECRET 
+    });
+    
+    // Define protected routes patterns
+    const adminRoutes = /^\/admin(\/.*)?$/;
+    const entrepreneurRoutes = /^\/entrepreneur(\/.*)?$/;
+    const onboardingRoutes = /^\/onboarding(\/.*)?$/;
+    const dashboardRoutes = /^\/dashboard(\/.*)?$/;
+    
+    // Si el usuario no está autenticado y la ruta no es pública, redirigir a login
+  if (!token) {
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
+  
+  // Protección de rutas específicas por rol
+  if (adminRoutes.test(path) && token.role !== 'admin') {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
+  }
+  
+  if (entrepreneurRoutes.test(path) && token.role !== 'entrepreneur') {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
+  }
+  
+  // Verificación adicional para onboarding
+  if (onboardingRoutes.test(path) && token.role !== 'entrepreneur') {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
+  }
 
-    return NextResponse.next({
-        request: {
-            headers: req.headers,
-        },
-    }); 
+  return NextResponse.next();
 }

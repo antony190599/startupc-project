@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextAuthOptions } from "next-auth";
-
+import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -70,6 +70,7 @@ export const authOptions: NextAuthOptions = {
                     firstname: user.firstname,
                     lastname: user.lastname,
                     image: user.image,
+                    role: user.role,
                 }
             },
 
@@ -142,11 +143,12 @@ export const authOptions: NextAuthOptions = {
         },
         async jwt({ token, user, trigger }) {
             if (user) {
+                // Add role and other user fields to the token
+                token.role = user.role || 'entrepreneur'; // Default to entrepreneur if no role
                 token.user = user;
             }
 
             if (trigger === "update") {
-
                 const refreshedUser = await prisma.user.findFirst({
                     where: { id: token.sub as string },
                     select: {
@@ -155,11 +157,13 @@ export const authOptions: NextAuthOptions = {
                         lastname: true,
                         email: true,
                         image: true,
+                        role: true,
                     }
                 });
         
                 if (refreshedUser) {
                   token.user = refreshedUser;
+                  token.role = refreshedUser.role;
                 } else {
                   return {};
                 }
@@ -167,12 +171,14 @@ export const authOptions: NextAuthOptions = {
             return token;
         },
         async session({ session, token }) {
+            // Add role and user data to the session
             session.user = {
                 id: token.sub,
+                role: token.role as string,
                 // @ts-expect-error - TypeScript doesn't know about the user object on the token
                 ...(token || session).user,
-              };
-              return session;
+            };
+            return session;
         },    
     },
     events: {
@@ -188,6 +194,7 @@ export const authOptions: NextAuthOptions = {
                     email: true,
                     image: true,
                     createdAt: true,
+                    role: true,
                 }
             });
 
@@ -199,6 +206,44 @@ export const authOptions: NextAuthOptions = {
               }
         }
     }
+}
 
+// Extender los tipos para solucionar errores de TypeScript
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string;
+      email?: string | null;
+      firstname?: string | null;
+      lastname?: string | null;
+      name?: string;
+      image?: string;
+      role: "admin" | "entrepreneur";
+    }
+  }
+  
+  interface User {
+    id: string;
+    email?: string | null;
+    firstname?: string | null;
+    lastname?: string | null;
+    name?: string;
+    image?: string | null;
+    role?: string;
+  }
+}
 
+declare module "next-auth/jwt" {
+  interface JWT {
+    sub?: string;
+    role?: string;
+    user?: {
+      id: string;
+      email?: string | null;
+      firstname?: string | null;
+      lastname?: string | null;
+      image?: string | null;
+      role?: string;
+    };
+  }
 }

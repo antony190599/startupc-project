@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
           firstname,
           lastname,
           email,
-          role: "business",
+          role: "entrepreneur", // Asignamos explícitamente el rol entrepreneur
           password: hashedPassword,
         },
         select: {
@@ -61,13 +61,14 @@ export async function POST(request: NextRequest) {
           firstname: true,
           lastname: true,
           email: true,
+          role: true,
           createdAt: true,
         },
       });
 
       const projectApplication = await tx.projectApplication.create({
         data: {
-          onboardingStep: "seleccion-programa",
+          onboardingStep: "program-selection", // Cambio a formato correcto
           users: {
             connect: {
               id: user.id,
@@ -99,6 +100,7 @@ export async function POST(request: NextRequest) {
           firstname: result.user.firstname,
           lastname: result.user.lastname,
           email: result.user.email,
+          role: result.user.role,
         },
         autoLogin: true, // Flag to indicate automatic login should happen
       },
@@ -113,4 +115,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
