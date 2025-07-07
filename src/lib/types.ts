@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type UserRole = "admin" | "entrepreneur";
+export type UserRole = "admin" | "business";
 
 export interface UserProps {
   id: string;

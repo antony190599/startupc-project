@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function EntrepreneurDashboardPage() {
-  const { isAuthorized, isLoading } = useRoleCheck("entrepreneur");
+  const { isAuthorized, isLoading } = useRoleCheck("business");
   const { data: session } = useSession();
 
   if (isLoading) {
@@ -43,7 +43,7 @@ export default function EntrepreneurDashboardPage() {
   }
 
   return (
-    <div className="container mx-auto py-10 px-4">
+    <div className="container mx-auto py-2 px-4">
       <h1 className="text-3xl font-bold mb-2">Mi Panel de Emprendedor</h1>
       <p className="text-gray-600 mb-8">Gestiona tus proyectos y aplicaciones</p>
 

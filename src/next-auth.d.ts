@@ -1,4 +1,18 @@
 // Extender los tipos para solucionar errores de TypeScript
+import "next-auth";
+
+declare module "next-auth" {
+    interface User {
+        firstname?: string | null;
+        lastname?: string | null;
+        role: "admin" | "business";
+    }
+
+    interface Session {
+        user: User;
+    }
+}
+
 /*
 declare module "next-auth" {
   interface Session {
@@ -9,7 +23,7 @@ declare module "next-auth" {
       lastname?: string | null;
       name?: string;
       image?: string;
-      role: "admin" | "entrepreneur";
+      role: "admin" | "business";
     }
   }
   

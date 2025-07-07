@@ -4,7 +4,7 @@ import { NextAuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+// import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import { validatePassword } from "./password";
 
@@ -70,13 +70,13 @@ export const authOptions: NextAuthOptions = {
                     firstname: user.firstname,
                     lastname: user.lastname,
                     image: user.image,
-                    role: user.role,
+                    role: (user.role || "business") as "admin" | "business",
                 }
             },
 
         })
     ],
-    adapter: PrismaAdapter(prisma),
+    // adapter: PrismaAdapter(prisma), // Removed due to version incompatibility with next-auth v4
     session: {
         strategy: "jwt",
         maxAge: 60 * 60 * 24 * 30, // 30 days

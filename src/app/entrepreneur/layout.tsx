@@ -7,7 +7,7 @@ export default function EntrepreneurLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute allowedRoles={["entrepreneur"]}>
+    <ProtectedRoute allowedRoles={["business"]}>
       <DashboardLayout>{children}</DashboardLayout>
     </ProtectedRoute>
   );
