@@ -70,7 +70,7 @@ export const authOptions: NextAuthOptions = {
                     firstname: user.firstname,
                     lastname: user.lastname,
                     image: user.image,
-                    role: (user.role || "business") as "admin" | "business",
+                    role: (user.role || "entrepreneur") as "admin" | "entrepreneur",
                 }
             },
 

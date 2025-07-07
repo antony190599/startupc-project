@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function EntrepreneurDashboardPage() {
-  const { isAuthorized, isLoading } = useRoleCheck("business");
+  const { isAuthorized, isLoading } = useRoleCheck("entrepreneur");
   const { data: session } = useSession();
 
   if (isLoading) {

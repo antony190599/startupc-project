@@ -28,7 +28,7 @@ async function main() {
       email: 'entrepreneur@example.com',
       firstname: 'María',
       lastname: 'García',
-      role: 'business',
+      role: 'entrepreneur',
       emailVerified: new Date(),
       profile: {
         create: {
@@ -45,7 +45,7 @@ async function main() {
       email: 'student@upc.edu.pe',
       firstname: 'Carlos',
       lastname: 'Rodríguez',
-      role: 'business',
+      role: 'entrepreneur',
       emailVerified: new Date(),
       profile: {
         create: {

@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
           firstname,
           lastname,
           email,
-          role: "business", // Asignamos explícitamente el rol entrepreneur
+          role: "entrepreneur", // Asignamos explícitamente el rol entrepreneur
           password: hashedPassword,
         },
         select: {

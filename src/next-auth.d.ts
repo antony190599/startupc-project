@@ -5,7 +5,7 @@ declare module "next-auth" {
     interface User {
         firstname?: string | null;
         lastname?: string | null;
-        role: "admin" | "business";
+        role: "admin" | "entrepreneur";
     }
 
     interface Session {
@@ -23,7 +23,7 @@ declare module "next-auth" {
       lastname?: string | null;
       name?: string;
       image?: string;
-      role: "admin" | "business";
+      role: "admin" | "entrepreneur";
     }
   }
   
