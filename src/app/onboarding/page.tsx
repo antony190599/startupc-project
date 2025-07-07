@@ -199,14 +199,15 @@ const programTypes = [
   }
 ];
 
+
 const steps = [
-  { id: "seleccion-programa", title: "Selección de Programa", description: "Elija el programa que desea" },
-  { id: "datos-generales", title: "Datos Generales", description: "Información básica del proyecto" },
-  { id: "impacto-origen", title: "Impacto y Origen", description: "Valor y origen del proyecto" },
-  { id: "presentacion", title: "Presentación", description: "Video de presentación" },
-  { id: "equipo", title: "Equipo", description: "Integrantes del proyecto" },
-  { id: "preferencias", title: "Preferencias", description: "Gustos personales" },
-  { id: "consentimiento", title: "Consentimiento", description: "Aceptación de términos" },
+  { id: "program-selection", title: "Selección de Programa", description: "Elija el programa que desea" },
+  { id: "general-data", title: "Datos Generales", description: "Información básica del proyecto" },
+  { id: "impact-origin", title: "Impacto y Origen", description: "Valor y origen del proyecto" },
+  { id: "presentation", title: "Presentación", description: "Video de presentación" },
+  { id: "team", title: "Equipo", description: "Integrantes del proyecto" },
+  { id: "preferences", title: "Preferencias", description: "Gustos personales" },
+  { id: "consent", title: "Consentimiento", description: "Aceptación de términos" },
 ]
 
 export default function FormularioPage() {

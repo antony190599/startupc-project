@@ -144,7 +144,6 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user, trigger }) {
             if (user) {
                 // Add role and other user fields to the token
-                token.role = user.role || 'entrepreneur'; // Default to entrepreneur if no role
                 token.user = user;
             }
 
@@ -163,7 +162,6 @@ export const authOptions: NextAuthOptions = {
         
                 if (refreshedUser) {
                   token.user = refreshedUser;
-                  token.role = refreshedUser.role;
                 } else {
                   return {};
                 }
@@ -174,9 +172,8 @@ export const authOptions: NextAuthOptions = {
             // Add role and user data to the session
             session.user = {
                 id: token.sub,
-                role: token.role as string,
-                // @ts-expect-error - TypeScript doesn't know about the user object on the token
-                ...(token || session).user,
+                role: token.role as any,
+                ...(token || session).user as any,
             };
             return session;
         },    
@@ -208,42 +205,4 @@ export const authOptions: NextAuthOptions = {
     }
 }
 
-// Extender los tipos para solucionar errores de TypeScript
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id?: string;
-      email?: string | null;
-      firstname?: string | null;
-      lastname?: string | null;
-      name?: string;
-      image?: string;
-      role: "admin" | "entrepreneur";
-    }
-  }
-  
-  interface User {
-    id: string;
-    email?: string | null;
-    firstname?: string | null;
-    lastname?: string | null;
-    name?: string;
-    image?: string | null;
-    role?: string;
-  }
-}
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    sub?: string;
-    role?: string;
-    user?: {
-      id: string;
-      email?: string | null;
-      firstname?: string | null;
-      lastname?: string | null;
-      image?: string | null;
-      role?: string;
-    };
-  }
-}

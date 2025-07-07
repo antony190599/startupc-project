@@ -5,230 +5,196 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Starting database seed...')
 
-  // Create categories
-  const categories = [
+  // Create sample users
+  const users = [
     {
-      name: 'Technology',
-      description: 'Latest tech news and insights',
-      slug: 'technology',
-      color: '#3B82F6',
-    },
-    {
-      name: 'Business',
-      description: 'Business strategies and entrepreneurship',
-      slug: 'business',
-      color: '#10B981',
-    },
-    {
-      name: 'Design',
-      description: 'UI/UX design and creative content',
-      slug: 'design',
-      color: '#F59E0B',
-    },
-    {
-      name: 'Marketing',
-      description: 'Digital marketing and growth strategies',
-      slug: 'marketing',
-      color: '#EF4444',
-    },
-  ]
-
-  for (const category of categories) {
-    await prisma.category.upsert({
-      where: { slug: category.slug },
-      update: {},
-      create: category,
-    })
-  }
-
-  // Create tags
-  const tags = [
-    { name: 'Next.js', slug: 'nextjs', color: '#000000' },
-    { name: 'React', slug: 'react', color: '#61DAFB' },
-    { name: 'TypeScript', slug: 'typescript', color: '#3178C6' },
-    { name: 'Tailwind CSS', slug: 'tailwind-css', color: '#06B6D4' },
-    { name: 'Prisma', slug: 'prisma', color: '#2D3748' },
-    { name: 'Authentication', slug: 'authentication', color: '#E53E3E' },
-    { name: 'Database', slug: 'database', color: '#38A169' },
-    { name: 'API', slug: 'api', color: '#805AD5' },
-  ]
-
-  for (const tag of tags) {
-    await prisma.tag.upsert({
-      where: { slug: tag.slug },
-      update: {},
-      create: tag,
-    })
-  }
-
-  // Create a sample user
-  const user = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
-      email: 'admin@example.com',
-      name: 'Admin User',
+      email: 'admin@startupc.com',
+      firstname: 'Admin',
+      lastname: 'User',
+      role: 'admin',
       emailVerified: new Date(),
       profile: {
         create: {
-          bio: 'Full-stack developer passionate about building great products',
-          location: 'San Francisco, CA',
-          website: 'https://example.com',
-          twitter: '@adminuser',
-          github: 'adminuser',
-          linkedin: 'adminuser',
+          bio: 'Administrator of StartupC platform',
+          location: 'Lima, Peru',
+          website: 'https://startupc.com',
+          twitter: '@startupc_admin',
+          github: 'startupc-admin',
+          linkedin: 'startupc-admin',
         },
       },
     },
-    include: {
-      profile: true,
-    },
-  })
-
-  // Create sample posts
-  const posts = [
     {
-      title: 'Getting Started with Next.js 14',
-      content: `# Getting Started with Next.js 14
-
-Next.js 14 introduces several exciting new features that make building React applications even more powerful and efficient.
-
-## Key Features
-
-- **App Router**: The new app directory provides a more intuitive way to organize your application
-- **Server Components**: Built-in support for React Server Components
-- **Turbopack**: Faster bundling and development experience
-- **Improved TypeScript Support**: Better type safety and developer experience
-
-## Getting Started
-
-\`\`\`bash
-npx create-next-app@latest my-app --typescript --tailwind --app
-cd my-app
-npm run dev
-\`\`\`
-
-This will create a new Next.js project with TypeScript, Tailwind CSS, and the App Router enabled.
-
-## Next Steps
-
-1. Explore the app directory structure
-2. Learn about Server and Client Components
-3. Set up your database with Prisma
-4. Add authentication with NextAuth.js
-
-Happy coding! 🚀`,
-      slug: 'getting-started-with-nextjs-14',
-      excerpt: 'Learn how to get started with Next.js 14 and its new features including the App Router and Server Components.',
-      published: true,
-      featured: true,
-      publishedAt: new Date(),
-      authorId: user.id,
-      categoryId: (await prisma.category.findUnique({ where: { slug: 'technology' } }))?.id,
+      email: 'entrepreneur@example.com',
+      firstname: 'María',
+      lastname: 'García',
+      role: 'business',
+      emailVerified: new Date(),
+      profile: {
+        create: {
+          bio: 'Emprendedora apasionada por la tecnología y la innovación',
+          location: 'Lima, Peru',
+          website: 'https://mariagarcia.com',
+          twitter: '@mariagarcia',
+          github: 'mariagarcia',
+          linkedin: 'mariagarcia',
+        },
+      },
     },
     {
-      title: 'Building a Modern Authentication System',
-      content: `# Building a Modern Authentication System
-
-Authentication is a crucial part of any web application. In this post, we'll explore how to build a robust authentication system using Next.js, NextAuth.js, and Prisma.
-
-## Why NextAuth.js?
-
-NextAuth.js provides a complete authentication solution for Next.js applications with:
-
-- Multiple authentication providers (Google, GitHub, etc.)
-- JWT and database sessions
-- Built-in security features
-- TypeScript support
-
-## Setting Up NextAuth.js
-
-First, install the required dependencies:
-
-\`\`\`bash
-npm install next-auth @auth/prisma-adapter
-\`\`\`
-
-Then configure your authentication options and set up the Prisma adapter.
-
-## Database Schema
-
-Your Prisma schema should include the necessary tables for NextAuth.js:
-
-\`\`\`prisma
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  // ... other fields
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  // ... relations
-}
-\`\`\`
-
-## Security Best Practices
-
-1. Use environment variables for sensitive data
-2. Implement proper session management
-3. Add rate limiting to authentication endpoints
-4. Use HTTPS in production
-5. Regularly update dependencies
-
-Remember, security is not a one-time setup but an ongoing process! 🔒`,
-      slug: 'building-modern-authentication-system',
-      excerpt: 'Learn how to build a secure authentication system using Next.js, NextAuth.js, and Prisma with best practices.',
-      published: true,
-      featured: false,
-      publishedAt: new Date(Date.now() - 86400000), // 1 day ago
-      authorId: user.id,
-      categoryId: (await prisma.category.findUnique({ where: { slug: 'technology' } }))?.id,
+      email: 'student@upc.edu.pe',
+      firstname: 'Carlos',
+      lastname: 'Rodríguez',
+      role: 'business',
+      emailVerified: new Date(),
+      profile: {
+        create: {
+          bio: 'Estudiante de Ingeniería de Sistemas en UPC',
+          location: 'Lima, Peru',
+          website: null,
+          twitter: '@carlosrodriguez',
+          github: 'carlosrodriguez',
+          linkedin: 'carlosrodriguez',
+        },
+      },
     },
   ]
 
-  for (const post of posts) {
-    const createdPost = await prisma.post.create({
-      data: post,
-    })
-
-    // Add tags to posts
-    const technologyTags = await prisma.tag.findMany({
-      where: {
-        slug: {
-          in: ['nextjs', 'react', 'typescript', 'authentication'],
-        },
+  const createdUsers = []
+  for (const userData of users) {
+    const user = await prisma.user.upsert({
+      where: { email: userData.email },
+      update: {},
+      create: userData,
+      include: {
+        profile: true,
       },
     })
-
-    await prisma.post.update({
-      where: { id: createdPost.id },
-      data: {
-        tags: {
-          connect: technologyTags.map((tag) => ({ id: tag.id })),
-        },
-      },
-    })
+    createdUsers.push(user)
+    console.log(`👤 Created user: ${user.email}`)
   }
 
+  // Create sample project applications
+  const projectApplications = [
+    {
+      programType: 'inqubalab',
+      projectName: 'EcoTech Solutions',
+      website: 'https://ecotechsolutions.com',
+      category: 'tech',
+      industry: 'ambiental',
+      description: 'Plataforma de monitoreo ambiental usando IoT y AI para empresas sostenibles',
+      ruc: '20123456789',
+      foundingYear: '2023',
+      opportunityValue: 'Mercado de $50M en Latinoamérica',
+      stage: 'mvp',
+      projectOrigin: 'ideaEmprendimiento',
+      problem: 'Las empresas no tienen visibilidad en tiempo real de su impacto ambiental',
+      customerProfile: 'Empresas medianas y grandes comprometidas con la sostenibilidad',
+      impact: 'Reducción del 30% en huella de carbono de las empresas',
+      videoUrl: 'https://youtube.com/watch?v=sample1',
+      videoFileName: 'ecotech_presentation.mp4',
+      specificSupport: 'Mentoría en go-to-market y conexiones con empresas',
+      howMet: 'Universidad',
+      source: 'universidad',
+      favoriteSport: 'futbol',
+      favoriteHobby: 'lectura',
+      favoriteMovieGenre: 'cienciaFiccion',
+      privacyConsent: true,
+      onboardingStep: 'completed',
+    },
+    {
+      programType: 'idea-feedback',
+      projectName: 'HealthConnect',
+      website: 'https://healthconnect.pe',
+      category: 'tech',
+      industry: 'biotecnologia',
+      description: 'App móvil para conectar pacientes con especialistas médicos',
+      ruc: '20123456790',
+      foundingYear: '2024',
+      opportunityValue: 'Mercado de $100M en Perú',
+      stage: 'ideaNegocio',
+      projectOrigin: 'proyectoTesis',
+      problem: 'Acceso limitado a especialistas médicos en zonas remotas',
+      customerProfile: 'Pacientes de 25-65 años con acceso a smartphones',
+      impact: 'Mejora del 40% en acceso a atención médica especializada',
+      videoUrl: 'https://youtube.com/watch?v=sample2',
+      videoFileName: 'healthconnect_presentation.mp4',
+      specificSupport: 'Validación de mercado y desarrollo de MVP',
+      howMet: 'Amigos',
+      source: 'amigos',
+      favoriteSport: 'basketball',
+      favoriteHobby: 'musica',
+      favoriteMovieGenre: 'drama',
+      privacyConsent: true,
+      onboardingStep: 'completed',
+    },
+  ]
+
+  const createdApplications = []
+  for (const appData of projectApplications) {
+    const application = await prisma.projectApplication.create({
+      data: appData,
+    })
+    createdApplications.push(application)
+    console.log(`📋 Created project application: ${application.projectName}`)
+  }
+
+  // Create team members for the first project
+  const teamMembers = [
+    {
+      firstName: 'María',
+      lastName: 'García',
+      dni: '12345678',
+      contactEmail: 'maria.garcia@ecotech.com',
+      phone: '+51 999 123 456',
+      university: 'upc',
+      career: 'Ingeniería de Sistemas',
+      cycle: '10',
+      studentCode: 'U202012345',
+      universityEmail: 'maria.garcia@upc.edu.pe',
+      linkedin: 'maria-garcia-ecotech',
+      projectApplicationId: createdApplications[0].id,
+      userId: createdUsers[1].id, // María García
+    },
+    {
+      firstName: 'Carlos',
+      lastName: 'Rodríguez',
+      dni: '87654321',
+      contactEmail: 'carlos.rodriguez@ecotech.com',
+      phone: '+51 999 654 321',
+      university: 'upc',
+      career: 'Ingeniería Industrial',
+      cycle: '9',
+      studentCode: 'U202098765',
+      universityEmail: 'carlos.rodriguez@upc.edu.pe',
+      linkedin: 'carlos-rodriguez-ecotech',
+      projectApplicationId: createdApplications[0].id,
+      userId: createdUsers[2].id, // Carlos Rodríguez
+    },
+  ]
+
+  for (const memberData of teamMembers) {
+    const teamMember = await prisma.teamMember.create({
+      data: memberData,
+    })
+    console.log(`👥 Created team member: ${teamMember.firstName} ${teamMember.lastName}`)
+  }
+
+  // Update users to link them to their project applications
+  await prisma.user.update({
+    where: { id: createdUsers[1].id },
+    data: { projectApplicationId: createdApplications[0].id },
+  })
+
+  await prisma.user.update({
+    where: { id: createdUsers[2].id },
+    data: { projectApplicationId: createdApplications[0].id },
+  })
+
   console.log('✅ Database seeded successfully!')
-  console.log(`👤 Created user: ${user.email}`)
-  console.log(`📝 Created ${posts.length} sample posts`)
-  console.log(`🏷️  Created ${categories.length} categories and ${tags.length} tags`)
+  console.log(`👤 Created ${createdUsers.length} users`)
+  console.log(`📋 Created ${createdApplications.length} project applications`)
+  console.log(`👥 Created ${teamMembers.length} team members`)
 }
 
 main()

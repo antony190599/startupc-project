@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UserProps } from "@/lib/types";
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
