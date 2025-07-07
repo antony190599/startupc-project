@@ -273,7 +273,12 @@ export async function POST(
     // Update the onboarding step with the next step number
     if (nextStepKey) {
       updateData.onboardingStep = nextStepKey
+
+      if (step === "consent" && updateData.privacyConsent === true) {
+        updateData.onboardingStep = "completed"
+      }
     }
+    
     
     // Update the application
     const updatedApplication = await prisma.projectApplication.update({
