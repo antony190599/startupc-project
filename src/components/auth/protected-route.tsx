@@ -14,15 +14,11 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  console.log("session", session);
+
   useEffect(() => {
     // Verificar si la sesión está cargando
     if (status === "loading") return;
-
-    // Si no hay sesión, redirigir a login
-    if (status === "unauthenticated") {
-      router.push('/login');
-      return;
-    }
 
     // Si hay roles especificados, verificar que el usuario tenga el rol permitido
     if (allowedRoles && session?.user?.role && !allowedRoles.includes(session.user.role)) {

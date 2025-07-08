@@ -37,3 +37,22 @@ export type OnboardingStep =
   | 'team'
   | 'preferences'
   | 'consent';
+
+// Application-related types
+export type ApplicationSortBy = 'createdAt' | 'updatedAt' | 'projectName' | 'programType' | 'category' | 'industry' | 'stage' | 'projectStatus' | 'isCompleted';
+export type ApplicationSortOrder = 'asc' | 'desc';
+
+export interface ApplicationFilters {
+  sortBy?: ApplicationSortBy;
+  sortOrder?: ApplicationSortOrder;
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  projectApplicationId?: string;
+  programType?: string;
+  category?: string;
+  industry?: string;
+  stage?: string;
+  projectStatus?: string;
+  isCompleted?: boolean;
+}

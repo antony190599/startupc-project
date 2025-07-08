@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/options'
 import { prisma } from '@/lib/db'
+import { getSession } from '@/lib/auth/utils';
 
 export async function GET(request: NextRequest) {
   try {
     // Validate session
-    const session = await getServerSession(authOptions)
+    const session = await getSession();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },

@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/options'
 import { prisma } from '@/lib/db'
 import * as z from 'zod'
+import { getSession } from '@/lib/auth/utils'
 
 // Step-specific validation schemas
 const stepSchemas = {
@@ -134,7 +133,7 @@ export async function POST(
 ) {
   try {
     // Validate session
-    const session = await getServerSession(authOptions)
+    const session = await getSession();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -276,6 +275,10 @@ export async function POST(
 
       if (step === "consent" && updateData.privacyConsent === true) {
         updateData.onboardingStep = "completed"
+
+        updateData.projectStatus = "pending"
+        updateData.isCompleted = true
+        updateData.completedAt = new Date()
       }
     }
     
@@ -320,7 +323,7 @@ export async function GET(
 ) {
   try {
     // Validate session
-    const session = await getServerSession(authOptions)
+    const session = await getSession();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },

@@ -152,11 +152,10 @@ export async function getUserData(userId: string) {
 ### Authentication
 ```typescript
 // lib/auth.ts
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/auth/auth-options'
+import { getSession } from '@/lib/auth/utils';
 
 export async function getCurrentUser() {
-  const session = await getServerSession(authOptions)
+  const session = await getSession();
   return session?.user
 }
 ```

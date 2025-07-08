@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
       const projectApplication = await tx.projectApplication.create({
         data: {
           onboardingStep: "program-selection", // Cambio a formato correcto
+          projectStatus: "created",
           users: {
             connect: {
               id: user.id,

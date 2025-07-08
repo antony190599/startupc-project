@@ -1,13 +1,21 @@
+import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import ProtectedRoute from "@/components/auth/protected-route";
+import { getSession } from "@/lib/auth/utils";
 
-export default function EntrepreneurLayout({
+export default async function Layout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect("/login?callbackUrl=/dashboard");
+  }
+
   return (
-    <ProtectedRoute allowedRoles={["entrepreneur"]}>
+    <ProtectedRoute>
       <DashboardLayout>{children}</DashboardLayout>
     </ProtectedRoute>
   );

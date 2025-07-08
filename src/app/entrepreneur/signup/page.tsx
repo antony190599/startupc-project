@@ -124,7 +124,7 @@ export default function SignupPage() {
         router.push("/login");
       } else {
         // Redirect to dashboard on successful auto-login
-        router.push("/dashboard");
+        router.push("/onboarding");
       }
     } catch (err) {
       // Error is already handled in the signup hook

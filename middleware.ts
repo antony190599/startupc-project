@@ -21,7 +21,9 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
 
     // Páginas públicas que no requieren autenticación
     const publicPages = /^\/(login|signup|$)/; // Ruta raíz, login y signup son públicas
+    console.log("Public page:", path);
     if (publicPages.test(path)) {
+        console.log("Public page:", path);
         return NextResponse.next();
     }
     

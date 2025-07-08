@@ -135,12 +135,30 @@ model ProjectApplication {
 
   onboardingStep String?
 
+  projectStatus String? // 
+  isCompleted Boolean? @default(false)
+
+  completedAt DateTime?
+
+
 
   // Relación con integrantes del equipo
   teamMembers TeamMember[]
   users User[]
+  projectStatusLogs ProjectStatusLog[]
 
   @@map("project_applications")
+}
+
+model ProjectStatusLog {
+  id String @id @default(cuid())
+  projectApplicationId String
+  projectApplication ProjectApplication @relation(fields: [projectApplicationId], references: [id], onDelete: Cascade)
+
+  status String
+  createdAt DateTime @default(now())
+
+  @@map("project_status_logs")
 }
 
 model TeamMember {

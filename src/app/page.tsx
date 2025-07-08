@@ -26,7 +26,7 @@ export default function Home() {
               <Link href="/login">Iniciar sesión</Link>
             </Button>
             <Button asChild>
-              <Link href="/signup">Registrarse</Link>
+              <Link href="/entrepreneur/signup">Registrarse</Link>
             </Button>
           </>
         )}
@@ -51,7 +51,7 @@ export default function Home() {
         {status !== "authenticated" && (
           <div className="flex gap-4 mt-8">
             <Button size="lg" asChild>
-              <Link href="/signup">Comenzar ahora</Link>
+              <Link href="/entrepreneur/signup">Comenzar ahora</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="/login">Iniciar sesión</Link>

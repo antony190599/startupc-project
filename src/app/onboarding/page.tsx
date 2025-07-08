@@ -606,10 +606,6 @@ export default function FormularioPage() {
     const initializeForm = async () => {
       if (status === 'loading') return
       
-      if (status === 'unauthenticated') {
-        router.push('/login')
-        return
-      }
       
       if (!session?.user) return
       

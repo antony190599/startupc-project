@@ -13,6 +13,10 @@ import {
   ChevronLeft,
   Menu,
   UserCircle,
+  FileText,
+  TrendingUp,
+  Shield,
+  Building,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -36,32 +40,78 @@ export function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
     return null;
   }
 
-  const routes = [
-    {
-      href: "/dashboard",
-      label: "Dashboard",
-      icon: <LayoutDashboard className="h-5 w-5" />,
-      active: pathname === "/dashboard",
-    },
-    {
-      href: "/dashboard/applications",
-      label: "Mis Aplicaciones",
-      icon: <ClipboardCheck className="h-5 w-5" />,
-      active: pathname === "/dashboard/applications",
-    },
-    {
-      href: "/dashboard/team",
-      label: "Mi Equipo",
-      icon: <Users className="h-5 w-5" />,
-      active: pathname === "/dashboard/team",
-    },
-    {
-      href: "/dashboard/settings",
-      label: "Configuración",
-      icon: <Settings className="h-5 w-5" />,
-      active: pathname === "/dashboard/settings",
-    },
-  ];
+  const userRole = session?.user?.role;
+
+  // Define routes based on user role
+  const getRoutes = () => {
+    const baseRoutes = [
+      {
+        href: "/dashboard",
+        label: "Dashboard",
+        icon: <LayoutDashboard className="h-5 w-5" />,
+        active: pathname === "/dashboard",
+      },
+    ];
+
+    if (userRole === "admin") {
+      return [
+        ...baseRoutes,
+        {
+          href: "/applications",
+          label: "Aplicaciones",
+          icon: <FileText className="h-5 w-5" />,
+          active: pathname === "/dashboard/applications",
+        },
+        {
+          href: "/users",
+          label: "Usuarios",
+          icon: <Users className="h-5 w-5" />,
+          active: pathname === "/dashboard/users",
+        },
+        {
+          href: "/reports",
+          label: "Reportes",
+          icon: <TrendingUp className="h-5 w-5" />,
+          active: pathname === "/dashboard/reports",
+        },
+        {
+          href: "/settings",
+          label: "Configuración",
+          icon: <Settings className="h-5 w-5" />,
+          active: pathname === "/dashboard/settings",
+        },
+      ];
+    }
+
+    if (userRole === "entrepreneur") {
+      return [
+        ...baseRoutes,
+        {
+          href: "/applications",
+          label: "Mis Aplicaciones",
+          icon: <ClipboardCheck className="h-5 w-5" />,
+          active: pathname === "/dashboard/applications",
+        },
+        {
+          href: "/team",
+          label: "Mi Equipo",
+          icon: <Users className="h-5 w-5" />,
+          active: pathname === "/dashboard/team",
+        },
+        {
+          href: "/settings",
+          label: "Configuración",
+          icon: <Settings className="h-5 w-5" />,
+          active: pathname === "/dashboard/settings",
+        },
+      ];
+    }
+
+    // Default routes for unknown roles
+    return baseRoutes;
+  };
+
+  const routes = getRoutes();
 
   return (
     <>
@@ -104,6 +154,22 @@ export function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
           </Link>
         </div>
 
+        {/* Role indicator */}
+        {userRole && (
+          <div className="px-6 py-2 border-b border-sidebar-border">
+            <div className="flex items-center gap-2">
+              {userRole === "admin" ? (
+                <Shield className="h-4 w-4 text-blue-500" />
+              ) : (
+                <Building className="h-4 w-4 text-green-500" />
+              )}
+              <span className="text-xs font-medium text-sidebar-foreground/70 uppercase tracking-wide">
+                {userRole === "admin" ? "Administrador" : "Emprendedor"}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Navigation links */}
         <div className="flex-1 overflow-auto py-4 px-4">
           <nav className="flex flex-col gap-1">
@@ -140,7 +206,10 @@ export function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
             )}
             <div className="flex flex-col">
               <span className="text-sm font-medium text-sidebar-foreground">
-                {session?.user?.name || "Usuario"}
+                {session?.user?.firstname && session?.user?.lastname 
+                  ? `${session.user.firstname} ${session.user.lastname}`
+                  : session?.user?.name || "Usuario"
+                }
               </span>
               <span className="text-xs text-sidebar-foreground/70">
                 {session?.user?.email || ""}

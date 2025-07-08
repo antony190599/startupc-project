@@ -116,6 +116,12 @@ importers:
       zod:
         specifier: ^3.25.71
         version: 3.25.71
+      zod-error:
+        specifier: ^1.5.0
+        version: 1.5.0
+      zod-openapi:
+        specifier: ^4.2.4
+        version: 4.2.4(zod@3.25.71)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -2861,6 +2867,15 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod-error@1.5.0:
+    resolution: {integrity: sha512-zzopKZ/skI9iXpqCEPj+iLCKl9b88E43ehcU+sbRoHuwGd9F1IDVGQ70TyO6kmfiRL1g4IXkjsXK+g1gLYl4WQ==}
+
+  zod-openapi@4.2.4:
+    resolution: {integrity: sha512-tsrQpbpqFCXqVXUzi3TPwFhuMtLN3oNZobOtYnK6/5VkXsNdnIgyNr4r8no4wmYluaxzN3F7iS+8xCW8BmMQ8g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.21.4
 
   zod@3.25.71:
     resolution: {integrity: sha512-BsBc/NPk7h8WsUWYWYL+BajcJPY8YhjelaWu2NMLuzgraKAz4Lb4/6K11g9jpuDetjMiqhZ6YaexFLOC0Ogi3Q==}
@@ -5700,5 +5715,13 @@ snapshots:
   yallist@5.0.0: {}
 
   yocto-queue@0.1.0: {}
+
+  zod-error@1.5.0:
+    dependencies:
+      zod: 3.25.71
+
+  zod-openapi@4.2.4(zod@3.25.71):
+    dependencies:
+      zod: 3.25.71
 
   zod@3.25.71: {}
