@@ -34,6 +34,7 @@ A comprehensive Next.js application for managing startup project applications an
 - **Status Tracking**: Monitor application progress and status
 - **Team Overview**: Manage team members and their information
 - **Settings**: User profile and application preferences
+- **Individual Application View**: Detailed view of specific applications
 
 ## 🛠 Tech Stack
 
@@ -67,6 +68,7 @@ src/
 │   ├── admin/             # Admin dashboard and management
 │   ├── api/               # API routes
 │   │   ├── applications/  # Application management API
+│   │   │   └── [id]/      # Individual application CRUD operations
 │   │   ├── auth/          # Authentication endpoints
 │   │   └── onboarding/    # Onboarding API
 │   ├── applications/      # Application tracking page
@@ -85,6 +87,7 @@ src/
 ├── hooks/                # Custom React hooks
 ├── lib/                  # Utility functions
 │   ├── api/              # API utilities and transformers
+│   │   └── applications/ # Application API functions and transformers
 │   ├── auth/             # Authentication utilities
 │   ├── middleware/       # Middleware utilities
 │   ├── utils/            # Helper functions
@@ -220,10 +223,18 @@ The application uses NextAuth.js with the following providers:
 - `GET /api/onboarding/status` - Get onboarding status
 
 ### Applications
-- `GET /api/applications` - Get user applications
-- `POST /api/applications` - Create new application
-- `PUT /api/applications/[id]` - Update application
-- `DELETE /api/applications/[id]` - Delete application
+- `GET /api/applications` - Get all applications with filtering and pagination
+- `GET /api/applications/[id]` - Get specific application by ID
+- `PUT /api/applications/[id]` - Update application by ID
+- `DELETE /api/applications/[id]` - Delete application by ID
+
+#### Application API Features
+- **Filtering**: By program type, category, industry, stage, status, completion
+- **Search**: Full-text search across project names, descriptions, team members
+- **Sorting**: By any application field in ascending or descending order
+- **Pagination**: Configurable page size with navigation
+- **Detailed Views**: Complete application data with team members and status history
+- **CRUD Operations**: Full Create, Read, Update, Delete functionality
 
 ## 🎨 UI Components
 
@@ -313,6 +324,11 @@ For support and questions:
   - Role-based access control
   - Settings and team management pages
   - Status tracking with history
+- **v0.3.0** - Complete application CRUD API
+  - Individual application retrieval by ID
+  - Full CRUD operations for applications
+  - Enhanced data transformers
+  - Comprehensive API documentation
 
 ---
 
