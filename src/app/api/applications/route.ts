@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/utils';
 import { getApplicationsOrThrow } from '@/lib/api/applications/get-applications-or-throw';
 import { transformApplicationsResponse } from '@/lib/api/applications/transformer-applications';
+import { prisma } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,6 +15,10 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Role-based access control
+    const userRole = session.user.role;
+    const userId = session.user.id;
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
@@ -33,6 +38,39 @@ export async function GET(request: NextRequest) {
       ? searchParams.get('isCompleted') === 'true'
       : undefined;
 
+    // For entrepreneurs, force the projectApplicationId to their own application
+    let effectiveProjectApplicationId = projectApplicationId;
+    
+    if (userRole === 'entrepreneur') {
+      // Get the entrepreneur's application ID
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { projectApplicationId: true }
+      });
+
+      if (!user?.projectApplicationId) {
+        // Entrepreneur has no application, return empty result
+        return NextResponse.json({
+          success: true,
+          data: {
+            rows: [],
+            summary: {
+              page: 1,
+              pageSize: pageSize,
+              total: 0,
+              totalPages: 0,
+              hasNext: false,
+              hasPrev: false,
+            }
+          }
+        });
+      }
+
+      // Force the filter to only show their own application
+      effectiveProjectApplicationId = user.projectApplicationId;
+    }
+    // Admins can see all applications, so no additional filtering needed
+
     // Fetch applications with filters
     const result = await getApplicationsOrThrow({
       sortBy,
@@ -40,7 +78,7 @@ export async function GET(request: NextRequest) {
       page,
       pageSize,
       search,
-      projectApplicationId,
+      projectApplicationId: effectiveProjectApplicationId,
       programType,
       category,
       industry,

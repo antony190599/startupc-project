@@ -32,6 +32,26 @@ export async function GET(
       );
     }
 
+    // Role-based access control
+    const userRole = session.user.role;
+    const userId = session.user.id;
+
+    if (userRole === 'entrepreneur') {
+      // Entrepreneurs can only access their own application
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { projectApplicationId: true }
+      });
+
+      if (!user?.projectApplicationId || user.projectApplicationId !== id) {
+        return NextResponse.json(
+          { error: 'Access denied. You can only view your own application.' },
+          { status: 403 }
+        );
+      }
+    }
+    // Admins can access any application, so no additional check needed
+
     // Get the application with all related data
     const application = await getApplicationByIdOrThrow({ id });
 
@@ -71,7 +91,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  args: {
+    params: Promise<{ id: string }>;
+  }
 ) {
   try {
     // Validate session
@@ -84,7 +106,7 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const { id } = await args.params;
 
     if (!id) {
       return NextResponse.json(
@@ -92,6 +114,26 @@ export async function PUT(
         { status: 400 }
       );
     }
+
+    // Role-based access control
+    const userRole = session.user.role;
+    const userId = session.user.id;
+
+    if (userRole === 'entrepreneur') {
+      // Entrepreneurs can only update their own application
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { projectApplicationId: true }
+      });
+
+      if (!user?.projectApplicationId || user.projectApplicationId !== id) {
+        return NextResponse.json(
+          { error: 'Access denied. You can only update your own application.' },
+          { status: 403 }
+        );
+      }
+    }
+    // Admins can update any application, so no additional check needed
 
     // Parse the request body
     const body = await request.json();
@@ -185,7 +227,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  args: {
+    params: Promise<{ id: string }>;
+  }
 ) {
   try {
     // Validate session
@@ -198,7 +242,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const { id } = await args.params;
 
     if (!id) {
       return NextResponse.json(
@@ -206,6 +250,26 @@ export async function DELETE(
         { status: 400 }
       );
     }
+
+    // Role-based access control
+    const userRole = session.user.role;
+    const userId = session.user.id;
+
+    if (userRole === 'entrepreneur') {
+      // Entrepreneurs can only delete their own application
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { projectApplicationId: true }
+      });
+
+      if (!user?.projectApplicationId || user.projectApplicationId !== id) {
+        return NextResponse.json(
+          { error: 'Access denied. You can only delete your own application.' },
+          { status: 403 }
+        );
+      }
+    }
+    // Admins can delete any application, so no additional check needed
 
     // Check if application exists
     const existingApplication = await prisma.projectApplication.findUnique({
