@@ -1,4 +1,4 @@
-import { ProjectApplication, User, TeamMember } from '@prisma/client';
+import { ProjectApplication, User, TeamMember, ProjectStatusLog } from '@prisma/client';
 
 export interface ApplicationWithRelations extends ProjectApplication {
   teamMembers: TeamMember[];
@@ -56,6 +56,29 @@ export interface TransformedApplication {
   }>;
 }
 
+export interface TransformedApplicationDetail extends TransformedApplication {
+  // Additional fields for detailed view
+  description: string | null;
+  website: string | null;
+  ruc: string | null;
+  foundingYear: string | null;
+  opportunityValue: string | null;
+  projectOrigin: string | null;
+  problem: string | null;
+  customerProfile: string | null;
+  impact: string | null;
+  videoUrl: string | null;
+  videoFileName: string | null;
+  specificSupport: string | null;
+  howMet: string | null;
+  source: string | null;
+  favoriteSport: string | null;
+  favoriteHobby: string | null;
+  favoriteMovieGenre: string | null;
+  privacyConsent: boolean | null;
+  onboardingStep: string | null;
+}
+
 export interface ApplicationsResponse {
   rows: TransformedApplication[];
   summary: {
@@ -104,6 +127,33 @@ export function transformApplication(application: ApplicationQueryResult): Trans
       otherUniversity: member.otherUniversity,
       dni: member.dni,
     })),
+  };
+}
+
+export function transformApplicationDetail(application: ApplicationQueryResult): TransformedApplicationDetail {
+  const baseApplication = transformApplication(application);
+  
+  return {
+    ...baseApplication,
+    description: application.description,
+    website: application.website,
+    ruc: application.ruc,
+    foundingYear: application.foundingYear,
+    opportunityValue: application.opportunityValue,
+    projectOrigin: application.projectOrigin,
+    problem: application.problem,
+    customerProfile: application.customerProfile,
+    impact: application.impact,
+    videoUrl: application.videoUrl,
+    videoFileName: application.videoFileName,
+    specificSupport: application.specificSupport,
+    howMet: application.howMet,
+    source: application.source,
+    favoriteSport: application.favoriteSport,
+    favoriteHobby: application.favoriteHobby,
+    favoriteMovieGenre: application.favoriteMovieGenre,
+    privacyConsent: application.privacyConsent,
+    onboardingStep: application.onboardingStep,
   };
 }
 
