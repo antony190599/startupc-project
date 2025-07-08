@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import * as z from 'zod'
 import { getSession } from '@/lib/auth/utils'
+import { ProjectStatus } from '@/lib/enum'
 
 // Step-specific validation schemas
 const stepSchemas = {
@@ -183,6 +184,7 @@ export async function POST(
         data: {
           users: { connect: { id: user.id } },
           onboardingStep: step,
+          projectStatus: ProjectStatus.CREATED,
         },
         include: { teamMembers: true }
       })
@@ -276,7 +278,7 @@ export async function POST(
       if (step === "consent" && updateData.privacyConsent === true) {
         updateData.onboardingStep = "completed"
 
-        updateData.projectStatus = "pending"
+        updateData.projectStatus = ProjectStatus.PENDING_INTAKE
         updateData.isCompleted = true
         updateData.completedAt = new Date()
       }

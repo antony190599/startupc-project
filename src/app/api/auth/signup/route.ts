@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
+import { ProjectStatus } from "@/lib/enum";
 
 export async function POST(request: NextRequest) {
   try {
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       const projectApplication = await tx.projectApplication.create({
         data: {
           onboardingStep: "program-selection", // Cambio a formato correcto
-          projectStatus: "created",
+          projectStatus: ProjectStatus.CREATED,
           users: {
             connect: {
               id: user.id,

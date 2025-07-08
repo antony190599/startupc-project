@@ -139,6 +139,8 @@ export async function getApplicationsOrThrow(params: GetApplicationsParams = {})
       take: validPageSize,
     });
 
+    console.log("applications", applications);
+
     return {
       applications,
       total,
