@@ -1,17 +1,24 @@
 # StartupC Project
 
-A comprehensive Next.js application for managing startup project applications and onboarding processes. This platform provides a multi-step onboarding flow for entrepreneurs to submit their project applications with team member management and program selection.
+A comprehensive Next.js application for managing startup project applications and onboarding processes. This platform provides a multi-step onboarding flow for entrepreneurs to submit their project applications with team member management, program selection, and application tracking.
 
 ## 🚀 Features
 
 ### Core Functionality
 - **Multi-step Onboarding Process**: 7-step application flow for startup projects
 - **User Authentication**: Secure login/signup with NextAuth.js
+- **Role-based Access Control**: Admin and entrepreneur user roles
 - **Team Management**: Add and manage team members with detailed information
 - **Program Selection**: Choose from different startup programs (Inqubalab, Idea Feedback, Aceleración)
+- **Application Tracking**: View and manage submitted applications
 - **Form Validation**: Comprehensive validation using Zod schemas
 - **Progress Tracking**: Visual progress indicators and step navigation
 - **Responsive Design**: Mobile-first design with Tailwind CSS
+
+### User Roles & Access
+- **Entrepreneurs**: Submit applications, manage team, track progress
+- **Admins**: Review applications, manage users, system administration
+- **Protected Routes**: Role-based access control for different sections
 
 ### Onboarding Steps
 1. **Program Selection** - Choose startup program type
@@ -22,53 +29,66 @@ A comprehensive Next.js application for managing startup project applications an
 6. **Preferences** - Personal preferences (sports, hobbies, movie genres)
 7. **Consent** - Privacy policy acceptance
 
-### User Management
-- User registration and authentication
-- Profile management
-- Session handling with JWT
-- Role-based access control
+### Application Management
+- **Application Dashboard**: View all submitted applications
+- **Status Tracking**: Monitor application progress and status
+- **Team Overview**: Manage team members and their information
+- **Settings**: User profile and application preferences
 
 ## 🛠 Tech Stack
 
 ### Frontend
-- **Next.js 15** - React framework with App Router
+- **Next.js 15** - React framework with App Router and Turbopack
 - **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
+- **Tailwind CSS v4** - Utility-first CSS framework
 - **Shadcn/ui** - Modern UI component library
 - **React Hook Form** - Form state management
 - **Zod** - Schema validation
+- **SWR** - Data fetching and caching
+- **Lucide React** - Icon library
 
 ### Backend
 - **Next.js API Routes** - Server-side API endpoints
-- **Prisma** - Database ORM
+- **Prisma** - Database ORM with Accelerate extension
 - **PostgreSQL** - Primary database
-- **NextAuth.js** - Authentication solution
+- **NextAuth.js** - Authentication solution with Prisma adapter
 
 ### Development Tools
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
 - **pnpm** - Package manager
+- **Prisma Studio** - Database management interface
 
 ## 📁 Project Structure
 
 ```
 src/
 ├── app/                    # Next.js App Router pages
+│   ├── admin/             # Admin dashboard and management
 │   ├── api/               # API routes
+│   │   ├── applications/  # Application management API
 │   │   ├── auth/          # Authentication endpoints
-│   │   ├── onboarding/    # Onboarding API
-│   │   └── project/       # Project management API
-│   ├── dashboard/         # User dashboard
+│   │   └── onboarding/    # Onboarding API
+│   ├── applications/      # Application tracking page
+│   ├── dashboard/         # User dashboard (role-based)
+│   ├── entrepreneur/      # Entrepreneur-specific pages
 │   ├── login/             # Login page
 │   ├── onboarding/        # Onboarding flow
-│   └── page.tsx           # Home page
+│   ├── settings/          # User settings and profile
+│   ├── team/              # Team management
+│   └── test-onboarding/   # Testing environment
 ├── components/            # React components
-│   ├── ui/               # Shadcn/ui components
-│   └── providers/        # Context providers
+│   ├── auth/             # Authentication components
+│   ├── layout/           # Layout components
+│   ├── providers/        # Context providers
+│   └── ui/               # Shadcn/ui components
+├── hooks/                # Custom React hooks
 ├── lib/                  # Utility functions
+│   ├── api/              # API utilities and transformers
 │   ├── auth/             # Authentication utilities
-│   ├── db.ts             # Database connection
-│   └── utils/            # Helper functions
+│   ├── middleware/       # Middleware utilities
+│   ├── utils/            # Helper functions
+│   └── zod/              # Zod schema definitions
 └── prisma/               # Database schema and migrations
 ```
 
@@ -133,24 +153,30 @@ src/
 
 #### User
 - Basic user information (name, email, password)
-- Role-based access control
+- Role-based access control (admin, entrepreneur)
 - Session management
 
 #### ProjectApplication
 - Multi-step onboarding data
 - Program selection and project details
 - Team member relationships
+- Application status tracking
 
 #### TeamMember
 - Detailed team member information
 - Academic details (university, career, cycle)
 - Contact information and social links
 
+#### StatusLog
+- Application status history
+- Status change tracking
+- Timestamp and user information
+
 ## 🔧 Available Scripts
 
 ```bash
 # Development
-pnpm dev              # Start development server
+pnpm dev              # Start development server with Turbopack
 pnpm build            # Build for production
 pnpm start            # Start production server
 pnpm lint             # Run ESLint
@@ -159,6 +185,9 @@ pnpm lint             # Run ESLint
 pnpm db:generate      # Generate Prisma client
 pnpm db:push          # Push schema to database
 pnpm db:migrate       # Run migrations
+pnpm db:migrate:deploy # Deploy migrations to production
+pnpm db:migrate:reset # Reset database and run migrations
+pnpm db:migrate:status # Check migration status
 pnpm db:seed          # Seed database
 pnpm db:studio        # Open Prisma Studio
 pnpm db:format        # Format Prisma schema
@@ -170,12 +199,13 @@ pnpm db:validate      # Validate Prisma schema
 The application uses NextAuth.js with the following providers:
 - **Credentials Provider** - Email/password authentication
 - **Google Provider** - OAuth authentication (commented out by default)
+- **Prisma Adapter** - Database session and account management
 
 ### Authentication Flow
 1. User registers with email and password
 2. Password is hashed using bcryptjs
 3. JWT tokens are used for session management
-4. Protected routes check for valid sessions
+4. Protected routes check for valid sessions and user roles
 
 ## 📝 API Endpoints
 
@@ -189,26 +219,31 @@ The application uses NextAuth.js with the following providers:
 - `GET /api/onboarding/current-step` - Get current step
 - `GET /api/onboarding/status` - Get onboarding status
 
-### Project Management
-- `GET /api/project` - Get project data
-- `POST /api/project` - Create/update project
+### Applications
+- `GET /api/applications` - Get user applications
+- `POST /api/applications` - Create new application
+- `PUT /api/applications/[id]` - Update application
+- `DELETE /api/applications/[id]` - Delete application
 
 ## 🎨 UI Components
 
 The project uses Shadcn/ui components with Tailwind CSS:
 
-- **Form Components**: Input, Textarea, Select, RadioGroup, Checkbox
-- **Layout Components**: Card, Button, Steps
-- **Navigation**: Breadcrumb, Menu
-- **Feedback**: Alert, Dialog, Progress
+- **Form Components**: Input, Textarea, Select, RadioGroup, Checkbox, Form
+- **Layout Components**: Card, Button, Steps, Accordion, Collapsible
+- **Navigation**: Breadcrumb, Menu, Menubar, Dropdown Menu
+- **Feedback**: Alert, Dialog, Progress, Skeleton
+- **Data Display**: Table, Avatar, Badge, Calendar
+- **Media**: Aspect Ratio, Carousel
 
 ## 🔒 Security Features
 
 - **Password Hashing**: bcryptjs for secure password storage
 - **Input Validation**: Zod schemas for all form inputs
-- **Session Management**: Secure JWT-based sessions
+- **Session Management**: Secure JWT-based sessions with Prisma adapter
 - **CSRF Protection**: Built-in NextAuth.js protection
 - **Rate Limiting**: Login attempt tracking
+- **Role-based Access**: Middleware protection for different user roles
 
 ## 🧪 Validation Rules
 
@@ -225,12 +260,18 @@ The project uses Shadcn/ui components with Tailwind CSS:
 - Valid category and industry selection
 - Video upload support
 
+### Application Status Management
+- Status tracking with history
+- Role-based status updates
+- Validation for status transitions
+
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
 1. Connect your GitHub repository to Vercel
 2. Set environment variables in Vercel dashboard
 3. Deploy automatically on push to main branch
+4. Configure Prisma Accelerate for production database
 
 ### Environment Variables for Production
 ```env
@@ -262,11 +303,17 @@ For support and questions:
 ## 🔄 Version History
 
 - **v0.1.0** - Initial release with basic onboarding flow
-- Multi-step form implementation
-- User authentication system
-- Team member management
-- Database schema and migrations
+  - Multi-step form implementation
+  - User authentication system
+  - Team member management
+  - Database schema and migrations
+- **v0.2.0** - Enhanced application management
+  - Application tracking system
+  - Admin dashboard
+  - Role-based access control
+  - Settings and team management pages
+  - Status tracking with history
 
 ---
 
-**Built with ❤️ using Next.js, TypeScript, and Tailwind CSS**
+**Built with ❤️ using Next.js 15, TypeScript, and Tailwind CSS v4**
