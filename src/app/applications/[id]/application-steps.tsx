@@ -7,8 +7,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { Card } from '@/components/ui/card';
 import { CheckCircle, Circle, Clock, ExternalLink, Video, Users, Target, Lightbulb, FileText, Shield } from 'lucide-react';
 
 import { ApplicationStepsProps } from './types';

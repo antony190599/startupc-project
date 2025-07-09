@@ -18,6 +18,7 @@ import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react"
 import { saveOnboardingStep, getOnboardingStep, getCurrentOnboardingStep, OnboardingStep } from "@/lib/utils/functions/onboarding"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { hobbies, industries, movieGenres, parentCategories, programTypes, projectOrigins, sources, sports, stages, steps, universities } from "@/lib/enum"
 
 // Schema de validación
 const formSchema = z.object({
@@ -80,135 +81,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 // Datos estáticos para las opciones
-const parentCategories = {
-  tech: "Tech",
-  noTech: "No Tech"
-};
 
-const industries = {
-  ambiental: "Ambiental",
-  agricultura: "Agricultura",
-  biotecnologia: "Biotecnología",
-  comunicaciones: "Comunicaciones",
-  comidaBebida: "Comida y bebida",
-  construccion: "Construcción",
-  consultoria: "Consultoría",
-  cuidadoSalud: "Cuidado de la salud",
-  educacion: "Educación",
-  electronica: "Electrónica",
-  energia: "Energía",
-  entretenimiento: "Entretenimiento",
-  financiera: "Financiera",
-  ingenieria: "Ingeniería",
-  indumentaria: "Indumentaria",
-  logistica: "Logística",
-  manufactura: "Manufactura",
-  quimica: "Química",
-  retail: "Retail",
-  tecnologia: "Tecnología",
-  otros: "Otros"
-};
-
-const stages = {
-  ideaNegocio: "Idea de negocio",
-  mvp: "MVP (Prototipo mínimo viable)",
-};
-
-const projectOrigins = {
-  proyectoCurso: "Proyecto de un curso",
-  proyectoTesis: "Proyecto de tesis",
-  ideaEmprendimiento: "Idea de empredimiento",
-  inqubalab: "Inqubalab",
-};
-
-const universities = {
-  unmsm: "Universidad Nacional Mayor de San Marcos",
-  pucp: "Pontificia Universidad Católica del Perú",
-  ulima: "Universidad de Lima",
-  up: "Universidad del Pacífico",
-  udep: "Universidad de Piura",
-  uch: "Universidad Cayetano Heredia",
-  utec: "Universidad de Ingeniería y Tecnología",
-  upc: "Universidad Peruana de Ciencias Aplicadas (Laureate)",
-  upn: "Universidad Privada del Norte (Laureate)",
-  usil: "Universidad San Ignacio de Loyola",
-  esan: "Universidad ESAN",
-  cibertec: "Cibertec (Laureate)",
-  otras: "Otras"
-};
-
-const sources = {
-  redesSociales: "Redes sociales",
-  amigos: "Amigos",
-  familia: "Familia",
-  universidad: "Universidad",
-  eventos: "Eventos",
-  internet: "Internet",
-  otros: "Otros"
-};
-
-const sports = {
-  futbol: "Fútbol",
-  basketball: "Basketball",
-  natacion: "Natación",
-  voleibol: "Voleibol",
-};
-
-const hobbies = {
-  lectura: "Lectura",
-  musica: "Música",
-  videojuegos: "Videojuegos",
-  cocinar: "Cocinar",
-  viajar: "Viajar",
-  fotografia: "Fotografía",
-  pintura: "Pintura",
-  bailar: "Bailar",
-  escribir: "Escribir",
-  otro: "Otro"
-};
-
-const moviesGenres = {
-  accion: "Acción",
-  aventura: "Aventura",
-  cienciaFiccion: "Ciencia ficción",
-  comedia: "Comedia",
-  drama: "Drama",
-  fantasia: "Fantasía",
-  suspense: "Suspense",
-  terror: "Terror",
-};
-
-const programTypes = [
-  {
-    id: "inqubalab",
-    title: "Inqubalab",
-    description: "Programa de incubación para ideas de negocio",
-    icon: "🚀"
-  },
-  {
-    id: "idea-feedback",
-    title: "Idea Feedback",
-    description: "Programa de retroalimentación para ideas",
-    icon: "💡"
-  },
-  {
-    id: "aceleracion",
-    title: "Aceleración",
-    description: "Programa de aceleración para startups",
-    icon: "⚡"
-  }
-];
-
-
-const steps = [
-  { id: "program-selection", title: "Selección de Programa", description: "Elija el programa que desea" },
-  { id: "general-data", title: "Datos Generales", description: "Información básica del proyecto" },
-  { id: "impact-origin", title: "Impacto y Origen", description: "Valor y origen del proyecto" },
-  { id: "presentation", title: "Presentación", description: "Video de presentación" },
-  { id: "team", title: "Equipo", description: "Integrantes del proyecto" },
-  { id: "preferences", title: "Preferencias", description: "Gustos personales" },
-  { id: "consent", title: "Consentimiento", description: "Aceptación de términos" },
-]
 
 export default function FormularioPage() {
   const [currentStep, setCurrentStep] = useState(0)
@@ -1026,7 +899,7 @@ export default function FormularioPage() {
                                     defaultValue={field.value}
                                     className="grid grid-cols-1 gap-3"
                                 >
-                                                                    {Object.entries(stages).map(([key, value]) => (
+                                {Object.entries(stages).map(([key, value]) => (
                                     <div key={key} className="flex items-center space-x-2">
                                         <RadioGroupItem value={key} id={key} />
                                         <Label htmlFor={key}>{value}</Label>
@@ -1610,7 +1483,7 @@ export default function FormularioPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {Object.entries(moviesGenres).map(([key, value]) => (
+                                {Object.entries(movieGenres).map(([key, value]) => (
                                   <SelectItem key={key} value={key}>
                                     {value}
                                   </SelectItem>
