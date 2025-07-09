@@ -275,7 +275,6 @@ export default function ApplicationSteps({ application }: ApplicationStepsProps)
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Application Steps</h3>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Current Step:</span>
           <Badge variant="outline">
