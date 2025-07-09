@@ -68,7 +68,7 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
 
   // Format date
   const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
+    return new Date(date).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -85,22 +85,22 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
     );
   }
   if (!application) {
-    return <div className="text-center text-muted-foreground py-12">Application not found.</div>;
+    return <div className="text-center text-muted-foreground py-12">Aplicación no encontrada.</div>;
   }
 
   // Get primary user info - can be either team member or user
   const displayUser = application.primaryUser;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {application.projectName || 'Untitled Project'}
+            {'Detalle de Aplicación'}
           </h1>
           <p className="text-muted-foreground">
-            Application ID: {application.id}
+            ID de Aplicación: {application.id}
           </p>
         </div>
         
@@ -113,39 +113,41 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
             {/* Column 1 */}
             <div className="space-y-3">
               <div>
-                <div className="text-xs text-muted-foreground">Project Name</div>
+                <div className="text-xs text-muted-foreground">Nombre del Proyecto</div>
                 <div className="font-bold text-base">{application.projectName || '-'}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Program Type</div>
+                <div className="text-xs text-muted-foreground">Tipo de Programa</div>
                 <div className="font-semibold">{application.programType || '-'}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Created Date</div>
+                <div className="text-xs text-muted-foreground">Fecha de Creación</div>
                 <div className="font-bold">{application.createdAt ? formatDate(application.createdAt) : '-'}</div>
               </div>
             </div>
             {/* Column 2 */}
             <div className="space-y-3">
               <div>
-                <div className="text-xs text-muted-foreground">Status</div>
+                <div className="text-xs text-muted-foreground">Estado</div>
                 <Badge variant={getStatusVariant(application.projectStatus || 'pending')} className="text-xs px-3 py-1">
-                  {application.projectStatus || 'Pending'}
+                  {application.projectStatus === 'completed' ? 'Completado' : 
+                   application.projectStatus === 'in_progress' ? 'En Progreso' : 
+                   application.projectStatus === 'pending' ? 'Pendiente' : 'Pendiente'}
                 </Badge>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Team Members</div>
+                <div className="text-xs text-muted-foreground">Miembros del Equipo</div>
                 <div className="font-semibold">{application.teamMembers?.length ?? 0}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Completed</div>
+                <div className="text-xs text-muted-foreground">Completado</div>
                 <div className="font-semibold">{application.completedAt ? formatDate(application.completedAt) : '-'}</div>
               </div>
             </div>
             {/* Column 3 */}
             <div className="space-y-3">
               <div>
-                <div className="text-xs text-muted-foreground">Primary User</div>
+                <div className="text-xs text-muted-foreground">Usuario Principal</div>
                 <div className="font-semibold">
                   {displayUser ? (
                     `${displayUser.firstname} ${displayUser.lastname}`
@@ -156,11 +158,11 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
                 </div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Category</div>
+                <div className="text-xs text-muted-foreground">Categoría</div>
                 <div className="font-semibold">{application.category || '-'}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Industry</div>
+                <div className="text-xs text-muted-foreground">Industria</div>
                 <div className="font-semibold">{application.industry || '-'}</div>
               </div>
             </div>
@@ -173,7 +175,7 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
         <CardContent className="py-5">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-1">
-              <TabsTrigger value="application">Application Steps</TabsTrigger>
+              <TabsTrigger value="application">Pasos de la Aplicación</TabsTrigger>
             </TabsList>
             <TabsContent value="application" className="space-y-4">
               <ApplicationSteps application={application} />

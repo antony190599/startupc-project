@@ -11,7 +11,7 @@ export default async function ApplicationDetailPage({ params }: ApplicationDetai
   const { id } = await params;
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto py-0 space-y-0">
         <ApplicationDetailClient id={id} />
         {/*
       <Suspense fallback={<ApplicationDetailSkeleton />}>

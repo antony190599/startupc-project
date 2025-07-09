@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { CheckCircle, Circle, Clock, ExternalLink, Video, Users, Target, Lightbulb, FileText, Shield } from 'lucide-react';
 
 import { ApplicationStepsProps } from './types';
+import { steps } from '@/lib/enum';
 
 export default function ApplicationSteps({ application }: ApplicationStepsProps) {
   // Helper function to check if a step has data
@@ -56,19 +57,19 @@ export default function ApplicationSteps({ application }: ApplicationStepsProps)
   };
 
   // Step definitions
-  const steps = [
+  const stepsApplication = [
     {
-      key: 'program-selection',
-      title: 'Program Selection',
+      key: steps[0].id,
+      title: steps[0].title,
       icon: <Target className="h-4 w-4" />,
       fields: ['programType'],
       content: (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium">Selected Program</h4>
+              <h4 className="font-medium">Programa Seleccionado</h4>
               <Badge variant="outline" className="mt-1">
-                {application.programType || 'Not selected'}
+                {application.programType || 'No seleccionado'}
               </Badge>
             </div>
           </div>
@@ -76,140 +77,140 @@ export default function ApplicationSteps({ application }: ApplicationStepsProps)
       )
     },
     {
-      key: 'general-data',
-      title: 'General Data',
+      key: steps[1].id,
+      title: steps[1].title,
       icon: <FileText className="h-4 w-4" />,
       fields: ['projectName', 'website', 'category', 'industry', 'description', 'ruc', 'foundingYear'],
       content: (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium">Project Name</h4>
-              <p className="text-sm text-muted-foreground">{application.projectName || 'Not provided'}</p>
+              <h4 className="font-medium">Nombre del Proyecto</h4>
+              <p className="text-sm text-muted-foreground">{application.projectName || 'No proporcionado'}</p>
             </div>
             <div>
-              <h4 className="font-medium">Website</h4>
+              <h4 className="font-medium">Sitio Web</h4>
               {application.website ? (
                 <a href={application.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
                   {application.website}
                   <ExternalLink className="h-3 w-3" />
                 </a>
               ) : (
-                <p className="text-sm text-muted-foreground">Not provided</p>
+                <p className="text-sm text-muted-foreground">No proporcionado</p>
               )}
             </div>
             <div>
-              <h4 className="font-medium">Category</h4>
-              <p className="text-sm text-muted-foreground">{application.category || 'Not provided'}</p>
+              <h4 className="font-medium">Categoría</h4>
+              <p className="text-sm text-muted-foreground">{application.category || 'No proporcionado'}</p>
             </div>
             <div>
-              <h4 className="font-medium">Industry</h4>
-              <p className="text-sm text-muted-foreground">{application.industry || 'Not provided'}</p>
+              <h4 className="font-medium">Industria</h4>
+              <p className="text-sm text-muted-foreground">{application.industry || 'No proporcionado'}</p>
             </div>
             <div>
               <h4 className="font-medium">RUC</h4>
-              <p className="text-sm text-muted-foreground">{application.ruc || 'Not provided'}</p>
+              <p className="text-sm text-muted-foreground">{application.ruc || 'No proporcionado'}</p>
             </div>
             <div>
-              <h4 className="font-medium">Founding Year</h4>
-              <p className="text-sm text-muted-foreground">{application.foundingYear || 'Not provided'}</p>
+              <h4 className="font-medium">Año de Fundación</h4>
+              <p className="text-sm text-muted-foreground">{application.foundingYear || 'No proporcionado'}</p>
             </div>
           </div>
           <div>
-            <h4 className="font-medium">Description</h4>
-            <p className="text-sm text-muted-foreground mt-1">{application.description || 'Not provided'}</p>
+            <h4 className="font-medium">Descripción</h4>
+            <p className="text-sm text-muted-foreground mt-1">{application.description || 'No proporcionado'}</p>
           </div>
         </div>
       )
     },
     {
-      key: 'impact-origin',
-      title: 'Impact & Origin',
+      key: steps[2].id,
+      title: steps[2].title,
       icon: <Lightbulb className="h-4 w-4" />,
       fields: ['opportunityValue', 'stage', 'projectOrigin', 'problem', 'customerProfile', 'impact'],
       content: (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium">Opportunity Value</h4>
-              <p className="text-sm text-muted-foreground">{application.opportunityValue || 'Not provided'}</p>
+              <h4 className="font-medium">Valor de la Oportunidad</h4>
+              <p className="text-sm text-muted-foreground">{application.opportunityValue || 'No proporcionado'}</p>
             </div>
             <div>
-              <h4 className="font-medium">Stage</h4>
-              <p className="text-sm text-muted-foreground">{application.stage || 'Not provided'}</p>
+              <h4 className="font-medium">Etapa</h4>
+              <p className="text-sm text-muted-foreground">{application.stage || 'No proporcionado'}</p>
             </div>
             <div>
-              <h4 className="font-medium">Project Origin</h4>
-              <p className="text-sm text-muted-foreground">{application.projectOrigin || 'Not provided'}</p>
+              <h4 className="font-medium">Origen del Proyecto</h4>
+              <p className="text-sm text-muted-foreground">{application.projectOrigin || 'No proporcionado'}</p>
             </div>
           </div>
           <div>
-            <h4 className="font-medium">Problem Statement</h4>
-            <p className="text-sm text-muted-foreground mt-1">{application.problem || 'Not provided'}</p>
+            <h4 className="font-medium">Declaración del Problema</h4>
+            <p className="text-sm text-muted-foreground mt-1">{application.problem || 'No proporcionado'}</p>
           </div>
           <div>
-            <h4 className="font-medium">Customer Profile</h4>
-            <p className="text-sm text-muted-foreground mt-1">{application.customerProfile || 'Not provided'}</p>
+            <h4 className="font-medium">Perfil del Cliente</h4>
+            <p className="text-sm text-muted-foreground mt-1">{application.customerProfile || 'No proporcionado'}</p>
           </div>
           <div>
-            <h4 className="font-medium">Impact</h4>
-            <p className="text-sm text-muted-foreground mt-1">{application.impact || 'Not provided'}</p>
+            <h4 className="font-medium">Impacto</h4>
+            <p className="text-sm text-muted-foreground mt-1">{application.impact || 'No proporcionado'}</p>
           </div>
         </div>
       )
     },
     {
-      key: 'presentation',
-      title: 'Presentation',
+      key: steps[3].id,
+      title: steps[3].title,
       icon: <Video className="h-4 w-4" />,
       fields: ['videoUrl', 'videoFileName', 'specificSupport'],
       content: (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium">Video URL</h4>
+              <h4 className="font-medium">URL del Video</h4>
               {application.videoUrl ? (
                 <a href={application.videoUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
-                  Watch Video
+                  Ver Video
                   <ExternalLink className="h-3 w-3" />
                 </a>
               ) : (
-                <p className="text-sm text-muted-foreground">Not provided</p>
+                <p className="text-sm text-muted-foreground">No proporcionado</p>
               )}
             </div>
             <div>
-              <h4 className="font-medium">Video File</h4>
-              <p className="text-sm text-muted-foreground">{application.videoFileName || 'Not provided'}</p>
+              <h4 className="font-medium">Archivo de Video</h4>
+              <p className="text-sm text-muted-foreground">{application.videoFileName || 'No proporcionado'}</p>
             </div>
           </div>
           <div>
-            <h4 className="font-medium">Specific Support Needed</h4>
-            <p className="text-sm text-muted-foreground mt-1">{application.specificSupport || 'Not provided'}</p>
+            <h4 className="font-medium">Apoyo Específico Necesario</h4>
+            <p className="text-sm text-muted-foreground mt-1">{application.specificSupport || 'No proporcionado'}</p>
           </div>
         </div>
       )
     },
     {
-      key: 'team',
-      title: 'Team Information',
+      key: steps[4].id,
+      title: steps[4].title,
       icon: <Users className="h-4 w-4" />,
       fields: ['howMet', 'source'],
       content: (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium">How Team Met</h4>
-              <p className="text-sm text-muted-foreground">{application.howMet || 'Not provided'}</p>
+              <h4 className="font-medium">Cómo se Conoció el Equipo</h4>
+              <p className="text-sm text-muted-foreground">{application.howMet || 'No proporcionado'}</p>
             </div>
             <div>
-              <h4 className="font-medium">Source</h4>
-              <p className="text-sm text-muted-foreground">{application.source || 'Not provided'}</p>
+              <h4 className="font-medium">Fuente</h4>
+              <p className="text-sm text-muted-foreground">{application.source || 'No proporcionado'}</p>
             </div>
           </div>
           
           {/* Team Members */}
           <div>
-            <h4 className="font-medium mb-3">Team Members</h4>
+            <h4 className="font-medium mb-3">Miembros del Equipo</h4>
             {application.teamMembers && application.teamMembers.length > 0 ? (
               <div className="space-y-3">
                 {application.teamMembers.map((member: any, index: number) => (
@@ -233,37 +234,37 @@ export default function ApplicationSteps({ application }: ApplicationStepsProps)
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No team members added</p>
+              <p className="text-sm text-muted-foreground">No se han agregado miembros del equipo</p>
             )}
           </div>
         </div>
       )
     },
     {
-      key: 'preferences',
-      title: 'Personal Preferences',
+      key: steps[5].id,
+      title: steps[5].title,
       icon: <Shield className="h-4 w-4" />,
       fields: ['favoriteSport', 'favoriteHobby', 'favoriteMovieGenre', 'privacyConsent'],
       content: (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <h4 className="font-medium">Favorite Sport</h4>
-              <p className="text-sm text-muted-foreground">{application.favoriteSport || 'Not provided'}</p>
+              <h4 className="font-medium">Deporte Favorito</h4>
+              <p className="text-sm text-muted-foreground">{application.favoriteSport || 'No proporcionado'}</p>
             </div>
             <div>
-              <h4 className="font-medium">Favorite Hobby</h4>
-              <p className="text-sm text-muted-foreground">{application.favoriteHobby || 'Not provided'}</p>
+              <h4 className="font-medium">Pasatiempo Favorito</h4>
+              <p className="text-sm text-muted-foreground">{application.favoriteHobby || 'No proporcionado'}</p>
             </div>
             <div>
-              <h4 className="font-medium">Favorite Movie Genre</h4>
-              <p className="text-sm text-muted-foreground">{application.favoriteMovieGenre || 'Not provided'}</p>
+              <h4 className="font-medium">Género de Película Favorito</h4>
+              <p className="text-sm text-muted-foreground">{application.favoriteMovieGenre || 'No proporcionado'}</p>
             </div>
           </div>
           <div>
-            <h4 className="font-medium">Privacy Consent</h4>
+            <h4 className="font-medium">Consentimiento de Privacidad</h4>
             <Badge variant={application.privacyConsent ? 'default' : 'outline'} className="mt-1">
-              {application.privacyConsent ? 'Consented' : 'Not consented'}
+              {application.privacyConsent ? 'Consentido' : 'No consentido'}
             </Badge>
           </div>
         </div>
@@ -275,15 +276,15 @@ export default function ApplicationSteps({ application }: ApplicationStepsProps)
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Current Step:</span>
+          <span className="text-sm text-muted-foreground">Paso Actual:</span>
           <Badge variant="outline">
-            {application.onboardingStep || 'Not started'}
+            {application.onboardingStep || 'No iniciado'}
           </Badge>
         </div>
       </div>
 
       <Accordion type="multiple" className="w-full">
-        {steps.map((step) => {
+        {stepsApplication.map((step) => {
           const status = getStepStatus(step.key, step.fields);
           return (
             <AccordionItem key={step.key} value={step.key}>
@@ -295,7 +296,7 @@ export default function ApplicationSteps({ application }: ApplicationStepsProps)
                     <span className="font-medium">{step.title}</span>
                   </div>
                   <Badge variant={getStatusBadgeVariant(status)} className="ml-auto">
-                    {status === 'completed' ? 'Completed' : status === 'current' ? 'Current' : 'Pending'}
+                    {status === 'completed' ? 'Completado' : status === 'current' ? 'Actual' : 'Pendiente'}
                   </Badge>
                 </div>
               </AccordionTrigger>
