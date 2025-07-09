@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react"
 import { ProjectStatus } from "@/lib/enum"
+import { useRouter } from "next/navigation"
 
 export const columns: ColumnDef<TransformedApplication>[] = [
   {
@@ -109,7 +110,7 @@ export const columns: ColumnDef<TransformedApplication>[] = [
           case ProjectStatus.CREATED:
             return "Creado"
           case ProjectStatus.PENDING_INTAKE:
-            return "Pendiente de Intake"
+            return "Pendiente de revisión"
           case ProjectStatus.APPROVED:
             return "Aprobado"
           case ProjectStatus.REJECTED:
@@ -163,6 +164,7 @@ export const columns: ColumnDef<TransformedApplication>[] = [
     header: "Acciones",
     cell: ({ row }) => {
       const application = row.original
+      const router = useRouter()
 
       return (
         <DropdownMenu>
@@ -178,7 +180,7 @@ export const columns: ColumnDef<TransformedApplication>[] = [
             <DropdownMenuItem 
               onClick={() => {
                 // Navigate to application detail
-                window.open(`/applications/${application.id}`, '_blank')
+                router.push(`/applications/${application.id}`)
               }}
             >
               <Eye className="mr-2 h-4 w-4" />
@@ -187,7 +189,7 @@ export const columns: ColumnDef<TransformedApplication>[] = [
             <DropdownMenuItem 
               onClick={() => {
                 // Navigate to edit application
-                window.open(`/applications/${application.id}/edit`, '_blank')
+                router.push(`/applications/${application.id}/edit`)
               }}
             >
               <Edit className="mr-2 h-4 w-4" />

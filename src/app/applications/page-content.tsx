@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { TransformedApplication } from "@/lib/api/applications/transformer-applications"
 import { DataTable } from "./data-table"
 import { columns } from "./columns"
+import { ApplicationsSkeleton } from "./applications-skeleton"
 
 interface ApplicationsResponse {
   rows: TransformedApplication[]
@@ -99,7 +100,9 @@ export function ApplicationsPageContent() {
         </div>
       </div>
 
-      {data.length === 0 && !loading ? (
+      {loading ? (
+        <ApplicationsSkeleton />
+      ) : data.length === 0 ? (
         <div className="mt-8 p-8 text-center border rounded-lg border-dashed">
           <h2 className="text-xl font-semibold mb-2">No hay aplicaciones activas</h2>
           <p className="text-muted-foreground">
