@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -16,8 +16,10 @@ export default function Home() {
             <Button variant="outline" asChild>
               <Link href="/dashboard">Dashboard</Link>
             </Button>
-            <Button asChild>
-              <Link href="/api/auth/signout">Cerrar sesión</Link>
+            <Button
+              onClick={() => signOut()}
+            >
+              Cerrar sesión
             </Button>
           </>
         ) : (

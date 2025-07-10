@@ -17,9 +17,10 @@ import { Label } from "@/components/ui/label"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ChevronLeft, ChevronRight, Plus, Trash2, CheckCircle, Edit } from "lucide-react"
 import { saveOnboardingStep, getOnboardingStep, getCurrentOnboardingStep, OnboardingStep } from "@/lib/utils/functions/onboarding"
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { hobbies, industries, movieGenres, parentCategories, programTypes, projectOrigins, sources, sports, stages, steps, universities } from "@/lib/enum"
+import Link from "next/link"
 
 // Schema de validación
 const formSchema = z.object({
@@ -646,6 +647,18 @@ export default function FormularioPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <div className="flex container justify-end max-w-4xl mx-auto mb-8 space-x-4">
+        <>
+          <Button variant="outline" asChild>
+            <Link href="/dashboard">Dashboard</Link>
+          </Button>
+          <Button
+            onClick={() => signOut()}
+          >
+            Cerrar sesión
+          </Button>
+        </>
+      </div>
       <div className="container mx-auto max-w-4xl px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Formulario de Proyecto</h1>

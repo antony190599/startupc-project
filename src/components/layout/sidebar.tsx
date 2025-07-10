@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import {
   LayoutDashboard,
   ClipboardCheck,
@@ -219,7 +219,8 @@ export function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
 
           {/* Logout button */}
           <Link
-            href="/api/auth/signout"
+            href="javascript:void(0)"
+            onClick={() => signOut()}
             className={cn(
               "mt-2 flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors"
             )}
