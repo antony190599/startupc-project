@@ -44,6 +44,20 @@ export const authOptions: NextAuthOptions = {
                     where: { email },
                 });
 
+                let isCompleted = false;
+
+                if (user?.role === "entrepreneur") {
+                    const projectApplication = await prisma.projectApplication.findUnique({
+                        where: {
+                            id: user.projectApplicationId as string,
+                        },
+                    });
+
+                    if (projectApplication?.isCompleted) {
+                        isCompleted = true;
+                    }
+                }
+
                 if (!user || !user.password) {
                     throw new Error("invalid-credentials");
                 }
@@ -71,6 +85,7 @@ export const authOptions: NextAuthOptions = {
                     lastname: user.lastname,
                     image: user.image,
                     role: (user.role || "entrepreneur") as "admin" | "entrepreneur",
+                    onboardingCompleted: isCompleted,
                 }
             },
 
@@ -173,6 +188,7 @@ export const authOptions: NextAuthOptions = {
             session.user = {
                 id: token.sub,
                 role: token.role as any,
+                onboardingCompleted: token.onboardingCompleted as any,
                 ...(token || session).user as any,
             };
             return session;

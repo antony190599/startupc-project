@@ -493,6 +493,11 @@ export default function FormularioPage() {
       try {
         // First, get the current step from the database
         const currentStepInfo = await getCurrentOnboardingStep()
+
+        // Force the current step to be consent if the onboarding is completed
+        if (currentStepInfo.currentStep === "completed") {
+          currentStepInfo.currentStep = "consent"
+        }
         
         if (currentStepInfo.hasApplication && currentStepInfo.currentStep) {
           // User has an application, set the current step

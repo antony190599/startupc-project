@@ -11,6 +11,7 @@ export async function getUserViaToken(req: NextRequest) {
     email?: string;
     role?: string;
     user?: UserProps;
+    onboardingCompleted?: boolean;
   };
 
   // Add role to user if available

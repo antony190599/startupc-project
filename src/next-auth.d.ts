@@ -5,6 +5,7 @@ declare module "next-auth" {
     interface User {
         firstname?: string | null;
         lastname?: string | null;
+        onboardingCompleted?: boolean;
         role: "admin" | "entrepreneur";
     }
 

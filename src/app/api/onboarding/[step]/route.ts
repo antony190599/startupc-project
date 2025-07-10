@@ -270,12 +270,18 @@ export async function POST(
 
     //  Get the next step key from stepMapping
     const nextStepKey = Object.keys(stepMapping)[nextStepNumber]
+
+    console.log('nextStepKey', nextStepKey);
     
     // Update the onboarding step with the next step number
     if (nextStepKey) {
       updateData.onboardingStep = nextStepKey
 
+      
+    } else {
       if (step === "consent" && updateData.privacyConsent === true) {
+
+        console.log('Setting onboardingCompleted to true')
         updateData.onboardingStep = "completed"
 
         updateData.projectStatus = ProjectStatus.PENDING_INTAKE
@@ -294,11 +300,30 @@ export async function POST(
 
     console.log(`Updated onboarding step to: ${step} for user: ${user.email}`)
 
-    return NextResponse.json({
+
+    // Add Cookie to the response to set onboardingCompleted to true
+
+    // Set a cookie to indicate onboardingCompleted = true if onboarding is completed
+    const response = NextResponse.json({
       success: true,
       data: updatedApplication,
       step: step
-    })
+    });
+
+    console.log('updatedApplication', updatedApplication);
+
+    if (updatedApplication.isCompleted) {
+      console.log('Setting onboardingCompleted to true')
+      response.cookies.set('onboardingCompleted', 'true', {
+        path: '/',
+        httpOnly: false,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 30 // 30 days
+      });
+    }
+
+    return response;
 
   } catch (error) {
     console.error('Onboarding API error:', error)

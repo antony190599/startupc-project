@@ -6,6 +6,7 @@ export interface UserProps {
   email: string;
   firstname?: string;
   lastname?: string;
+  onboardingCompleted?: boolean;
   name?: string;
   image?: string;
   role?: UserRole;
