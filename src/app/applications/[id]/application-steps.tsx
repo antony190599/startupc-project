@@ -213,18 +213,64 @@ export default function ApplicationSteps({ application }: ApplicationStepsProps)
             <h4 className="font-medium mb-3">Miembros del Equipo</h4>
             {application.teamMembers && application.teamMembers.length > 0 ? (
               <div className="space-y-3">
-                {application.teamMembers.map((member: any, index: number) => (
+                {application.teamMembers.map((member: {
+                  id: string;
+                  firstName: string;
+                  lastName: string;
+                  contactEmail: string;
+                  university: string | null;
+                  career: string | null;
+                  studentCode: string | null;
+                  phone: string | null;
+                  universityEmail: string | null;
+                  linkedin: string | null;
+                  otherUniversity: string | null;
+                  dni: string | null;
+                }) => (
                   <Card key={member.id} className="p-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                       <div>
                         <h5 className="font-medium">{member.firstName} {member.lastName}</h5>
                         <p className="text-sm text-muted-foreground">{member.contactEmail}</p>
-                        <p className="text-sm text-muted-foreground">{member.career} • {member.university}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {member.career || '-'}{member.university ? ` • ${member.university}` : ''}
+                        </p>
+                        {member.universityEmail && (
+                          <p className="text-sm text-muted-foreground">
+                            <span className="font-semibold">Correo universitario:</span> {member.universityEmail}
+                          </p>
+                        )}
+                        {member.studentCode && (
+                          <p className="text-sm text-muted-foreground">
+                            <span className="font-semibold">Código estudiante:</span> {member.studentCode}
+                          </p>
+                        )}
+                        {member.dni && (
+                          <p className="text-sm text-muted-foreground">
+                            <span className="font-semibold">DNI:</span> {member.dni}
+                          </p>
+                        )}
+                        {member.otherUniversity && (
+                          <p className="text-sm text-muted-foreground">
+                            <span className="font-semibold">Otra universidad:</span> {member.otherUniversity}
+                          </p>
+                        )}
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">{member.phone}</p>
+                      <div className="text-right space-y-1">
+                        {member.phone && (
+                          <p className="text-sm text-muted-foreground">{member.phone}</p>
+                        )}
                         {member.linkedin && (
-                          <a href={`https://linkedin.com/in/${member.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                          <a
+                            href={
+                              member.linkedin.startsWith('http')
+                                ? member.linkedin
+                                : `https://linkedin.com/in/${member.linkedin}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline"
+                          >
                             LinkedIn
                           </a>
                         )}

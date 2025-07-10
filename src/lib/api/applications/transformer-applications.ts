@@ -1,4 +1,17 @@
 import { ProjectApplication, User, TeamMember, ProjectStatusLog } from '@prisma/client';
+import { 
+  industries, 
+  stages, 
+  projectOrigins, 
+  sources, 
+  sports, 
+  hobbies, 
+  movieGenres, 
+  programTypes,
+  steps,
+  parentCategories,
+  universities
+} from '@/lib/enum';
 
 export interface ApplicationWithRelations extends ProjectApplication {
   teamMembers: TeamMember[];
@@ -91,16 +104,74 @@ export interface ApplicationsResponse {
   };
 }
 
+// Helper functions to get display values from enums
+const getProgramTypeDisplay = (programType: string | null) => {
+  if (!programType) return null;
+  const program = programTypes.find(p => p.id === programType);
+  return program ? program.title : programType;
+};
+
+const getIndustryDisplay = (industry: string | null) => {
+  if (!industry) return null;
+  return industries[industry as keyof typeof industries] || industry;
+};
+
+const getParentCategoryDisplay = (parentCategory: string | null) => {
+  if (!parentCategory) return null;
+  return parentCategories[parentCategory as keyof typeof parentCategories] || parentCategory;
+};
+
+const getUniversityDisplay = (university: string | null) => {
+  if (!university) return null;
+  return universities[university as keyof typeof universities] || university;
+};
+
+const getStageDisplay = (stage: string | null) => {
+  if (!stage) return null;
+  return stages[stage as keyof typeof stages] || stage;
+};
+
+const getProjectOriginDisplay = (origin: string | null) => {
+  if (!origin) return null;
+  return projectOrigins[origin as keyof typeof projectOrigins] || origin;
+};
+
+const getSourceDisplay = (source: string | null) => {
+  if (!source) return null;
+  return sources[source as keyof typeof sources] || source;
+};
+
+const getSportDisplay = (sport: string | null) => {
+  if (!sport) return null;
+  return sports[sport as keyof typeof sports] || sport;
+};
+
+const getHobbyDisplay = (hobby: string | null) => {
+  if (!hobby) return null;
+  return hobbies[hobby as keyof typeof hobbies] || hobby;
+};
+
+const getMovieGenreDisplay = (genre: string | null) => {
+  if (!genre) return null;
+  return movieGenres[genre as keyof typeof movieGenres] || genre;
+};
+
+const getStepDisplay = (stepId: string | null) => {
+  if (!stepId) return null;
+  const step = steps.find(s => s.id === stepId);
+  return step ? step.title : stepId;
+};
+
 export function transformApplication(application: ApplicationQueryResult): TransformedApplication {
   const primaryUser = application.teamMembers[0] || null;
   
   return {
     id: application.id,
     projectName: application.projectName,
-    programType: application.programType,
-    category: application.category,
-    industry: application.industry,
-    stage: application.stage,
+    programType: getProgramTypeDisplay(application.programType),
+    category: getParentCategoryDisplay(application.category),
+    industry: getIndustryDisplay(application.industry),
+    stage: getStageDisplay(application.stage),
     projectStatus: application.projectStatus,
     isCompleted: application.isCompleted ?? false,
     createdAt: application.createdAt,
@@ -118,7 +189,7 @@ export function transformApplication(application: ApplicationQueryResult): Trans
       firstName: member.firstName,
       lastName: member.lastName,
       contactEmail: member.contactEmail,
-      university: member.university,
+      university: getUniversityDisplay(member.university),
       career: member.career,
       studentCode: member.studentCode,
       phone: member.phone,
@@ -140,7 +211,7 @@ export function transformApplicationDetail(application: ApplicationQueryResult):
     ruc: application.ruc,
     foundingYear: application.foundingYear,
     opportunityValue: application.opportunityValue,
-    projectOrigin: application.projectOrigin,
+    projectOrigin: getProjectOriginDisplay(application.projectOrigin),
     problem: application.problem,
     customerProfile: application.customerProfile,
     impact: application.impact,
@@ -148,12 +219,12 @@ export function transformApplicationDetail(application: ApplicationQueryResult):
     videoFileName: application.videoFileName,
     specificSupport: application.specificSupport,
     howMet: application.howMet,
-    source: application.source,
-    favoriteSport: application.favoriteSport,
-    favoriteHobby: application.favoriteHobby,
-    favoriteMovieGenre: application.favoriteMovieGenre,
+    source: getSourceDisplay(application.source),
+    favoriteSport: getSportDisplay(application.favoriteSport),
+    favoriteHobby: getHobbyDisplay(application.favoriteHobby),
+    favoriteMovieGenre: getMovieGenreDisplay(application.favoriteMovieGenre),
     privacyConsent: application.privacyConsent,
-    onboardingStep: application.onboardingStep,
+    onboardingStep: getStepDisplay(application.onboardingStep),
   };
 }
 
