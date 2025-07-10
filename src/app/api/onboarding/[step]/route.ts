@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db'
 import * as z from 'zod'
 import { getSession } from '@/lib/auth/utils'
 import { ProjectStatus } from '@/lib/enum'
+import { setOnboardingStep } from '@/lib/utils/functions/set-onboarding-step'
+import { UserProps } from '@/lib/types'
 
 // Step-specific validation schemas
 const stepSchemas = {
@@ -321,6 +323,8 @@ export async function POST(
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30 // 30 days
       });
+
+      await setOnboardingStep(session.user as UserProps, "completed");
     }
 
     return response;

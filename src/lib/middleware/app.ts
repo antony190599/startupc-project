@@ -1,6 +1,6 @@
 import { getUserViaToken, parse } from "@/lib/middleware/utils";
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from '@/lib/db';
+import { getOnboardingStep } from "./utils/get-onboarding-step";
 
 
 export default async function AppMiddleware(req: NextRequest) {
@@ -22,22 +22,20 @@ export default async function AppMiddleware(req: NextRequest) {
         console.log('redirecting to login');
         return NextResponse.redirect(new URL('/login', req.url));
     } else if(user && !['/onboarding'].includes(path)) {
-        const onboardingCompleted = req.cookies.get('onboardingCompleted');
-        console.log('onboardingCompleted', user.onboardingCompleted);
         
-        if (onboardingCompleted?.value !== 'true') {
+        if (await getOnboardingStep(user) !== "completed") {
             return NextResponse.redirect(new URL('/onboarding', req.url));
         }
     } else if (user && path === '/onboarding') {
-        const onboardingCompleted = req.cookies.get('onboardingCompleted');
         
-        if (onboardingCompleted?.value === 'true') {
+        if (await getOnboardingStep(user) === "completed") {
             return NextResponse.redirect(new URL('/dashboard', req.url));
         }
     }
 
     // Set onboardingCompleted cookie if user has completed onboarding but cookie doesn't exist
 
+    /*
     const onboardingCompletedValue = user?.onboardingCompleted ? 'true' : 'false';
     
     console.log('Setting onboardingCompleted cookie for user:', user?.email);
@@ -50,6 +48,6 @@ export default async function AppMiddleware(req: NextRequest) {
         maxAge: 60 * 60 * 24 * 30 // 30 days
     });
     return response;
-
+    */
     return NextResponse.next();
 }
