@@ -22,13 +22,6 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
 
     AxiomMiddleware(req, ev);
 
-    // Páginas públicas que no requieren autenticación
-    const publicPages = /^\/(login|signup|$)/; // Ruta raíz, login y signup son públicas
-    console.log("Public page:", path);
-    if (publicPages.test(path)) {
-        console.log("Public page:", path);
-        return NextResponse.next();
-    }
     
     // Get user token with role information
     const token = await getToken({ 
@@ -38,7 +31,7 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
     
     
     // Si el usuario no está autenticado y la ruta no es pública, redirigir a login
-  if (!token) {
+  if (!token && !['/login','/entrepreneur/signup'].includes(path)) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
   

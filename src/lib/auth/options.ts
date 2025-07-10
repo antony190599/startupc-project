@@ -160,6 +160,13 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 // Add role and other user fields to the token
                 token.user = user;
+                
+                // Set onboardingCompleted cookie if user has completed onboarding
+                if ((user as any).onboardingCompleted) {
+                    // Note: We can't set cookies directly in JWT callback
+                    // The cookie will be set in the session callback or API response
+                    console.log('User has completed onboarding, will set cookie in session');
+                }
             }
 
             if (trigger === "update") {
@@ -191,6 +198,11 @@ export const authOptions: NextAuthOptions = {
                 onboardingCompleted: token.onboardingCompleted as any,
                 ...(token || session).user as any,
             };
+            
+            // Note: Cookies should be set in middleware or API routes
+            // The session callback doesn't have access to response object
+            console.log('Session created with onboardingCompleted:', token.onboardingCompleted);
+            
             return session;
         },    
     },
