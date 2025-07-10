@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { ChevronLeft, ChevronRight, Plus, Trash2, CheckCircle } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, Trash2, CheckCircle, Edit } from "lucide-react"
 import { saveOnboardingStep, getOnboardingStep, getCurrentOnboardingStep, OnboardingStep } from "@/lib/utils/functions/onboarding"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
@@ -473,6 +473,13 @@ export default function FormularioPage() {
       university: "",
       otherUniversity: "",
     })
+  }
+
+  const goToStep = (stepIndex: number) => {
+    setCurrentStep(stepIndex)
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, 100)
   }
 
   // Initialize form with existing data
@@ -1517,9 +1524,24 @@ export default function FormularioPage() {
                         {/* Paso 0: Selección de Programa */}
                         <AccordionItem value="step-0" className="border rounded-lg">
                           <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                            <div className="flex items-center space-x-3">
-                              <CheckCircle className="h-5 w-5 text-green-600" />
-                              <span className="font-semibold">Paso 1: Selección de Programa</span>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center space-x-3">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <span className="font-semibold">Paso 1: Selección de Programa</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  goToStep(0)
+                                }}
+                                className="hover:bg-gray-100"
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                              </Button>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 pb-4">
@@ -1544,9 +1566,24 @@ export default function FormularioPage() {
                         {/* Paso 1: Datos Generales */}
                         <AccordionItem value="step-1" className="border rounded-lg">
                           <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                            <div className="flex items-center space-x-3">
-                              <CheckCircle className="h-5 w-5 text-green-600" />
-                              <span className="font-semibold">Paso 2: Datos Generales</span>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center space-x-3">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <span className="font-semibold">Paso 2: Datos Generales</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  goToStep(1)
+                                }}
+                                className="hover:bg-gray-100"
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                              </Button>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 pb-4">
@@ -1592,9 +1629,24 @@ export default function FormularioPage() {
                         {/* Paso 2: Impacto y Origen */}
                         <AccordionItem value="step-2" className="border rounded-lg">
                           <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                            <div className="flex items-center space-x-3">
-                              <CheckCircle className="h-5 w-5 text-green-600" />
-                              <span className="font-semibold">Paso 3: Impacto y Origen</span>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center space-x-3">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <span className="font-semibold">Paso 3: Impacto y Origen</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  goToStep(2)
+                                }}
+                                className="hover:bg-gray-100"
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                              </Button>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 pb-4">
@@ -1634,9 +1686,24 @@ export default function FormularioPage() {
                         {/* Paso 3: Presentación */}
                         <AccordionItem value="step-3" className="border rounded-lg">
                           <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                            <div className="flex items-center space-x-3">
-                              <CheckCircle className="h-5 w-5 text-green-600" />
-                              <span className="font-semibold">Paso 4: Presentación</span>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center space-x-3">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <span className="font-semibold">Paso 4: Presentación</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  goToStep(3)
+                                }}
+                                className="hover:bg-gray-100"
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                              </Button>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 pb-4">
@@ -1666,9 +1733,24 @@ export default function FormularioPage() {
                         {/* Paso 4: Equipo */}
                         <AccordionItem value="step-4" className="border rounded-lg">
                           <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                            <div className="flex items-center space-x-3">
-                              <CheckCircle className="h-5 w-5 text-green-600" />
-                              <span className="font-semibold">Paso 5: Equipo ({form.watch('teamMembers')?.length || 0} integrantes)</span>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center space-x-3">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <span className="font-semibold">Paso 5: Equipo ({form.watch('teamMembers')?.length || 0} integrantes)</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  goToStep(4)
+                                }}
+                                className="hover:bg-gray-100"
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                              </Button>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 pb-4">
@@ -1753,9 +1835,24 @@ export default function FormularioPage() {
                         {/* Paso 5: Preferencias Personales */}
                         <AccordionItem value="step-5" className="border rounded-lg">
                           <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                            <div className="flex items-center space-x-3">
-                              <CheckCircle className="h-5 w-5 text-green-600" />
-                              <span className="font-semibold">Paso 6: Preferencias Personales</span>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center space-x-3">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <span className="font-semibold">Paso 6: Preferencias Personales</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  goToStep(5)
+                                }}
+                                className="hover:bg-gray-100"
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                              </Button>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 pb-4">
