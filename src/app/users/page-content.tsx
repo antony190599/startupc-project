@@ -124,7 +124,7 @@ export function UsersPageContent() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Usuarios</h2>
+          <h1 className="text-3xl font-bold">Usuarios</h1>
           <p className="text-muted-foreground">
             Gestiona todos los usuarios del sistema
           </p>
