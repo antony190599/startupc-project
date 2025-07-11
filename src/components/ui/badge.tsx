@@ -17,6 +17,10 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        roleAdmin:
+          "border-transparent bg-role-admin text-role-admin-foreground [a&]:hover:bg-role-admin/90",
+        roleEntrepreneur:
+          "border-transparent bg-role-entrepreneur text-role-entrepreneur-foreground [a&]:hover:bg-role-entrepreneur/90",
       },
     },
     defaultVariants: {

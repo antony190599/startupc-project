@@ -102,8 +102,9 @@ export const columns: ColumnDef<TransformedApplication>[] = [
     accessorKey: "projectStatus",
     header: "Estado",
     cell: ({ row }) => {
+      const application = row.original
       const status = row.getValue("projectStatus") as string
-      const isCompleted = row.getValue("isCompleted") as boolean
+      const isCompleted = application.isCompleted as boolean
 
       const getStatusLabel = (status: string) => {
         switch (status) {
@@ -150,11 +151,16 @@ export const columns: ColumnDef<TransformedApplication>[] = [
           <Badge variant={getStatusVariant(status, isCompleted)}>
             {getStatusLabel(status)}
           </Badge>
-          {isCompleted && (
+          {
+            /*
+            {isCompleted && (
             <Badge variant="default" className="text-xs">
               Completado
             </Badge>
           )}
+            */
+          }
+          
         </div>
       )
     },
