@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 import { MixerHorizontalIcon } from "@radix-ui/react-icons"
 import { Table } from "@tanstack/react-table"
@@ -15,10 +16,12 @@ import {
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>
+  columnLabels?: Record<string, string>
 }
 
 export function DataTableViewOptions<TData>({
   table,
+  columnLabels = {},
 }: DataTableViewOptionsProps<TData>) {
   return (
     <DropdownMenu>
@@ -49,23 +52,11 @@ export function DataTableViewOptions<TData>({
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id === "firstname"
-                  ? "Usuario"
-                  : column.id === "role"
-                  ? "Rol"
-                  : column.id === "teamMember"
-                  ? "Información Académica"
-                  : column.id === "teamMember.contactEmail"
-                  ? "Email de Contacto"
-                  : column.id === "lockedAt"
-                  ? "Estado"
-                  : column.id === "createdAt"
-                  ? "Fecha de Registro"
-                  : column.id}
+                {columnLabels[column.id] || column.id}
               </DropdownMenuCheckboxItem>
             )
           })}
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
+} 

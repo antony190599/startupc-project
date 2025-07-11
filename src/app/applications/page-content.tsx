@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { TransformedApplication } from "@/lib/api/applications/transformer-applications"
-import { DataTable } from "./data-table"
+import { DataTable, DataTableToolbar, DataTableFacetedFilter, DataTableViewOptions } from "@/components/ui/data-table"
 import { columns } from "./columns"
-import { ApplicationsSkeleton } from "./applications-skeleton"
+import { ApplicationsTableSkeleton } from "./applications-skeleton"
 
 interface ApplicationsResponse {
   rows: TransformedApplication[]
@@ -89,6 +89,82 @@ export function ApplicationsPageContent() {
     setPagination(prev => ({ ...prev, page: 1 }))
   }
 
+  // Custom toolbar component for applications
+  const ApplicationsToolbar = ({ table, onSearch, searchValue }: any) => {
+    return (
+      <DataTableToolbar
+        table={table}
+        onSearch={onSearch}
+        searchValue={searchValue}
+        searchPlaceholder="Buscar aplicaciones..."
+        filters={
+          <>
+            {table.getColumn("programType") && (
+              <DataTableFacetedFilter
+                column={table.getColumn("programType")}
+                title="Tipo de Programa"
+                options={[
+                  {
+                    label: "Inqubalab",
+                    value: "inqubalab",
+                  },
+                  {
+                    label: "Idea Feedback",
+                    value: "idea-feedback",
+                  },
+                  {
+                    label: "Aceleración",
+                    value: "aceleracion",
+                  },
+                ]}
+              />
+            )}
+            {table.getColumn("projectStatus") && (
+              <DataTableFacetedFilter
+                column={table.getColumn("projectStatus")}
+                title="Estado"
+                options={[
+                  {
+                    label: "Pendiente",
+                    value: "pending",
+                  },
+                  {
+                    label: "En Revisión",
+                    value: "reviewing",
+                  },
+                  {
+                    label: "Aprobado",
+                    value: "approved",
+                  },
+                  {
+                    label: "Rechazado",
+                    value: "rejected",
+                  },
+                  {
+                    label: "Completado",
+                    value: "completed",
+                  },
+                ]}
+              />
+            )}
+          </>
+        }
+        viewOptions={
+          <DataTableViewOptions
+            table={table}
+            columnLabels={{
+              projectName: "Nombre del Proyecto",
+              programType: "Tipo de Programa",
+              primaryUser: "Usuario Principal",
+              projectStatus: "Estado",
+              actions: "Acciones",
+            }}
+          />
+        }
+      />
+    )
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -100,9 +176,7 @@ export function ApplicationsPageContent() {
         </div>
       </div>
 
-      {loading ? (
-        <ApplicationsSkeleton />
-      ) : data.length === 0 ? (
+      {data.length === 0 && !loading ? (
         <div className="mt-8 p-8 text-center border rounded-lg border-dashed">
           <h2 className="text-xl font-semibold mb-2">No hay aplicaciones activas</h2>
           <p className="text-muted-foreground">
@@ -119,6 +193,9 @@ export function ApplicationsPageContent() {
           onSearch={handleSearch}
           searchValue={searchValue}
           loading={loading}
+          emptyMessage="No se encontraron aplicaciones."
+          toolbar={ApplicationsToolbar}
+          skeleton={ApplicationsTableSkeleton}
         />
       )}
     </div>

@@ -27,7 +27,6 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
-import { ApplicationsTableSkeleton } from "./applications-skeleton"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -45,6 +44,19 @@ interface DataTableProps<TData, TValue> {
   onSearch?: (value: string) => void
   searchValue?: string
   loading?: boolean
+  emptyMessage?: string
+  toolbar?: React.ComponentType<{
+    table: any
+    onSearch?: (value: string) => void
+    searchValue?: string
+  }>
+  paginationComponent?: React.ComponentType<{
+    table: any
+    pagination: any
+    onPageChange: (page: number) => void
+    onPageSizeChange: (pageSize: number) => void
+  }>
+  skeleton?: React.ComponentType
 }
 
 export function DataTable<TData, TValue>({
@@ -56,6 +68,10 @@ export function DataTable<TData, TValue>({
   onSearch,
   searchValue = "",
   loading = false,
+  emptyMessage = "No se encontraron resultados.",
+  toolbar: ToolbarComponent = DataTableToolbar,
+  paginationComponent: PaginationComponent = DataTablePagination,
+  skeleton: SkeletonComponent,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -86,13 +102,13 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar 
+      <ToolbarComponent 
         table={table} 
         onSearch={onSearch}
         searchValue={searchValue}
       />
-      {loading ? (
-        <ApplicationsTableSkeleton />
+      {loading && SkeletonComponent ? (
+        <SkeletonComponent />
       ) : (
         <div className="rounded-md border">
           <Table>
@@ -134,7 +150,7 @@ export function DataTable<TData, TValue>({
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No se encontraron aplicaciones.
+                    {emptyMessage}
                   </TableCell>
                 </TableRow>
               )}
@@ -142,7 +158,7 @@ export function DataTable<TData, TValue>({
           </Table>
         </div>
       )}
-      <DataTablePagination 
+      <PaginationComponent 
         table={table} 
         pagination={pagination}
         onPageChange={onPageChange}
@@ -150,4 +166,4 @@ export function DataTable<TData, TValue>({
       />
     </div>
   )
-}
+} 

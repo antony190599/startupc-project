@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { DataTable } from "./data-table"
+import { DataTable, DataTableToolbar, DataTableFacetedFilter, DataTableViewOptions } from "@/components/ui/data-table"
 import { columns } from "./columns"
 import { TransformedUser } from "@/lib/api/users/transformer-users"
+import { UsersTableSkeleton } from "./users-skeleton"
 
 interface UsersResponse {
   rows: TransformedUser[]
@@ -82,6 +83,43 @@ export function UsersPageContent() {
     setPagination(prev => ({ ...prev, page: 1 }))
   }
 
+  // Custom toolbar component for users
+  const UsersToolbar = ({ table, onSearch, searchValue }: any) => {
+    const roles = [
+      { value: "entrepreneur", label: "Emprendedor" },
+      { value: "admin", label: "Administrador" },
+    ]
+
+    return (
+      <DataTableToolbar
+        table={table}
+        onSearch={onSearch}
+        searchValue={searchValue}
+        searchPlaceholder="Buscar usuarios..."
+        filters={
+          <DataTableFacetedFilter
+            column={table.getColumn("role")}
+            title="Rol"
+            options={roles}
+          />
+        }
+        viewOptions={
+          <DataTableViewOptions
+            table={table}
+            columnLabels={{
+              firstname: "Usuario",
+              role: "Rol",
+              teamMember: "Información Académica",
+              contactEmail: "Email de Contacto",
+              status: "Estado",
+              createdAt: "Fecha de Registro",
+            }}
+          />
+        }
+      />
+    )
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -101,6 +139,9 @@ export function UsersPageContent() {
         onSearch={handleSearch}
         searchValue={searchValue}
         loading={loading}
+        emptyMessage="No se encontraron usuarios."
+        toolbar={UsersToolbar}
+        skeleton={UsersTableSkeleton}
       />
     </div>
   )
