@@ -143,6 +143,10 @@ src/
    # Optional: Google OAuth (if enabled)
    GOOGLE_CLIENT_ID="your-google-client-id"
    GOOGLE_CLIENT_SECRET="your-google-client-secret"
+
+   # Upstash
+   UPSTASH_REDIS_REST_URL=
+   UPSTASH_REDIS_REST_TOKEN=
    ```
 
 4. **Database Setup**
