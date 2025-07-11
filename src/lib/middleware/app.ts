@@ -22,32 +22,20 @@ export default async function AppMiddleware(req: NextRequest) {
         console.log('redirecting to login');
         return NextResponse.redirect(new URL('/login', req.url));
     } else if(user && !['/onboarding'].includes(path)) {
-        
-        if (await getOnboardingStep(user) !== "completed") {
+
+        if (user.role === 'entrepreneur' && await getOnboardingStep(user) !== "completed") {
             return NextResponse.redirect(new URL('/onboarding', req.url));
         }
     } else if (user && path === '/onboarding') {
         
-        if (await getOnboardingStep(user) === "completed") {
+        if (user.role === 'entrepreneur' && await getOnboardingStep(user) === "completed") {
+            return NextResponse.redirect(new URL('/dashboard', req.url));
+        }
+
+        if (user.role === 'admin') {
             return NextResponse.redirect(new URL('/dashboard', req.url));
         }
     }
-
-    // Set onboardingCompleted cookie if user has completed onboarding but cookie doesn't exist
-
-    /*
-    const onboardingCompletedValue = user?.onboardingCompleted ? 'true' : 'false';
     
-    console.log('Setting onboardingCompleted cookie for user:', user?.email);
-    const response = NextResponse.next();
-    response.cookies.set('onboardingCompleted', onboardingCompletedValue, {
-        path: '/',
-        httpOnly: false, // Allow client-side access
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 30 // 30 days
-    });
-    return response;
-    */
     return NextResponse.next();
 }
