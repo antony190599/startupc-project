@@ -8,6 +8,7 @@ A comprehensive Next.js application for managing startup project applications an
 - **Multi-step Onboarding Process**: 7-step application flow for startup projects
 - **User Authentication**: Secure login/signup with NextAuth.js
 - **Role-based Access Control**: Admin and entrepreneur user roles
+- **User Management**: Comprehensive user administration with filtering and search
 - **Team Management**: Add and manage team members with detailed information
 - **Program Selection**: Choose from different startup programs (Inqubalab, Idea Feedback, Aceleración)
 - **Application Tracking**: View and manage submitted applications
@@ -17,8 +18,9 @@ A comprehensive Next.js application for managing startup project applications an
 
 ### User Roles & Access
 - **Entrepreneurs**: Submit applications, manage team, track progress
-- **Admins**: Review applications, manage users, system administration
+- **Admins**: Review applications, manage users, system administration, user management
 - **Protected Routes**: Role-based access control for different sections
+- **User Management**: Admin-only access to user administration features
 
 ### Onboarding Steps
 1. **Program Selection** - Choose startup program type
@@ -35,6 +37,15 @@ A comprehensive Next.js application for managing startup project applications an
 - **Team Overview**: Manage team members and their information
 - **Settings**: User profile and application preferences
 - **Individual Application View**: Detailed view of specific applications
+
+### User Management
+- **User Dashboard**: Comprehensive user administration interface
+- **User Data Table**: Paginated user list with advanced filtering and search
+- **Role-based Filtering**: Filter users by role (Entrepreneur, Admin)
+- **Academic Information**: Display university and team member details
+- **Account Status**: Monitor user account status (Active, Locked, Failed attempts)
+- **User Actions**: View, edit, and manage user accounts
+- **Security Features**: Password protection and sensitive data handling
 
 ## 🛠 Tech Stack
 
@@ -70,7 +81,8 @@ src/
 │   │   ├── applications/  # Application management API
 │   │   │   └── [id]/      # Individual application CRUD operations
 │   │   ├── auth/          # Authentication endpoints
-│   │   └── onboarding/    # Onboarding API
+│   │   ├── onboarding/    # Onboarding API
+│   │   └── users/         # User management API
 │   ├── applications/      # Application tracking page
 │   ├── dashboard/         # User dashboard (role-based)
 │   ├── entrepreneur/      # Entrepreneur-specific pages
@@ -78,6 +90,7 @@ src/
 │   ├── onboarding/        # Onboarding flow
 │   ├── settings/          # User settings and profile
 │   ├── team/              # Team management
+│   ├── users/             # User management interface
 │   └── test-onboarding/   # Testing environment
 ├── components/            # React components
 │   ├── auth/             # Authentication components
@@ -87,7 +100,8 @@ src/
 ├── hooks/                # Custom React hooks
 ├── lib/                  # Utility functions
 │   ├── api/              # API utilities and transformers
-│   │   └── applications/ # Application API functions and transformers
+│   │   ├── applications/ # Application API functions and transformers
+│   │   └── users/        # User API functions and transformers
 │   ├── auth/             # Authentication utilities
 │   ├── middleware/       # Middleware utilities
 │   ├── utils/            # Helper functions
@@ -236,6 +250,18 @@ The application uses NextAuth.js with the following providers:
 - **Detailed Views**: Complete application data with team members and status history
 - **CRUD Operations**: Full Create, Read, Update, Delete functionality
 
+### Users
+- `GET /api/users` - Get all users with filtering and pagination
+
+#### User API Features
+- **Filtering**: By role (entrepreneur, admin) and project application ID
+- **Search**: Full-text search across user names, emails, and team member information
+- **Sorting**: By user fields (createdAt, updatedAt, firstname, lastname, email, role)
+- **Pagination**: Configurable page size with navigation
+- **Security**: Password exclusion and sensitive data protection
+- **University Display**: Enhanced university information with display values
+- **Team Member Data**: Complete team member information with academic details
+
 ## 🎨 UI Components
 
 The project uses Shadcn/ui components with Tailwind CSS:
@@ -255,6 +281,8 @@ The project uses Shadcn/ui components with Tailwind CSS:
 - **CSRF Protection**: Built-in NextAuth.js protection
 - **Rate Limiting**: Login attempt tracking
 - **Role-based Access**: Middleware protection for different user roles
+- **API Security**: Password exclusion in user API responses
+- **Authentication Required**: All API endpoints require valid sessions
 
 ## 🧪 Validation Rules
 
@@ -329,6 +357,14 @@ For support and questions:
   - Full CRUD operations for applications
   - Enhanced data transformers
   - Comprehensive API documentation
+- **v0.4.0** - User Management System
+  - Comprehensive user administration interface
+  - User data table with advanced filtering and search
+  - Role-based filtering (Entrepreneur, Admin)
+  - University display integration
+  - Account status monitoring
+  - Secure API with password protection
+  - Data transformers for enhanced user information
 
 ---
 
