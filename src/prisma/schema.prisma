@@ -99,6 +99,9 @@ model ProjectApplication {
   // Paso 0: Selección de Programa
   programType String? // inqubalab, idea-feedback, aceleracion
 
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Cascade)
+
   // Paso 1: Datos Generales
   projectName   String?
   website       String?
@@ -215,6 +218,7 @@ model Program {
 
   // Relations
   programStatusLogs ProgramStatusLog[]
+  projectApplications ProjectApplication[]
 
   @@map("programs")
 }
