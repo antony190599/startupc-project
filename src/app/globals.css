@@ -43,7 +43,6 @@
   --color-role-entrepreneur: var(--role-entrepreneur);
   --color-role-entrepreneur-foreground: var(--role-entrepreneur-foreground);
 
-
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

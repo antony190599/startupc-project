@@ -1,4 +1,4 @@
-import DashboardLayout from "@/components/layout/dashboard-layout";
+import DashboardLayout from "@/components/layout/main/dashboard-layout";
 import ProtectedRoute from "@/components/auth/protected-route";
 
 export default function AdminLayout({
