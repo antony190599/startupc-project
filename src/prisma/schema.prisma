@@ -170,8 +170,8 @@ model TeamMember {
   dni      String?
 
   // User
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @unique
+  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Información académica
   studentCode String? // Requerido para universidades Laureate
@@ -197,4 +197,36 @@ model TeamMember {
 
   @@map("team_members")
 }
+
+//programs
+model Program {
+  id String @id @default(cuid())
+  name String
+  description String
+  programType String
+  programStatus String
+  year String? // 2025, 2026, etc
+  cohortCode String? // 2025-1, 2025-2, 2025-3, etc
+  startDate DateTime?
+  endDate DateTime?
+  status String? // draft, published, inactive
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  programStatusLogs ProgramStatusLog[]
+
+  @@map("programs")
+}
+
+model ProgramStatusLog {
+  id String @id @default(cuid())
+  programId String
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  status String
+  createdAt DateTime @default(now())
+
+  @@map("program_status_logs")
+}
+
 
