@@ -231,17 +231,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       name: "Plataforma StartupC",
       logo: GalleryVerticalEnd,
       plan: "Empresa",
-    },
-    {
-      name: "Equipo de Desarrollo",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Equipo de Soporte",
-      logo: Command,
-      plan: "Gratuito",
-    },
+    }
   ]
 
   // User data from session
@@ -263,7 +253,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={routes} />
-        <NavProjects projects={[]} />
+        {
+          /*
+            <NavProjects items={projects} />
+          */
+        }
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

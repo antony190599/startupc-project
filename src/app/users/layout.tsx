@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import DashboardLayout from "@/components/layout/main/dashboard-layout";
+import DashboardLayout from "@/components/layout/main-2/dashboard-layout";
 import ProtectedRoute from "@/components/auth/protected-route";
 import { getSession } from "@/lib/auth/utils";
 
