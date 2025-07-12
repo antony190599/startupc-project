@@ -30,9 +30,13 @@ export const columns: ColumnDef<TransformedProgram>[] = [
           <div className="font-medium">
             {name || "-"}
           </div>
-          <div className="text-sm text-muted-foreground line-clamp-2">
-            {description || "-"}
-          </div>
+          {
+            /*
+                <div className="text-sm text-muted-foreground line-clamp-2">
+                    {description || "-"}
+                </div>
+            */
+          }
         </div>
       )
     },

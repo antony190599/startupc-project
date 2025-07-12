@@ -265,49 +265,50 @@ export function CreateProgramSheet({ onProgramCreated }: CreateProgramSheetProps
                 )}
               />
 
-              {/* Fecha de Inicio */}
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fecha de Inicio</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Fecha y hora de inicio del programa
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Fechas de Inicio y Fin */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fecha de Inicio</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Fecha y hora de inicio
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Fecha de Fin */}
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fecha de Fin</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Fecha y hora de finalización del programa
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fecha de Fin</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Fecha y hora de finalización
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {/* Estado de Publicación */}
               <FormField

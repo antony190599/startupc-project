@@ -17,6 +17,7 @@ import {
   GalleryVerticalEnd,
   AudioWaveform,
   Command,
+  BookOpen,
 } from "lucide-react"
 
 import { NavMain } from "@/components/layout/main-2/nav-main"
@@ -111,6 +112,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ],
         },
         {
+          title: "Programas",
+          url: "/programs",
+          icon: BookOpen,
+          items: [
+            {
+              title: "Todos los Programas",
+              url: "/programs",
+            },
+          ],
+        },
+        {
           title: "Reportes",
           url: "/reports",
           icon: TrendingUp,
@@ -190,6 +202,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
               title: "Rechazadas",
               url: `/applications?projectStatus=${ProjectStatus.REJECTED}`,
+            },
+          ],
+        },
+        {
+          title: "Programas",
+          url: "/programs",
+          icon: BookOpen,
+          items: [
+            {
+              title: "Todos los Programas",
+              url: "/programs",
             },
           ],
         },

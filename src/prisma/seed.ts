@@ -1,9 +1,59 @@
 import { PrismaClient } from '@prisma/client'
+import { ProgramTypes } from '../lib/enum'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Starting database seed...')
+
+  // Create programs
+  console.log('📚 Creating programs...')
+  const programs = [
+    {
+      name: 'Inqubalab 2025',
+      description: 'Programa de incubación para ideas de negocio. Ayudamos a emprendedores a desarrollar y validar sus ideas de negocio desde la concepción hasta el MVP.',
+      programType: ProgramTypes.INQUBALAB,
+      programStatus: 'active',
+      year: '2025',
+      cohortCode: '2025-1',
+      startDate: new Date('2025-03-01'),
+      endDate: new Date('2025-08-31'),
+      status: 'published',
+    },
+    {
+      name: 'Idea Feedback 2025',
+      description: 'Programa de retroalimentación para ideas. Recibe feedback experto y valida tu idea de negocio antes de comenzar el desarrollo.',
+      programType: ProgramTypes.IDEA_FEEDBACK,
+      programStatus: 'active',
+      year: '2025',
+      cohortCode: '2025-1',
+      startDate: new Date('2025-02-15'),
+      endDate: new Date('2025-04-15'),
+      status: 'published',
+    },
+    {
+      name: 'Aceleración 2025',
+      description: 'Programa de aceleración para startups. Acelera el crecimiento de tu startup con mentoría, networking y recursos especializados.',
+      programType: ProgramTypes.ACELERACION,
+      programStatus: 'active',
+      year: '2025',
+      cohortCode: '2025-1',
+      startDate: new Date('2025-05-01'),
+      endDate: new Date('2025-11-30'),
+      status: 'published',
+    },
+  ]
+
+  const createdPrograms = []
+  for (const programData of programs) {
+    const program = await prisma.program.create({
+      data: programData,
+    })
+    createdPrograms.push(program)
+    console.log(`📚 Created program: ${program.name}`)
+  }
+
+  return;
 
   // Create sample users
   const users = [
@@ -192,6 +242,7 @@ async function main() {
   })
 
   console.log('✅ Database seeded successfully!')
+  console.log(`📚 Created ${createdPrograms.length} programs`)
   console.log(`👤 Created ${createdUsers.length} users`)
   console.log(`📋 Created ${createdApplications.length} project applications`)
   console.log(`👥 Created ${teamMembers.length} team members`)
