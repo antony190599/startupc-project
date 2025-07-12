@@ -30,6 +30,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { ProjectStatus } from "@/lib/enum"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession()
@@ -65,16 +66,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               url: "/applications",
             },
             {
+              title: "Creadas",
+              url: `/applications?projectStatus=${ProjectStatus.CREATED}`,
+            },
+            {
               title: "Pendientes de Revisión",
-              url: "/applications?status=pending",
+              url: `/applications?projectStatus=${ProjectStatus.PENDING_INTAKE}`,
+            },
+            {
+              title: "En Revisión Técnica",
+              url: `/applications?projectStatus=${ProjectStatus.TECHNICAL_REVIEW}`,
             },
             {
               title: "Aprobadas",
-              url: "/applications?status=approved",
+              url: `/applications?projectStatus=${ProjectStatus.APPROVED}`,
+            },
+            {
+              title: "Aceptadas",
+              url: `/applications?projectStatus=${ProjectStatus.ACCEPTED}`,
             },
             {
               title: "Rechazadas",
-              url: "/applications?status=rejected",
+              url: `/applications?projectStatus=${ProjectStatus.REJECTED}`,
             },
           ],
         },
@@ -155,24 +168,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               url: "/applications",
             },
             {
-              title: "Borrador",
-              url: "/applications?status=draft",
+              title: "Creadas",
+              url: `/applications?projectStatus=${ProjectStatus.CREATED}`,
             },
             {
-              title: "Enviadas",
-              url: "/applications?status=submitted",
+              title: "Pendientes de Revisión",
+              url: `/applications?projectStatus=${ProjectStatus.PENDING_INTAKE}`,
             },
             {
-              title: "En Revisión",
-              url: "/applications?status=review",
+              title: "En Revisión Técnica",
+              url: `/applications?projectStatus=${ProjectStatus.TECHNICAL_REVIEW}`,
             },
             {
               title: "Aprobadas",
-              url: "/applications?status=approved",
+              url: `/applications?projectStatus=${ProjectStatus.APPROVED}`,
+            },
+            {
+              title: "Aceptadas",
+              url: `/applications?projectStatus=${ProjectStatus.ACCEPTED}`,
             },
             {
               title: "Rechazadas",
-              url: "/applications?status=rejected",
+              url: `/applications?projectStatus=${ProjectStatus.REJECTED}`,
             },
           ],
         },
