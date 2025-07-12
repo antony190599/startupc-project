@@ -216,15 +216,6 @@ export default function EntrepreneurDashboardClient() {
         </Card>
       </div>
 
-      {/* User Information */}
-      <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-        <h2 className="text-xl font-medium text-blue-800">Información del usuario</h2>
-        <div className="mt-2">
-          <p><span className="font-semibold">Usuario:</span> {session?.user?.firstname} {session?.user?.lastname}</p>
-          <p><span className="font-semibold">Email:</span> {session?.user?.email}</p>
-          <p><span className="font-semibold">Rol:</span> {session?.user?.role}</p>
-        </div>
-      </div>
     </div>
   );
 }
