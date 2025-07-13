@@ -178,13 +178,12 @@ export default function FormularioPage() {
     },
   });
 
-  /*
+  
   useEffect(() => {
     if (programId) {
-      router.replace(pathname); // removes query string
+      form.setValue('programId', programId as string);
     }
-  }, [programId, router, pathname]);
-  */
+  }, [programId, router]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,

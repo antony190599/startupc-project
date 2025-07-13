@@ -119,7 +119,7 @@ export default function SignupPage() {
         email: formData.email,
         password: formData.password,
         //redirect: false,
-        ...(next ? { callbackUrl: next } : {})
+        ...(next ? { callbackUrl: next } : {callbackUrl: "/"})
       });
 
       if (result?.error) {
