@@ -63,9 +63,9 @@ model User {
   accounts Account[]
   sessions Session[]
   profile  Profile?
-  teamMember TeamMember?
 
   projectApplications ProjectApplication[] @relation("UserApplications")
+  teamMembers TeamMember[]
 }
 
 model Profile {
@@ -175,8 +175,8 @@ model TeamMember {
   dni      String?
 
   // User
-  userId String? @unique
-  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Información académica
   studentCode String? // Requerido para universidades Laureate

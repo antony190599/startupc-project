@@ -15,6 +15,7 @@ const stepSchemas = {
   }),
   
   'general-data': z.object({
+    programId: z.string().min(1, "Program ID is required"),
     projectName: z.string().min(1, "Project name is required"),
     website: z.string().min(1, "Website is required"),
     category: z.string().min(1, "Category is required"),
@@ -25,6 +26,7 @@ const stepSchemas = {
   }),
   
   'impact-origin': z.object({
+    programId: z.string().min(1, "Program ID is required"),
     opportunityValue: z.string().min(10, "Opportunity value must be at least 10 characters"),
     stage: z.string().min(1, "Stage is required"),
     projectOrigin: z.string().min(1, "Project origin is required"),
@@ -34,12 +36,14 @@ const stepSchemas = {
   }),
   
   'presentation': z.object({
+    programId: z.string().min(1, "Program ID is required"),
     videoUrl: z.string().optional(),
     videoFileName: z.string().optional(),
     specificSupport: z.string().min(10, "Specific support must be at least 10 characters"),
   }),
   
   'team': z.object({
+    programId: z.string().min(1, "Program ID is required"),
     howMet: z.string().optional(),
     source: z.string().min(1, "Source is required"),
     teamMembers: z.array(z.object({
@@ -106,12 +110,14 @@ const stepSchemas = {
   }),
   
   'preferences': z.object({
+    programId: z.string().min(1, "Program ID is required"),
     favoriteSport: z.string().min(1, "Favorite sport is required"),
     favoriteHobby: z.string().min(1, "Favorite hobby is required"),
     favoriteMovieGenre: z.string().min(1, "Favorite movie genre is required"),
   }),
   
   'consent': z.object({
+    programId: z.string().min(1, "Program ID is required"),
     privacyConsent: z.boolean().refine((val) => val === true, {
       message: "Privacy consent must be accepted"
     }),
@@ -160,6 +166,8 @@ export async function POST(
     // Validate data against step schema
     const schema = stepSchemas[step as keyof typeof stepSchemas]
     const validatedData = schema.parse(body) as any
+
+    console.log('validatedData', validatedData);
 
     // Get or create user
     const user = await prisma.user.findUnique({
@@ -273,6 +281,7 @@ export async function POST(
             await prisma.teamMember.create({
               data: {
                 ...member,
+                programId: validatedData.id,
                 projectApplicationId: projectApplication.id,
                 userId: user.id,
               }
