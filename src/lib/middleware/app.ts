@@ -66,6 +66,9 @@ export default async function AppMiddleware(req: NextRequest) {
             
             try {
 
+                console.log('userId', userId);
+                console.log('programId', programId);
+
                 const result = await fetcher(`${process.env.API_INTERNAL_URL}/api/internal/applications`, {
                     method: 'POST',
                     body: JSON.stringify({

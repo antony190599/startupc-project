@@ -94,7 +94,7 @@ export function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
         },
         {
           href: "/team",
-          label: "Mi Equipo",
+          label: "Mis Equipos",
           icon: <Users className="h-5 w-5" />,
           active: pathname === "/dashboard/team",
         },

@@ -15,7 +15,7 @@ export default async function Layout({
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["entrepreneur"]}>
       <DashboardLayout>{children}</DashboardLayout>
     </ProtectedRoute>
   );

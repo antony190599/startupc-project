@@ -206,7 +206,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ],
         },
         {
-          title: "Mi Equipo",
+          title: "Mis Equipos",
           url: "/team",
           icon: Users,
           items: [

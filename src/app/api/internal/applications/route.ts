@@ -54,11 +54,10 @@ export async function POST(request: NextRequest) {
     // Create the project application
     const application = await prisma.projectApplication.create({
       data: {
-        ...projectData,
         programId,
         isCompleted: false,
         onboardingStep: 'program-selection',
-        programStatus: ProjectStatus.CREATED,
+        projectStatus: ProjectStatus.CREATED,
         programType: program?.programType,
         users: {
           connect: { id: userId },
