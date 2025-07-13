@@ -123,6 +123,9 @@ const getProgramsPublished = async () => {
 }
 
 export default function FormularioPage() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const programId = searchParams.get('programId');
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [isInitializing, setIsInitializing] = useState(true)
@@ -130,17 +133,6 @@ export default function FormularioPage() {
   const formRef = useRef<HTMLDivElement>(null)
   const { data: session, status } = useSession()
   const router = useRouter()
-  const searchParams = useSearchParams()
-
-  // get programId from query string
-  const programId = searchParams.get('programId')
-
-  const clearQuery = () => {
-    router.replace(
-      // only the pathname, no `query`
-      usePathname(),
-    );
-  };
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -184,15 +176,13 @@ export default function FormularioPage() {
       favoriteMovieGenre: "",
       privacyConsent: false,
     },
-  })
+  });
 
-  if (programId) {
-
-    //REMOVE PROGRAMID FROM QUERY STRING aniotehr way
-    clearQuery()
-    
-    
-  }
+  useEffect(() => {
+    if (programId) {
+      router.replace(pathname); // removes query string
+    }
+  }, [programId, router, pathname]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
