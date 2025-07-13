@@ -18,6 +18,7 @@ interface OnboardingStatus {
   progress: number;
   isComplete: boolean;
   applicationId?: string;
+  programId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -34,10 +35,10 @@ export default function EntrepreneurDashboardClient() {
       
       try {
         const status = await getOnboardingStatus();
-        const currentStep = await getCurrentOnboardingStep(status.programId as string);
+        const currentStep = await getCurrentOnboardingStep(status[0].programId as string);
         
         setOnboardingStatus({
-          ...status,
+          ...status[0],
           currentStep: currentStep.currentStep
         });
       } catch (error) {
@@ -159,7 +160,7 @@ export default function EntrepreneurDashboardClient() {
                 ) : (
                   <Button 
                     size="sm" 
-                    onClick={() => router.push('/onboarding')}
+                    onClick={() => router.push(`/onboarding/${onboardingStatus?.programId}`)}
                     className="flex-1"
                   >
                     {onboardingStatus?.hasApplication ? 'Continuar formulario' : 'Comenzar formulario'}

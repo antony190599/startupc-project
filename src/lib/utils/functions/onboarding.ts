@@ -126,7 +126,7 @@ export async function getOnboardingStatus(programId: string | undefined = undefi
   programId?: string
   createdAt?: string
   updatedAt?: string
-}> {
+}[]> {
   try {
     const response = await fetcher(`/api/onboarding/status/${programId ? programId : ''}`, {
       method: 'GET',

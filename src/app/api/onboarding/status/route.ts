@@ -3,9 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth/utils';
 
-export async function GET(request: NextRequest, args: {
-  params: Promise<{ programId: string }>;
-}) {
+export async function GET(request: NextRequest) {
   try {
     // Validate session
     const session = await getSession();
@@ -16,7 +14,7 @@ export async function GET(request: NextRequest, args: {
       )
     }
 
-    const { programId } = await args.params;
+    const programId = 'null';
 
     // Get user
     const user = await prisma.user.findUnique({
@@ -162,8 +160,7 @@ export async function GET(request: NextRequest, args: {
         createdAt: projectApplication.createdAt,
         updatedAt: projectApplication.updatedAt
       }
-    })
-
+    });
   } catch (error) {
     console.error('Onboarding status API error:', error)
     
