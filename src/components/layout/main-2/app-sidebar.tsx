@@ -206,17 +206,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ],
         },
         {
-          title: "Programas",
-          url: "/programs",
-          icon: BookOpen,
-          items: [
-            {
-              title: "Todos los Programas",
-              url: "/programs",
-            },
-          ],
-        },
-        {
           title: "Mi Equipo",
           url: "/team",
           icon: Users,
