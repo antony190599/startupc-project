@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth/utils';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, args: {
+  params: Promise<{ programId: string }>;
+}) {
   try {
     // Validate session
     const session = await getSession();
@@ -26,10 +28,13 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const { programId } = await args.params;
+
     // Get project application
     const projectApplication = await prisma.projectApplication.findFirst({
       where: { 
-        users: { some: { id: user.id } }
+        users: { some: { id: user.id } },
+        programId: programId
       },
       select: {
         id: true,

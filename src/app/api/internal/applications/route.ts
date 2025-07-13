@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { ProjectStatus } from '@/lib/enum';
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,6 +56,9 @@ export async function POST(request: NextRequest) {
       data: {
         ...projectData,
         programId,
+        isCompleted: false,
+        onboardingStep: 'program-selection',
+        programStatus: ProjectStatus.CREATED,
         programType: program?.programType,
         users: {
           connect: { id: userId },

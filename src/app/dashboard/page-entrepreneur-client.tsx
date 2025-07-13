@@ -34,7 +34,7 @@ export default function EntrepreneurDashboardClient() {
       
       try {
         const status = await getOnboardingStatus();
-        const currentStep = await getCurrentOnboardingStep();
+        const currentStep = await getCurrentOnboardingStep(status.programId as string);
         
         setOnboardingStatus({
           ...status,

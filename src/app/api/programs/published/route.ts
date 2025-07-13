@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
 
     // Get session and user applications
     const session = await getSession();
-    let userApplications: { programId: string | null }[] = [];
+    let userApplications: { programId: string | null, isCompleted: boolean | null }[] = [];
     if (session?.user?.id) {
       userApplications = await prisma.projectApplication.findMany({
         where: {
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
             some: { id: session.user.id },
           },
         },
-        select: { programId: true },
+        select: { programId: true, isCompleted: true },
       });
     }
     // Only use non-null programIds
@@ -123,6 +123,7 @@ export async function GET(request: NextRequest) {
       const programsWithHasApplied = programs.map(program => ({
         ...program,
         hasApplied: appliedProgramIds.has(program.id),
+        isCompleted: userApplications.find(app => app.programId === program.id)?.isCompleted || false,
       }));
 
       console.log('programsWithHasApplied', programsWithHasApplied);

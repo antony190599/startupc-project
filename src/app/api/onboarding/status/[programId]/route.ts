@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth/utils';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, args: {
+  params: Promise<{ programId: string }>;
+}) {
   try {
     // Validate session
     const session = await getSession();
@@ -13,6 +15,8 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       )
     }
+
+    const { programId } = await args.params;
 
     // Get user
     const user = await prisma.user.findUnique({
@@ -26,10 +30,61 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get project application
+    // If programId is null or undefined, return all project applications for the user
+    if (!programId || programId === 'null' || programId === 'undefined') {
+      const projectApplications = await prisma.projectApplication.findMany({
+        where: {
+          users: { some: { id: user.id } },
+        },
+        include: { teamMembers: true },
+      });
+
+      // Map each application to the same structure as the single response
+      const allSteps = [
+        'program-selection',
+        'general-data',
+        'impact-origin',
+        'presentation',
+        'team',
+        'preferences',
+        'consent'
+      ];
+
+      const applicationsInfo = projectApplications.map(projectApplication => {
+        const completedSteps: string[] = [];
+        if (projectApplication.programType) completedSteps.push('program-selection');
+        if (projectApplication.projectName && projectApplication.category && projectApplication.industry && projectApplication.description) completedSteps.push('general-data');
+        if (projectApplication.opportunityValue && projectApplication.stage && projectApplication.projectOrigin && projectApplication.problem && projectApplication.customerProfile && projectApplication.impact) completedSteps.push('impact-origin');
+        if (projectApplication.specificSupport) completedSteps.push('presentation');
+        if (projectApplication.source && projectApplication.teamMembers && projectApplication.teamMembers.length > 0) completedSteps.push('team');
+        if (projectApplication.favoriteSport && projectApplication.favoriteHobby && projectApplication.favoriteMovieGenre) completedSteps.push('preferences');
+        if (projectApplication.privacyConsent) completedSteps.push('consent');
+        const progress = Math.round((completedSteps.length / allSteps.length) * 100);
+        const isComplete = completedSteps.length === allSteps.length;
+        return {
+          hasApplication: true,
+          currentStep: projectApplication.onboardingStep,
+          completedSteps,
+          progress,
+          isComplete,
+          applicationId: projectApplication.id,
+          programId: projectApplication.programId,
+          createdAt: projectApplication.createdAt,
+          updatedAt: projectApplication.updatedAt
+        };
+      });
+
+      return NextResponse.json({
+        success: true,
+        data: applicationsInfo
+      });
+    }
+
+    // Get project application for specific programId
     const projectApplication = await prisma.projectApplication.findFirst({
       where: { 
-        users: { some: { id: user.id } }
+        users: { some: { id: user.id } },
+        programId: programId
       },
       include: { teamMembers: true }
     })
@@ -42,7 +97,8 @@ export async function GET(request: NextRequest) {
           currentStep: null,
           completedSteps: [],
           progress: 0,
-          isComplete: false
+          isComplete: false,
+          programId: programId
         }
       })
     }
@@ -102,6 +158,7 @@ export async function GET(request: NextRequest) {
         progress,
         isComplete,
         applicationId: projectApplication.id,
+        programId: programId,
         createdAt: projectApplication.createdAt,
         updatedAt: projectApplication.updatedAt
       }

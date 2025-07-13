@@ -11,6 +11,7 @@ export interface ProgramQueryResult extends Program {
     createdAt: Date;
   }>;
   hasApplied?: boolean;
+  isCompleted?: boolean;
 }
 
 export interface TransformedProgram {
@@ -27,6 +28,7 @@ export interface TransformedProgram {
   createdAt: Date;
   updatedAt: Date;
   applicationCount: number;
+  isCompleted?: boolean;
 }
 
 export interface TransformedProgramDetail extends TransformedProgram {
@@ -65,6 +67,7 @@ export function transformProgram(program: ProgramQueryResult): TransformedProgra
     createdAt: program.createdAt,
     updatedAt: program.updatedAt,
     applicationCount: program.hasApplied ? 1 : 0, // This will be populated by the query if needed
+    isCompleted: program.isCompleted,
   };
 }
 

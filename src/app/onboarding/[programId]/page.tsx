@@ -445,7 +445,7 @@ export default function FormularioPage() {
 
         // get data for the next step but if the next step is the last step, set the current step to the last step
         if (currentStep < steps.length - 1) {
-          const nextStepData = await getOnboardingStep(stepNames[currentStep + 1])
+          const nextStepData = await getOnboardingStep(stepNames[currentStep + 1], programId as string)
 
           // Update the form with the next step data
           if (nextStepData.data) {
@@ -562,10 +562,12 @@ export default function FormularioPage() {
       
       
       if (!session?.user) return
+
+      if (!programId) return
       
       try {
         // First, get the current step from the database
-        const currentStepInfo = await getCurrentOnboardingStep()
+        const currentStepInfo = await getCurrentOnboardingStep(programId as string)
 
         // Force the current step to be consent if the onboarding is completed
         if (currentStepInfo.currentStep === "completed") {
@@ -613,7 +615,7 @@ export default function FormularioPage() {
         // Load data only for completed steps (up to current step)
         for (let i = 0; i < stepsToLoad; i++) {
           try {
-            const response = await getOnboardingStep(stepNames[i])
+            const response = await getOnboardingStep(stepNames[i], programId as string)
             if (response.data) {
               // Populate form with existing data
               switch (i) {

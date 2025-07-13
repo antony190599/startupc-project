@@ -46,10 +46,11 @@ export async function saveOnboardingStep(
 
 // Get step data
 export async function getOnboardingStep(
-  step: OnboardingStep
+  step: OnboardingStep,
+  programId: string
 ): Promise<OnboardingResponse> {
   try {
-    const response = await fetcher(`/api/onboarding/${step}`, {
+    const response = await fetcher(`/api/onboarding/${programId}/${step}`, {
       method: 'GET',
     })
 
@@ -61,7 +62,7 @@ export async function getOnboardingStep(
 }
 
 // Get current onboarding progress
-export async function getOnboardingProgress(): Promise<{
+export async function getOnboardingProgress(programId: string): Promise<{
   currentStep: string | null
   completedSteps: string[]
 }> {
@@ -81,7 +82,7 @@ export async function getOnboardingProgress(): Promise<{
 
     for (const step of steps) {
       try {
-        const response = await getOnboardingStep(step)
+        const response = await getOnboardingStep(step, programId)
         if (response.data) {
           completedSteps.push(step)
           if (response.currentStep === step) {
@@ -105,9 +106,9 @@ export async function getOnboardingProgress(): Promise<{
 }
 
 // Check if user has an existing application
-export async function hasExistingApplication(): Promise<boolean> {
+export async function hasExistingApplication(programId: string): Promise<boolean> {
   try {
-    const response = await getOnboardingStep('program-selection')
+    const response = await getOnboardingStep('program-selection', programId)
     return response.data !== null
   } catch (error) {
     return false
@@ -115,18 +116,19 @@ export async function hasExistingApplication(): Promise<boolean> {
 }
 
 // Get onboarding status and progress
-export async function getOnboardingStatus(): Promise<{
+export async function getOnboardingStatus(programId: string | undefined = undefined): Promise<{
   hasApplication: boolean
   currentStep: string | null
   completedSteps: string[]
   progress: number
   isComplete: boolean
   applicationId?: string
+  programId?: string
   createdAt?: string
   updatedAt?: string
 }> {
   try {
-    const response = await fetcher('/api/onboarding/status', {
+    const response = await fetcher(`/api/onboarding/status/${programId ? programId : ''}`, {
       method: 'GET',
     })
 
@@ -138,7 +140,7 @@ export async function getOnboardingStatus(): Promise<{
 }
 
 // Get current onboarding step
-export async function getCurrentOnboardingStep(): Promise<{
+export async function getCurrentOnboardingStep(programId: string): Promise<{
   hasApplication: boolean
   currentStep: string | null
   applicationId?: string
@@ -146,7 +148,7 @@ export async function getCurrentOnboardingStep(): Promise<{
   updatedAt?: string
 }> {
   try {
-    const response = await fetcher('/api/onboarding/current-step', {
+    const response = await fetcher(`/api/onboarding/current-step/${programId}`, {
       method: 'GET',
     })
 

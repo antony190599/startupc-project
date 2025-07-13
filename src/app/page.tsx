@@ -22,6 +22,7 @@ interface Program {
   createdAt: string;
   updatedAt: string;
   applicationCount?: number;
+  isCompleted?: boolean;
 }
 
 interface ProgramsResponse {
@@ -119,12 +120,13 @@ function ProgramsList({ handleJoinProgram }: { handleJoinProgram: (programId: st
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
       {programs.map((program) => {
         const isApplied = program.applicationCount === 1;
+        const isCompleted = program.isCompleted;
         return (
           <Card
             key={program.id}
-            className={`hover:shadow-lg transition-shadow relative ${isApplied ? 'opacity-60 pointer-events-none' : ''}`}
+            className={`hover:shadow-lg transition-shadow relative ${isApplied && isCompleted ? 'opacity-60 pointer-events-none' : ''}`}
           >
-            {isApplied && (
+            {isApplied && isCompleted && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/80 rounded-lg">
                 <span className="text-green-600 font-bold text-lg">Ya postulaste</span>
               </div>
@@ -168,6 +170,11 @@ function ProgramsList({ handleJoinProgram }: { handleJoinProgram: (programId: st
               {!isApplied && (
                 <Button className="w-full mt-4" onClick={() => handleJoinProgram(program.id)}>
                   Unirme
+                </Button>
+              )}
+              {isApplied && !isCompleted && (
+                <Button className="w-full mt-4" onClick={() => handleJoinProgram(program.id)}>
+                  Completar proyecto
                 </Button>
               )}
             </CardContent>
