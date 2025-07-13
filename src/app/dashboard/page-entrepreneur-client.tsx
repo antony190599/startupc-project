@@ -5,11 +5,12 @@ import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, ArrowRight, PlayCircle } from "lucide-react";
+import { CheckCircle, ArrowRight, PlayCircle, ChevronDown, ChevronRight, Clock, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getOnboardingStatus, getCurrentOnboardingStep } from "@/lib/utils/functions/onboarding";
 import Link from "next/link";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface OnboardingStatus {
   hasApplication: boolean;
@@ -23,200 +24,247 @@ interface OnboardingStatus {
   updatedAt?: string;
 }
 
+type StatusGroup = 'active' | 'completed' | 'rejected';
+
+interface GroupedApplications {
+  active: OnboardingStatus[];
+  completed: OnboardingStatus[];
+  rejected: OnboardingStatus[];
+}
+
 export default function EntrepreneurDashboardClient() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus | null>(null);
+  const [onboardingStatuses, setOnboardingStatuses] = useState<OnboardingStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedGroups, setExpandedGroups] = useState<Set<StatusGroup>>(new Set(['active']));
 
   useEffect(() => {
-    const loadOnboardingStatus = async () => {
+    const loadOnboardingStatuses = async () => {
       if (!session?.user) return;
-      
       try {
-        const status = await getOnboardingStatus();
-        const currentStep = await getCurrentOnboardingStep(status[0].programId as string);
-        
-        setOnboardingStatus({
-          ...status[0],
-          currentStep: currentStep.currentStep
-        });
+        const statuses = await getOnboardingStatus();
+        // For each status, get the current step
+        const statusesWithCurrentStep = await Promise.all(
+          statuses.map(async (status: OnboardingStatus) => {
+            const currentStep = await getCurrentOnboardingStep(status.programId as string);
+            return {
+              ...status,
+              currentStep: currentStep.currentStep,
+            };
+          })
+        );
+        setOnboardingStatuses(statusesWithCurrentStep);
       } catch (error) {
-        console.error('Error loading onboarding status:', error);
+        console.error('Error loading onboarding statuses:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    
     if (session?.user) {
-      loadOnboardingStatus();
+      loadOnboardingStatuses();
     }
   }, [session]);
 
   const getStepName = (step: string) => {
     const stepNames: { [key: string]: string } = {
-      'program-selection': 'Selección de Programa',
-      'general-data': 'Datos Generales',
-      'impact-origin': 'Impacto y Origen',
+      'program-selection': 'Selección',
+      'general-data': 'Datos',
+      'impact-origin': 'Impacto',
       'presentation': 'Presentación',
       'team': 'Equipo',
       'preferences': 'Preferencias',
-      'consent': 'Consentimiento'
+      'consent': 'Consentimiento',
     };
     return stepNames[step] || step;
+  };
+
+  const groupApplications = (): GroupedApplications => {
+    const grouped: GroupedApplications = {
+      active: [],
+      completed: [],
+      rejected: []
+    };
+
+    onboardingStatuses.forEach(status => {
+      if (status.isComplete) {
+        grouped.completed.push(status);
+      } else if (status.progress > 0) {
+        grouped.active.push(status);
+      } else {
+        grouped.active.push(status);
+      }
+    });
+
+    // Sort active by most recent update
+    grouped.active.sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt || 0);
+      const dateB = new Date(b.updatedAt || b.createdAt || 0);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    return grouped;
+  };
+
+  const toggleGroup = (group: StatusGroup) => {
+    const newExpanded = new Set(expandedGroups);
+    if (newExpanded.has(group)) {
+      newExpanded.delete(group);
+    } else {
+      newExpanded.add(group);
+    }
+    setExpandedGroups(newExpanded);
+  };
+
+  const getStatusIcon = (status: OnboardingStatus) => {
+    if (status.isComplete) return <CheckCircle className="h-4 w-4 text-green-600" />;
+    if (status.progress > 0) return <PlayCircle className="h-4 w-4 text-blue-600" />;
+    return <Clock className="h-4 w-4 text-gray-500" />;
+  };
+
+  const getStatusText = (status: OnboardingStatus) => {
+    if (status.isComplete) return 'Completado';
+    if (status.progress > 0) return 'En progreso';
+    return 'Pendiente';
+  };
+
+  const getStatusColor = (status: OnboardingStatus) => {
+    if (status.isComplete) return 'bg-green-100 text-green-800';
+    if (status.progress > 0) return 'bg-blue-100 text-blue-800';
+    return 'bg-gray-100 text-gray-800';
   };
 
   if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="space-y-4">
-          <Skeleton className="h-10 w-[250px]" />
-          <Skeleton className="h-6 w-[300px]" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-            <Skeleton className="h-[200px] w-full" />
-            <Skeleton className="h-[200px] w-full" />
+          <Skeleton className="h-8 w-[200px]" />
+          <Skeleton className="h-4 w-[300px]" />
+          <div className="space-y-3">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
           </div>
         </div>
       </div>
     );
   }
 
+  const grouped = groupApplications();
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Panel de Emprendedor</h1>
-        <p className="text-gray-600">Gestiona tus proyectos y aplicaciones</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Mis postulaciones</h1>
+        <p className="text-gray-600 text-sm">Gestiona tus proyectos y aplicaciones</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Onboarding Progress Card */}
+      {onboardingStatuses.length === 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {onboardingStatus?.isComplete ? (
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              ) : (
-                <PlayCircle className="h-6 w-6 text-blue-600" />
-              )}
-              Mi Proyecto
-            </CardTitle>
-            <CardDescription>Estado actual de tu aplicación</CardDescription>
+            <CardTitle>No tienes aplicaciones</CardTitle>
+            <CardDescription>Comienza postulando a un programa.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-medium">Eco Startup</h3>
-                <p className="text-sm text-gray-600">Programa: Inqubalab</p>
-                <div className="mt-2 flex items-center">
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                    {onboardingStatus?.isComplete ? 'En revisión' : 'En progreso'}
-                  </span>
-                </div>
+        </Card>
+      )}
+
+      {/* Active Applications */}
+      {grouped.active.length > 0 && (
+        <Collapsible open={expandedGroups.has('active')} onOpenChange={() => toggleGroup('active')}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="w-full justify-between p-0 h-auto">
+              <div className="flex items-center gap-2">
+                <PlayCircle className="h-5 w-5 text-blue-600" />
+                <span className="font-semibold">Activas ({grouped.active.length})</span>
               </div>
-              
-              {onboardingStatus && (
-                <div className="space-y-2">
+              {expandedGroups.has('active') ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-3 mt-3">
+            {grouped.active.map((status, idx) => (
+              <Card key={status.applicationId || idx} className="border-l-4 border-l-blue-500">
+                <CardContent className="p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">
-                      Progreso del formulario
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {onboardingStatus.progress}% completado
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        {getStatusIcon(status)}
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+                          {getStatusText(status)}
+                        </span>
+                        <span className="text-sm text-gray-500">#{status.applicationId?.slice(-6)}</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="font-medium text-gray-900">{status.progress}%</span>
+                        <span className="text-gray-600">✔ {status.completedSteps?.length || 0} / 7 pasos</span>
+                        <span className="text-gray-500">
+                          {status.updatedAt ? new Date(status.updatedAt).toLocaleDateString() : 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      {!status.isComplete && (
+                        <Button 
+                          size="sm" 
+                          onClick={() => router.push(`/onboarding/${status.programId}`)}
+                          className="h-8 px-3"
+                        >
+                          {status.hasApplication ? 'Continuar' : 'Comenzar'}
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <Progress value={onboardingStatus.progress} className="w-full" />
-                </div>
-              )}
+                </CardContent>
+              </Card>
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
+      )}
 
-              {onboardingStatus?.completedSteps && onboardingStatus.completedSteps.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-700">
-                    Pasos completados:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {onboardingStatus.completedSteps.map((step) => (
-                      <span
-                        key={step}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                      >
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        {getStepName(step)}
-                      </span>
-                    ))}
+      {/* Completed Applications */}
+      {grouped.completed.length > 0 && (
+        <Collapsible open={expandedGroups.has('completed')} onOpenChange={() => toggleGroup('completed')}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="w-full justify-between p-0 h-auto">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <span className="font-semibold">Completadas ({grouped.completed.length})</span>
+              </div>
+              {expandedGroups.has('completed') ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-3 mt-3">
+            {grouped.completed.map((status, idx) => (
+              <Card key={status.applicationId || idx} className="border-l-4 border-l-green-500">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        {getStatusIcon(status)}
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+                          {getStatusText(status)}
+                        </span>
+                        <span className="text-sm text-gray-500">#{status.applicationId?.slice(-6)}</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="font-medium text-green-600">100%</span>
+                        <span className="text-gray-600">✔ 7 / 7 pasos</span>
+                        <span className="text-gray-500">
+                          {status.updatedAt ? new Date(status.updatedAt).toLocaleDateString() : 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <Button size="sm" variant="outline" className="h-8 px-3">
+                        Ver detalles
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
-
-              <div className="flex space-x-2 pt-2">
-                {onboardingStatus?.isComplete ? (
-                  <div className="text-center w-full">
-                    <p className="text-green-600 font-medium mb-2">
-                      ¡Formulario completado exitosamente!
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Tu aplicación ha sido enviada y está siendo revisada.
-                    </p>
-                  </div>
-                ) : (
-                  <Button 
-                    size="sm" 
-                    onClick={() => router.push(`/onboarding/${onboardingStatus?.programId}`)}
-                    className="flex-1"
-                  >
-                    {onboardingStatus?.hasApplication ? 'Continuar formulario' : 'Comenzar formulario'}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                )}
-                <Button size="sm" variant="outline">Ver detalles</Button>
-              </div>
-
-              {onboardingStatus?.hasApplication && onboardingStatus.applicationId && (
-                <div className="pt-4 border-t">
-                  <p className="text-xs text-gray-500">
-                    ID de aplicación: {onboardingStatus.applicationId}
-                  </p>
-                  {onboardingStatus.createdAt && (
-                    <p className="text-xs text-gray-500">
-                      Creado: {new Date(onboardingStatus.createdAt).toLocaleDateString()}
-                    </p>
-                  )}
-                  {onboardingStatus.updatedAt && (
-                    <p className="text-xs text-gray-500">
-                      Última actualización: {new Date(onboardingStatus.updatedAt).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Events Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Próximos eventos</CardTitle>
-            <CardDescription>Eventos y talleres disponibles</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="p-3 border rounded-lg">
-                <p className="text-sm text-blue-600">15 de Julio, 2023</p>
-                <h3 className="font-medium">Taller de Pitch</h3>
-                <p className="text-sm text-gray-600 mt-1">Aprende a presentar tu proyecto de manera efectiva</p>
-              </div>
-              
-              <div className="p-3 border rounded-lg">
-                <p className="text-sm text-blue-600">22 de Julio, 2023</p>
-                <h3 className="font-medium">Asesoría de modelo de negocio</h3>
-                <p className="text-sm text-gray-600 mt-1">Sesiones uno a uno con mentores especializados</p>
-              </div>
-              
-              <Button size="sm" variant="outline" className="w-full">Ver todos los eventos</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
+                </CardContent>
+              </Card>
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
+      )}
     </div>
   );
 }
