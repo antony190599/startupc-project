@@ -759,32 +759,49 @@ export default function FormularioPage() {
                         <FormItem>
                           <FormLabel className="sr-only">Tipo de Programa</FormLabel>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {programs.map((program) => (
-                              <div
-                                key={program.id}
-                                className={`relative cursor-pointer rounded-lg border-2 p-6 transition-all hover:border-primary ${
-                                  field.value === program.id || programId === program.id
-                                    ? "border-primary bg-primary/5"
-                                    : "border-gray-200 hover:border-primary/50"
-                                }`}
-                                onClick={() => field.onChange(program.id)}
-                              >
-                                <div className="flex flex-col items-center text-center space-y-3">
-                                  <div className="text-3xl">{programTypes.find(p => p.id === program.programType)?.icon}</div>
-                                  <div>
-                                    <h3 className="font-semibold text-lg">{program.name}</h3>
-                                    <p className="text-sm text-gray-600 mt-1">{program.description}</p>
-                                  </div>
-                                </div>
-                                {field.value === program.id || programId === program.id && (
-                                  <div className="absolute top-2 right-2">
-                                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                            {programs.map((program) => {
+                              const isSelected = field.value === program.id || programId === program.id;
+                              const isDisabled = !isSelected && (field.value || programId);
+
+                              return (
+                                <div
+                                  key={program.id}
+                                  className={`relative rounded-lg border-2 p-6 transition-all ${
+                                    isSelected
+                                      ? "border-primary bg-primary/5 cursor-pointer"
+                                      : "border-gray-200 opacity-50 cursor-not-allowed"
+                                  }`}
+                                  onClick={() => {
+                                    if (!isDisabled) {
+                                      field.onChange(program.id);
+                                    }
+                                  }}
+                                  aria-disabled={isDisabled ? true : false}
+                                  tabIndex={isDisabled ? -1 : 0}
+                                  role="button"
+                                >
+                                  <div className="flex flex-col items-center text-center space-y-3">
+                                    <div className="text-3xl">
+                                      {programTypes.find((p) => p.id === program.programType)?.icon}
+                                    </div>
+                                    <div>
+                                      <h3 className="font-semibold text-lg">{program.name}</h3>
+                                      <p className="text-sm text-gray-600 mt-1">{program.description}</p>
                                     </div>
                                   </div>
-                                )}
-                              </div>
-                            ))}
+                                  {isSelected && (
+                                    <div className="absolute top-2 right-2">
+                                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {isDisabled && (
+                                    <div className="absolute inset-0 bg-white opacity-60 rounded-lg pointer-events-none"></div>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
                           <FormMessage />
                         </FormItem>

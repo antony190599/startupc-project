@@ -33,7 +33,6 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("no-credentials");
                 }
 
-
                 const { email, password } = credentials;
 
                 if (!email || !password) {

@@ -30,6 +30,7 @@ export async function disconnectDB() {
 }
 
 // Graceful shutdown
+
 process.on('beforeExit', async () => {
   await disconnectDB()
 }) 

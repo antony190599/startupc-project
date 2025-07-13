@@ -3,6 +3,7 @@ import { parse } from "@/lib/middleware/utils";
 import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { AppMiddleware, AxiomMiddleware } from "@/lib/middleware";
+import { prisma } from "./lib/db";
 
 export const config = {
     matcher: [
@@ -21,6 +22,9 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
     const { path } = parse(req);
 
     AxiomMiddleware(req, ev);
+
+    const users = await prisma.user.findMany();
+     console.log(users);
 
     
     // Get user token with role information
