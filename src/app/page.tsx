@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Program {
   id: string;
@@ -32,7 +33,7 @@ interface ProgramsResponse {
   };
 }
 
-function ProgramsList() {
+function ProgramsList({ handleJoinProgram }: { handleJoinProgram: (programId: string) => void }) {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -154,6 +155,10 @@ function ProgramsList() {
               )}
             </div>
               <Button className="w-full mt-4" onClick={async () => {
+
+                handleJoinProgram(program.id);
+
+                return;
                try {
                  const response = await fetch('/api/onboarding/program/verify', {
                    method: 'POST',
@@ -192,6 +197,11 @@ function ProgramsList() {
 
 export default function Home() {
   const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const handleJoinProgram = async (programId: string) => {
+    router.push(`/onboarding/${programId}`);
+  }
 
   return (
     <div className="min-h-screen p-8 max-w-7xl mx-auto">
@@ -262,7 +272,7 @@ export default function Home() {
             Explora nuestros programas activos y encuentra el que mejor se adapte a tu proyecto
           </p>
         </div>
-        <ProgramsList />
+        <ProgramsList handleJoinProgram={handleJoinProgram} />
       </div>
     </div>
   );

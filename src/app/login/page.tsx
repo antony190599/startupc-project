@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 // Custom hook for login
-const useLogin = () => {
+const useLogin = (next: string) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -24,7 +24,9 @@ const useLogin = () => {
       const result = await signIn("credentials", {
         email: credentials.email,
         password: credentials.password,
-        redirect: false,
+        //redirect: false,
+        ...(next ? { callbackUrl: next } : {})
+        
       });
 
       if (result?.error) {
@@ -46,7 +48,9 @@ const useLogin = () => {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading, error, setError } = useLogin();
+  const searchParams = useSearchParams();
+  const next = searchParams?.get("next");
+  const { login, isLoading, error, setError } = useLogin(next || "");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -160,7 +164,7 @@ export default function LoginPage() {
 
             <div className="text-center text-sm">
               ¿No tienes cuenta?{" "}
-              <Link href="/entrepreneur/signup" className="text-blue-600 hover:text-blue-500 underline">
+              <Link href={next ? `/entrepreneur/signup?next=${encodeURIComponent(next)}` : "/entrepreneur/signup"} className="text-blue-600 hover:text-blue-500 underline">
                 Regístrate aquí
               </Link>
             </div>

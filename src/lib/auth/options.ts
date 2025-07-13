@@ -47,14 +47,17 @@ export const authOptions: NextAuthOptions = {
                 let isCompleted = false;
 
                 if (user?.role === "entrepreneur") {
-                    const projectApplication = await prisma.projectApplication.findUnique({
-                        where: {
-                            id: user.projectApplicationId as string,
-                        },
-                    });
 
-                    if (projectApplication?.isCompleted) {
-                        isCompleted = true;
+                    if (user?.projectApplicationId) {
+                        const projectApplication = await prisma.projectApplication.findUnique({
+                            where: {
+                                id: user.projectApplicationId as string,
+                            },
+                        });
+
+                        if (projectApplication?.isCompleted) {
+                            isCompleted = true;
+                        }
                     }
                 }
 

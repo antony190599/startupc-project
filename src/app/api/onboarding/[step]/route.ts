@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db'
 import * as z from 'zod'
 import { getSession } from '@/lib/auth/utils'
 import { ProjectStatus } from '@/lib/enum'
-import { setOnboardingStep } from '@/lib/utils/functions/set-onboarding-step'
+import { setOnboardingStep } from '@/lib/utils/functions/cache'
 import { UserProps } from '@/lib/types'
 
 // Step-specific validation schemas
@@ -173,10 +173,23 @@ export async function POST(
       )
     }
 
+    // Verify the ProgramId is valid
+    const program = await prisma.program.findUnique({
+      where: { id: validatedData.programId },
+    });
+
+    if (!program) {
+      return NextResponse.json(
+        { error: 'Program not found' },
+        { status: 404 }
+      )
+    }    
+
     // Get or create project application
     let projectApplication = await prisma.projectApplication.findFirst({
       where: { 
-        users: { some: { id: user.id } }
+        users: { some: { id: user.id } },
+        programId: validatedData.programId
       },
       include: { teamMembers: true }
     })
@@ -187,6 +200,8 @@ export async function POST(
           users: { connect: { id: user.id } },
           onboardingStep: step,
           projectStatus: ProjectStatus.CREATED,
+          programId: program.id,
+          programType: program.programType,
         },
         include: { teamMembers: true }
       })
@@ -214,7 +229,7 @@ export async function POST(
         }
 
         updateData.programType = program.programType
-        
+
         break
         
       case 'general-data':

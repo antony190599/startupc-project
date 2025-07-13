@@ -67,6 +67,8 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      /*
+
       const projectApplication = await tx.projectApplication.create({
         data: {
           onboardingStep: "program-selection", // Cambio a formato correcto
@@ -89,7 +91,13 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return { user, projectApplication, teamMember };
+      */
+
+      return { 
+        user, 
+        //projectApplication, 
+        //teamMember 
+      };
     });
 
     // Create a session for the newly registered user

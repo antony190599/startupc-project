@@ -31,11 +31,14 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
     
     
     // Si el usuario no está autenticado y la ruta no es pública, redirigir a login
-  if (!token && !['/login','/entrepreneur/signup' ,'/', '/home'].includes(path)) {
 
-    console.log("redirecting to login")
-    return NextResponse.redirect(new URL('/login', req.url));
-  }
+    /*
+    if (!token && !['/login','/entrepreneur/signup' ,'/', '/home'].includes(path)) {
+
+      console.log("redirecting to login")
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+    */
   
   // app middleware
   return AppMiddleware(req);
