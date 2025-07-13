@@ -7,7 +7,7 @@ export interface GetApplicationsParams {
   page?: number;
   pageSize?: number;
   search?: string;
-  projectApplicationId?: string;
+  projectApplicationIds?: string[];
   programType?: string;
   category?: string;
   industry?: string;
@@ -30,7 +30,7 @@ export async function getApplicationsOrThrow(params: GetApplicationsParams = {})
     page = 1,
     pageSize = 10,
     search,
-    projectApplicationId,
+    projectApplicationIds,
     programType,
     category,
     industry,
@@ -47,8 +47,10 @@ export async function getApplicationsOrThrow(params: GetApplicationsParams = {})
   const where: any = {};
 
   // Filter by specific application ID
-  if (projectApplicationId) {
-    where.id = projectApplicationId;
+  if (projectApplicationIds) {
+    where.id = {
+      in: projectApplicationIds,
+    };
   }
 
   // Filter by program type

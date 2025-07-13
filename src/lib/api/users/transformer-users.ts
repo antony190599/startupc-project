@@ -18,7 +18,7 @@ export interface UserQueryResult {
   invalidLoginAttempts: number;
   createdAt: Date;
   updatedAt: Date;
-  projectApplicationId: string | null;
+  projectApplications: string[];
   profile: {
     id: string;
     bio: string | null;
@@ -59,7 +59,7 @@ export interface TransformedUser {
   invalidLoginAttempts: number;
   createdAt: Date;
   updatedAt: Date;
-  projectApplicationId: string | null;
+  projectApplications: string[] | null;
   profile: {
     id: string;
     bio: string | null;
@@ -120,7 +120,7 @@ export function transformUser(user: UserQueryResult): TransformedUser {
     invalidLoginAttempts: user.invalidLoginAttempts,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
-    projectApplicationId: user.projectApplicationId,
+    projectApplications: user.projectApplications,
     profile: user.profile,
     teamMember: user.teamMember ? {
       ...user.teamMember,

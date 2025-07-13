@@ -40,10 +40,10 @@ export async function GET(
       // Entrepreneurs can only access their own application
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { projectApplicationId: true }
+        select: { projectApplications: true }
       });
 
-      if (!user?.projectApplicationId || user.projectApplicationId !== id) {
+      if (!user?.projectApplications || !user.projectApplications.map(application => application.id).includes(id as string)) {
         return NextResponse.json(
           { error: 'Access denied. You can only view your own application.' },
           { status: 403 }
@@ -123,10 +123,10 @@ export async function PUT(
       // Entrepreneurs can only update their own application
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { projectApplicationId: true }
+        select: { projectApplications: true }
       });
 
-      if (!user?.projectApplicationId || user.projectApplicationId !== id) {
+      if (!user?.projectApplications || !user.projectApplications.map(application => application.id).includes(id as string)) {
         return NextResponse.json(
           { error: 'Access denied. You can only update your own application.' },
           { status: 403 }
@@ -259,10 +259,10 @@ export async function DELETE(
       // Entrepreneurs can only delete their own application
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { projectApplicationId: true }
+        select: { projectApplications: true }
       });
 
-      if (!user?.projectApplicationId || user.projectApplicationId !== id) {
+      if (!user?.projectApplications || !user.projectApplications.map(application => application.id).includes(id as string)) {
         return NextResponse.json(
           { error: 'Access denied. You can only delete your own application.' },
           { status: 403 }

@@ -233,12 +233,12 @@ async function main() {
   // Update users to link them to their project applications
   await prisma.user.update({
     where: { id: createdUsers[1].id },
-    data: { projectApplicationId: createdApplications[0].id },
+    data: { projectApplications: { connect: [{ id: createdApplications[0].id }] } },
   })
 
   await prisma.user.update({
     where: { id: createdUsers[2].id },
-    data: { projectApplicationId: createdApplications[0].id },
+    data: { projectApplications: { connect: [{ id: createdApplications[0].id }] } },
   })
 
   console.log('✅ Database seeded successfully!')

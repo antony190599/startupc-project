@@ -41,23 +41,14 @@ export const authOptions: NextAuthOptions = {
 
                 const user = await prisma.user.findFirst({
                     where: { email },
+                    select: { projectApplications: true, role: true, password: true, id: true, email: true, firstname: true, lastname: true, image: true }
                 });
 
                 let isCompleted = false;
 
                 if (user?.role === "entrepreneur") {
 
-                    if (user?.projectApplicationId) {
-                        const projectApplication = await prisma.projectApplication.findUnique({
-                            where: {
-                                id: user.projectApplicationId as string,
-                            },
-                        });
-
-                        if (projectApplication?.isCompleted) {
-                            isCompleted = true;
-                        }
-                    }
+                    // Check if the user has completed onboarding
                 }
 
                 if (!user || !user.password) {

@@ -57,13 +57,15 @@ model User {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  projectApplicationId String?
-  projectApplication   ProjectApplication? @relation(fields: [projectApplicationId], references: [id], onDelete: Cascade)
+  // projectApplicationId String?
+  // projectApplication   ProjectApplication? @relation(fields: [projectApplicationId], references: [id], onDelete: Cascade)
 
   accounts Account[]
   sessions Session[]
   profile  Profile?
   teamMember TeamMember?
+
+  projectApplications ProjectApplication[] @relation("UserApplications")
 }
 
 model Profile {
@@ -143,12 +145,12 @@ model ProjectApplication {
 
   completedAt DateTime?
 
-
-
   // Relación con integrantes del equipo
   teamMembers TeamMember[]
-  users User[]
+  // users User[]
   projectStatusLogs ProjectStatusLog[]
+
+  users User[] @relation("UserApplications")
 
   @@map("project_applications")
 }

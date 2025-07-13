@@ -87,7 +87,7 @@ export async function getUsersOrThrow(params: GetUsersParams = {}): Promise<GetU
         invalidLoginAttempts: true,
         createdAt: true,
         updatedAt: true,
-        projectApplicationId: true,
+        projectApplications: true,
         profile: {
           select: {
             id: true,
@@ -125,7 +125,10 @@ export async function getUsersOrThrow(params: GetUsersParams = {}): Promise<GetU
     });
 
     return {
-      users,
+      users: users.map(user => ({
+        ...user,
+        projectApplications: user.projectApplications.map(application => application.id),
+      })),
       total,
       page: validPage,
       pageSize: validPageSize,

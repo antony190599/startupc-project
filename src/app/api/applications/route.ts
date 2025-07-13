@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const pageSize = parseInt(searchParams.get('pageSize') || '10');
     const search = searchParams.get('search') || undefined;
-    const projectApplicationId = searchParams.get('projectApplicationId') || undefined;
+    const projectApplicationIds = searchParams.get('projectApplicationId') || undefined;
     const programType = searchParams.get('programType') || undefined;
     const category = searchParams.get('category') || undefined;
     const industry = searchParams.get('industry') || undefined;
@@ -39,16 +39,18 @@ export async function GET(request: NextRequest) {
       : undefined;
 
     // For entrepreneurs, force the projectApplicationId to their own application
-    let effectiveProjectApplicationId = projectApplicationId;
-    
+    let effectiveProjectApplicationIds: string[] | undefined = projectApplicationIds
+      ? projectApplicationIds.split(',')
+      : undefined;
+
     if (userRole === 'entrepreneur') {
       // Get the entrepreneur's application ID
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { projectApplicationId: true }
+        select: { projectApplications: true }
       });
 
-      if (!user?.projectApplicationId) {
+      if (!user?.projectApplications) {
         // Entrepreneur has no application, return empty result
         return NextResponse.json({
           success: true,
@@ -67,7 +69,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Force the filter to only show their own application
-      effectiveProjectApplicationId = user.projectApplicationId;
+      effectiveProjectApplicationIds = user.projectApplications.map(application => application.id);
     }
     // Admins can see all applications, so no additional filtering needed
 
@@ -78,7 +80,7 @@ export async function GET(request: NextRequest) {
       page,
       pageSize,
       search,
-      projectApplicationId: effectiveProjectApplicationId,
+      projectApplicationIds: effectiveProjectApplicationIds,
       programType,
       category,
       industry,
