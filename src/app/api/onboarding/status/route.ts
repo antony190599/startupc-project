@@ -72,9 +72,29 @@ export async function GET(request: NextRequest) {
         };
       });
 
+      //MERGE WITH PROGRAMS AVAILABLES BUT NOT APPLIED
+      const programsAvailable = await prisma.program.findMany({
+        where: {
+          id: { notIn: projectApplications.map(projectApplication => projectApplication.programId as string) }
+        }
+      });
+
+      const allApplicationsInfo = [...applicationsInfo, ...programsAvailable.map(program => ({
+        
+        hasApplication: false,
+        currentStep: null,
+        completedSteps: [],
+        progress: 0,
+        isComplete: false,
+        applicationId: null,
+        createdAt: null,
+        updatedAt: null,
+        programId: program.id
+      }))];
+
       return NextResponse.json({
         success: true,
-        data: applicationsInfo
+        data: allApplicationsInfo
       });
     }
 

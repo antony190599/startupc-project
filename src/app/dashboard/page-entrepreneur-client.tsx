@@ -24,12 +24,13 @@ interface OnboardingStatus {
   updatedAt?: string;
 }
 
-type StatusGroup = 'active' | 'completed' | 'rejected';
+type StatusGroup = 'active' | 'completed' | 'rejected' | 'not-applied';
 
 interface GroupedApplications {
   active: OnboardingStatus[];
   completed: OnboardingStatus[];
   rejected: OnboardingStatus[];
+  notApplied: OnboardingStatus[];
 }
 
 export default function EntrepreneurDashboardClient() {
@@ -37,7 +38,7 @@ export default function EntrepreneurDashboardClient() {
   const router = useRouter();
   const [onboardingStatuses, setOnboardingStatuses] = useState<OnboardingStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [expandedGroups, setExpandedGroups] = useState<Set<StatusGroup>>(new Set(['active']));
+  const [expandedGroups, setExpandedGroups] = useState<Set<StatusGroup>>(new Set(['active', 'not-applied', 'completed']));
 
   useEffect(() => {
     const loadOnboardingStatuses = async () => {
@@ -83,11 +84,14 @@ export default function EntrepreneurDashboardClient() {
     const grouped: GroupedApplications = {
       active: [],
       completed: [],
-      rejected: []
+      rejected: [],
+      notApplied: []
     };
 
     onboardingStatuses.forEach(status => {
-      if (status.isComplete) {
+      if (!status.hasApplication) {
+        grouped.notApplied.push(status);
+      } else if (status.isComplete) {
         grouped.completed.push(status);
       } else if (status.progress > 0) {
         grouped.active.push(status);
@@ -166,6 +170,53 @@ export default function EntrepreneurDashboardClient() {
             <CardDescription>Comienza postulando a un programa.</CardDescription>
           </CardHeader>
         </Card>
+      )}
+
+      {/* Not Applied Applications */}
+      {grouped.notApplied.length > 0 && (
+        <Collapsible open={expandedGroups.has('not-applied')} onOpenChange={() => toggleGroup('not-applied')}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="w-full justify-between p-0 h-auto">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-gray-500" />
+                <span className="font-semibold">Disponibles ({grouped.notApplied.length})</span>
+              </div>
+              {expandedGroups.has('not-applied') ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-3 mt-3">
+            {grouped.notApplied.map((status, idx) => (
+              <Card key={status.programId || idx} className="border-l-4 border-l-gray-300">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          Disponible
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="font-medium text-gray-900">0%</span>
+                        <span className="text-gray-600">0 / 7 pasos</span>
+                        <span className="text-gray-500">Programa disponible</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <Button 
+                        size="sm" 
+                        onClick={() => router.push(`/onboarding/${status.programId}`)}
+                        className="h-8 px-3"
+                      >
+                        Aplicar
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
       )}
 
       {/* Active Applications */}
