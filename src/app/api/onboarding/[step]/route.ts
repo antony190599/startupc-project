@@ -11,7 +11,7 @@ import { UserProps } from '@/lib/types'
 // Step-specific validation schemas
 const stepSchemas = {
   'program-selection': z.object({
-    programType: z.string().min(1, "Program type is required"),
+    programId: z.string().min(1, "Program ID is required"),
   }),
   
   'general-data': z.object({
@@ -199,7 +199,22 @@ export async function POST(
 
     switch (step) {
       case 'program-selection':
-        updateData.programType = validatedData.programType
+        updateData.programId = validatedData.programId
+
+        // Get program
+        const program = await prisma.program.findUnique({
+          where: { id: validatedData.programId },
+        });
+
+        if (!program) {
+          return NextResponse.json(
+            { error: 'Program not found' },
+            { status: 404 }
+          )
+        }
+
+        updateData.programType = program.programType
+        
         break
         
       case 'general-data':
@@ -406,7 +421,8 @@ export async function GET(
     switch (step) {
       case 'program-selection':
         stepData = {
-          programType: projectApplication.programType
+          programType: projectApplication.programType,
+          programId: projectApplication.programId,
         }
         break
         

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { fetcher } from "@/lib/utils/functions/fetcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Steps } from "@/components/ui/steps"
@@ -18,14 +19,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ChevronLeft, ChevronRight, Plus, Trash2, CheckCircle, Edit } from "lucide-react"
 import { saveOnboardingStep, getOnboardingStep, getCurrentOnboardingStep, OnboardingStep } from "@/lib/utils/functions/onboarding"
 import { signOut, useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { hobbies, industries, movieGenres, parentCategories, programTypes, projectOrigins, sources, sports, stages, steps, universities } from "@/lib/enum"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { programTypes } from "@/lib/enum"
+import { hobbies, industries, movieGenres, parentCategories, projectOrigins, sources, sports, stages, steps, universities } from "@/lib/enum"
 import Link from "next/link"
 
 // Schema de validación
 const formSchema = z.object({
   // Paso 0: Selección de Programa
-  programType: z.string().min(1, "Debe seleccionar un tipo de programa"),
+  programId: z.string().min(1, "Debe seleccionar un programa"),
   
   // Paso 1: Datos Generales
   projectName: z.string().min(1, "El nombre del proyecto es requerido"),
@@ -82,21 +84,68 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
+interface Program {
+  id: string;
+  name: string;
+  description: string;
+  programType: string;
+  programStatus: string;
+  year: string | null;
+  cohortCode: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ProgramsResponse {
+  rows: Program[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 // Datos estáticos para las opciones
 
+const getProgramsPublished = async () => {
+  
+  const data = await fetcher("/api/programs/published", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return data.rows;
+}
 
 export default function FormularioPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [isInitializing, setIsInitializing] = useState(true)
+  const [programs, setPrograms] = useState<Program[]>([])
   const formRef = useRef<HTMLDivElement>(null)
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // get programId from query string
+  const programId = searchParams.get('programId')
+
+  const clearQuery = () => {
+    router.replace(
+      // only the pathname, no `query`
+      usePathname(),
+    );
+  };
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      programType: "",
+      programId: "",
       projectName: "",
       website: "",
       industry: "",
@@ -137,6 +186,14 @@ export default function FormularioPage() {
     },
   })
 
+  if (programId) {
+
+    //REMOVE PROGRAMID FROM QUERY STRING aniotehr way
+    clearQuery()
+    
+    
+  }
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "teamMembers",
@@ -172,6 +229,21 @@ export default function FormularioPage() {
     }
   }
 
+  // Get programs published when the page is loaded
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const programs = await getProgramsPublished();
+        
+
+        setPrograms(programs)
+      } catch (error) {
+        console.error('Error fetching programs:', error);
+      }
+    };
+    fetchPrograms();
+  }, []);
+
   const nextStep = async () => {
     if (!session?.user) {
       alert("Debe iniciar sesión para continuar")
@@ -188,9 +260,9 @@ export default function FormularioPage() {
       
       switch (currentStep) {
         case 0: // Selección de Programa
-          isValid = await form.trigger(['programType'])
+          isValid = await form.trigger(['programId'])
           if (isValid) {
-            stepData = { programType: form.getValues('programType') }
+            stepData = { programId: form.getValues('programId') }
           }
           break
         case 1: // Datos Generales
@@ -380,7 +452,7 @@ export default function FormularioPage() {
                 // Populate form with existing data
                 switch (stepNames[currentStep + 1]) {
                   case 'program-selection': // program-selection
-                    form.setValue('programType', nextStepData.data.programType || '')
+                    form.setValue('programId', nextStepData.data.programId || '')
                     break
                   case 'general-data': // general-data
                     form.setValue('projectName', nextStepData.data.projectName || '')
@@ -546,7 +618,7 @@ export default function FormularioPage() {
               // Populate form with existing data
               switch (i) {
                 case 0: // program-selection
-                  form.setValue('programType', response.data.programType || '')
+                  form.setValue('programId', response.data.programId || '')
                   break
                 case 1: // general-data
                   form.setValue('projectName', response.data.projectName || '')
@@ -682,12 +754,12 @@ export default function FormularioPage() {
                   <CardContent className="space-y-6">
                     <FormField
                       control={form.control}
-                      name="programType"
+                      name="programId"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="sr-only">Tipo de Programa</FormLabel>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {programTypes.map((program) => (
+                            {programs.map((program) => (
                               <div
                                 key={program.id}
                                 className={`relative cursor-pointer rounded-lg border-2 p-6 transition-all hover:border-primary ${
@@ -698,13 +770,13 @@ export default function FormularioPage() {
                                 onClick={() => field.onChange(program.id)}
                               >
                                 <div className="flex flex-col items-center text-center space-y-3">
-                                  <div className="text-3xl">{program.icon}</div>
+                                  <div className="text-3xl">{programTypes.find(p => p.id === program.programType)?.icon}</div>
                                   <div>
-                                    <h3 className="font-semibold text-lg">{program.title}</h3>
+                                    <h3 className="font-semibold text-lg">{program.name}</h3>
                                     <p className="text-sm text-gray-600 mt-1">{program.description}</p>
                                   </div>
                                 </div>
-                                {field.value === program.id && (
+                                {field.value === program.id || programId === program.id && (
                                   <div className="absolute top-2 right-2">
                                     <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
                                       <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -833,7 +905,7 @@ export default function FormularioPage() {
                     />
 
                     {/* Información de la empresa - Solo para Aceleración */}
-                    {form.watch("programType") === "aceleracion" && (
+                    {form.watch("programId") === "aceleracion" && (
                       <div className="space-y-6 pt-6 border-t">
                         <div>
                           <h4 className="text-md font-semibold mb-4">Información de la Empresa</h4>
@@ -1567,13 +1639,13 @@ export default function FormularioPage() {
                               <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                 <span className="font-medium">Tipo de Programa:</span>
                                 <span className="text-gray-700">
-                                  {programTypes.find(p => p.id === form.watch('programType'))?.title || 'No seleccionado'}
+                                  {programs.find(p => p.id === form.watch('programId'))?.name || 'No seleccionado'}
                                 </span>
                               </div>
-                              {form.watch('programType') && (
+                              {form.watch('programId') && (
                                 <div className="p-3 bg-blue-50 rounded-lg">
                                   <p className="text-sm text-blue-800">
-                                    <strong>Descripción:</strong> {programTypes.find(p => p.id === form.watch('programType'))?.description}
+                                    <strong>Descripción:</strong> {programs.find(p => p.id === form.watch('programId'))?.description}
                                   </p>
                                 </div>
                               )}
