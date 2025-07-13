@@ -18,7 +18,7 @@ export default async function AppMiddleware(req: NextRequest) {
     }
 
     //no tiene user y no es entrepreneur/signup
-    if (!user && path !== '/entrepreneur/signup') {
+    if (!user && path !== '/entrepreneur/signup' && path !== '/') {
         console.log('redirecting to login');
         return NextResponse.redirect(new URL('/login', req.url));
     } else if(user && !['/onboarding'].includes(path)) {
@@ -27,6 +27,24 @@ export default async function AppMiddleware(req: NextRequest) {
             return NextResponse.redirect(new URL('/onboarding', req.url));
         }
     } else if (user && path === '/onboarding') {
+
+        if (user.role === 'entrepreneur') {
+            //check if the user has a program join intent in the cookie
+            const programJoinNextAttempt = req.cookies.get('program-join-next-attempt');
+
+            const programIdInQueryString = req.nextUrl.searchParams.get('programId');
+
+            if (programJoinNextAttempt && !programIdInQueryString) {
+
+                //RESPONSE WITH QUERY STRING WITH PROGRAMID
+                const redirectURL = new URL(`/onboarding?programId=${programJoinNextAttempt.value}`, req.url);
+                const response = NextResponse.redirect(redirectURL);
+                response.cookies.delete('program-join-next-attempt');
+
+                return response;
+            }
+            
+        }
         
         if (user.role === 'entrepreneur' && await getOnboardingStep(user) === "completed") {
             return NextResponse.redirect(new URL('/dashboard', req.url));
@@ -36,6 +54,6 @@ export default async function AppMiddleware(req: NextRequest) {
             return NextResponse.redirect(new URL('/dashboard', req.url));
         }
     }
-    
+
     return NextResponse.next();
 }

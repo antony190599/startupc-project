@@ -6,6 +6,13 @@ import { prisma } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
+
+    //Verify the sessions
+    const session = await getSession();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     
     // Extract query parameters

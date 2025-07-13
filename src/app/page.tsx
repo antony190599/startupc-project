@@ -1,14 +1,200 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+
+interface Program {
+  id: string;
+  name: string;
+  description: string;
+  programType: string;
+  programStatus: string;
+  year: string | null;
+  cohortCode: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ProgramsResponse {
+  rows: Program[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+function ProgramsList() {
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/programs/published');
+        if (!response.ok) {
+          throw new Error('Failed to fetch programs');
+        }
+        const data: ProgramsResponse = await response.json();
+        console.log("data", data)
+        setPrograms(data.rows);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPrograms();
+  }, []);
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'No especificada';
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getProgramTypeLabel = (type: string) => {
+    const types: Record<string, string> = {
+      'inqubalab': 'Inqbalab',
+      'idea-feedback': 'Feedback de Ideas',
+      'aceleracion': 'Aceleración'
+    };
+    return types[type] || type;
+  };
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardHeader>
+              <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">Error al cargar los programas: {error}</p>
+      </div>
+    );
+  }
+
+  console.log("programs", programs)
+
+  if (programs.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">No hay programas disponibles en este momento.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+      {programs.map((program) => (
+        <Card key={program.id} className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <CardTitle className="text-lg">{program.name}</CardTitle>
+              <Badge variant="secondary">
+                {getProgramTypeLabel(program.programType)}
+              </Badge>
+            </div>
+            <CardDescription>
+              {program.cohortCode && (
+                <span className="block text-sm text-muted-foreground">
+                  Cohorte: {program.cohortCode}
+                </span>
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+              {program.description}
+            </p>
+            <div className="space-y-2 text-xs text-muted-foreground">
+              {program.startDate && (
+                <div>
+                  <strong>Inicio:</strong> {formatDate(program.startDate)}
+                </div>
+              )}
+              {program.endDate && (
+                <div>
+                  <strong>Fin:</strong> {formatDate(program.endDate)}
+                </div>
+              )}
+              {program.year && (
+                <div>
+                  <strong>Año:</strong> {program.year}
+                </div>
+              )}
+            </div>
+              <Button className="w-full mt-4" onClick={async () => {
+               try {
+                 const response = await fetch('/api/onboarding/program/verify', {
+                   method: 'POST',
+                   headers: {
+                     'Content-Type': 'application/json',
+                   },
+                   body: JSON.stringify({ programId: program.id }),
+                 });
+
+                 const data = await response.json();
+
+                 if (data.success && data.hasValidSession) {
+                   // User has valid session - proceed to join program
+                   console.log('User has valid session, proceeding to join program:', program.id);
+                   // TODO: Redirect to program join flow or onboarding
+                   window.location.href = `/onboarding?programId=${program.id}`;
+                 } else {
+                   // No valid session - redirect to login
+                   console.log('No valid session, redirecting to login');
+                   window.location.href = data.redirectTo || '/login';
+                 }
+               } catch (error) {
+                 console.error('Error verifying program join:', error);
+                 // Fallback to login page
+                 window.location.href = '/login';
+               }
+             }}>
+               Unirme
+             </Button>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   const { data: session, status } = useSession();
 
   return (
-    <div className="min-h-screen p-8 max-w-4xl mx-auto">
+    <div className="min-h-screen p-8 max-w-7xl mx-auto">
       {/* Navigation */}
       <div className="flex justify-end space-x-4 mb-8">
         {status === "authenticated" ? (
@@ -66,6 +252,17 @@ export default function Home() {
             <Link href="/dashboard">Ir al Dashboard</Link>
           </Button>
         )}
+      </div>
+
+      {/* Programs Section */}
+      <div className="mt-20">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold mb-4">Programas Disponibles</h2>
+          <p className="text-lg text-muted-foreground">
+            Explora nuestros programas activos y encuentra el que mejor se adapte a tu proyecto
+          </p>
+        </div>
+        <ProgramsList />
       </div>
     </div>
   );
