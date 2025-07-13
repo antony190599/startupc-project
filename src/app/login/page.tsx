@@ -25,7 +25,7 @@ const useLogin = (next: string) => {
         email: credentials.email,
         password: credentials.password,
         //redirect: false,
-        ...(next ? { callbackUrl: next } : {})
+        ...(next ? { callbackUrl: next } : {callbackUrl: "/"})
         
       });
 

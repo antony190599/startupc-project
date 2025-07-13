@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { transformProgramsResponse } from '@/lib/api/programs';
+import { getSession } from '@/lib/auth/utils';
 
 export async function GET(request: NextRequest) {
   try {
@@ -76,6 +77,24 @@ export async function GET(request: NextRequest) {
       orderBy.createdAt = 'desc';
     }
 
+    // Get session and user applications
+    const session = await getSession();
+    let userApplications: { programId: string | null }[] = [];
+    if (session?.user?.id) {
+      userApplications = await prisma.projectApplication.findMany({
+        where: {
+          users: {
+            some: { id: session.user.id },
+          },
+        },
+        select: { programId: true },
+      });
+    }
+    // Only use non-null programIds
+    const appliedProgramIds = new Set(userApplications.map(app => app.programId).filter((id): id is string => !!id));
+
+    console.log('appliedProgramIds', appliedProgramIds);
+
     try {
       // Get total count for pagination
       const total = await prisma.program.count({ where });
@@ -100,8 +119,16 @@ export async function GET(request: NextRequest) {
         take: validPageSize,
       });
 
+      // Add hasApplied attribute
+      const programsWithHasApplied = programs.map(program => ({
+        ...program,
+        hasApplied: appliedProgramIds.has(program.id),
+      }));
+
+      console.log('programsWithHasApplied', programsWithHasApplied);
+
       // Transform the response
-      const transformedResponse = transformProgramsResponse(programs, {
+      const transformedResponse = transformProgramsResponse(programsWithHasApplied, {
         page: validPage,
         pageSize: validPageSize,
         total,

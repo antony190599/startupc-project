@@ -21,6 +21,7 @@ interface Program {
   status: string | null;
   createdAt: string;
   updatedAt: string;
+  applicationCount?: number;
 }
 
 interface ProgramsResponse {
@@ -116,81 +117,63 @@ function ProgramsList({ handleJoinProgram }: { handleJoinProgram: (programId: st
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-      {programs.map((program) => (
-        <Card key={program.id} className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-lg">{program.name}</CardTitle>
-              <Badge variant="secondary">
-                {getProgramTypeLabel(program.programType)}
-              </Badge>
-            </div>
-            <CardDescription>
-              {program.cohortCode && (
-                <span className="block text-sm text-muted-foreground">
-                  Cohorte: {program.cohortCode}
-                </span>
+      {programs.map((program) => {
+        const isApplied = program.applicationCount === 1;
+        return (
+          <Card
+            key={program.id}
+            className={`hover:shadow-lg transition-shadow relative ${isApplied ? 'opacity-60 pointer-events-none' : ''}`}
+          >
+            {isApplied && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/80 rounded-lg">
+                <span className="text-green-600 font-bold text-lg">Ya postulaste</span>
+              </div>
+            )}
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-lg">{program.name}</CardTitle>
+                <Badge variant="secondary">
+                  {getProgramTypeLabel(program.programType)}
+                </Badge>
+              </div>
+              <CardDescription>
+                {program.cohortCode && (
+                  <span className="block text-sm text-muted-foreground">
+                    Cohorte: {program.cohortCode}
+                  </span>
+                )}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                {program.description}
+              </p>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                {program.startDate && (
+                  <div>
+                    <strong>Inicio:</strong> {formatDate(program.startDate)}
+                  </div>
+                )}
+                {program.endDate && (
+                  <div>
+                    <strong>Fin:</strong> {formatDate(program.endDate)}
+                  </div>
+                )}
+                {program.year && (
+                  <div>
+                    <strong>Año:</strong> {program.year}
+                  </div>
+                )}
+              </div>
+              {!isApplied && (
+                <Button className="w-full mt-4" onClick={() => handleJoinProgram(program.id)}>
+                  Unirme
+                </Button>
               )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-              {program.description}
-            </p>
-            <div className="space-y-2 text-xs text-muted-foreground">
-              {program.startDate && (
-                <div>
-                  <strong>Inicio:</strong> {formatDate(program.startDate)}
-                </div>
-              )}
-              {program.endDate && (
-                <div>
-                  <strong>Fin:</strong> {formatDate(program.endDate)}
-                </div>
-              )}
-              {program.year && (
-                <div>
-                  <strong>Año:</strong> {program.year}
-                </div>
-              )}
-            </div>
-              <Button className="w-full mt-4" onClick={async () => {
-
-                handleJoinProgram(program.id);
-
-                return;
-               try {
-                 const response = await fetch('/api/onboarding/program/verify', {
-                   method: 'POST',
-                   headers: {
-                     'Content-Type': 'application/json',
-                   },
-                   body: JSON.stringify({ programId: program.id }),
-                 });
-
-                 const data = await response.json();
-
-                 if (data.success && data.hasValidSession) {
-                   // User has valid session - proceed to join program
-                   console.log('User has valid session, proceeding to join program:', program.id);
-                   // TODO: Redirect to program join flow or onboarding
-                   window.location.href = `/onboarding?programId=${program.id}`;
-                 } else {
-                   // No valid session - redirect to login
-                   console.log('No valid session, redirecting to login');
-                   window.location.href = data.redirectTo || '/login';
-                 }
-               } catch (error) {
-                 console.error('Error verifying program join:', error);
-                 // Fallback to login page
-                 window.location.href = '/login';
-               }
-             }}>
-               Unirme
-             </Button>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }

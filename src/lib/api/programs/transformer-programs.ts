@@ -10,6 +10,7 @@ export interface ProgramQueryResult extends Program {
     status: string;
     createdAt: Date;
   }>;
+  hasApplied?: boolean;
 }
 
 export interface TransformedProgram {
@@ -63,7 +64,7 @@ export function transformProgram(program: ProgramQueryResult): TransformedProgra
     status: program.status,
     createdAt: program.createdAt,
     updatedAt: program.updatedAt,
-    applicationCount: 0, // This will be populated by the query if needed
+    applicationCount: program.hasApplied ? 1 : 0, // This will be populated by the query if needed
   };
 }
 
