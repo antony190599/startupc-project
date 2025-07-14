@@ -51,10 +51,17 @@ export default function EntrepreneurDashboardClient() {
   const [expandedGroups, setExpandedGroups] = useState<Set<StatusGroup>>(new Set(['active', 'not-applied', 'completed']));
 
   useEffect(() => {
+    let isMounted = true;
+    
     const loadOnboardingStatuses = async () => {
       if (!session?.user) return;
       try {
+        console.log("Loading onboarding statuses");
         const statuses = await getOnboardingStatus();
+        
+        // Check if component is still mounted before proceeding
+        if (!isMounted) return;
+        
         // For each status, get the current step
         const statusesWithCurrentStep = await Promise.all(
           statuses.map(async (status: OnboardingStatus) => {
@@ -65,15 +72,26 @@ export default function EntrepreneurDashboardClient() {
             };
           })
         );
-        setOnboardingStatuses(statusesWithCurrentStep);
+        
+        // Check again before setting state
+        if (isMounted) {
+          setOnboardingStatuses(statusesWithCurrentStep);
+        }
       } catch (error) {
         console.error('Error loading onboarding statuses:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
+    
     if (session?.user) {
       loadOnboardingStatuses();
+    }
+
+    return () => {
+      isMounted = false;
     }
   }, [session]);
 
