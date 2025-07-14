@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,15 @@ interface OnboardingStatus {
   programId?: string;
   createdAt?: string;
   updatedAt?: string;
+  program?: {
+    name: string | null;
+    description: string | null;
+    type: string | null;
+    cohortCode: string | null;
+    startDate: string | null;
+    endDate: string | null;
+    year: string | null;
+  }
 }
 
 type StatusGroup = 'active' | 'completed' | 'rejected' | 'not-applied';
@@ -188,7 +198,7 @@ export default function EntrepreneurDashboardClient() {
             {grouped.notApplied.map((status, idx) => (
               <Card key={status.programId || idx} className="border-l-4 border-l-gray-300">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         <Clock className="h-4 w-4 text-gray-500" />
@@ -196,6 +206,38 @@ export default function EntrepreneurDashboardClient() {
                           Disponible
                         </span>
                       </div>
+                      
+                      {/* Program Details */}
+                      {status.program && (
+                        <div className="mb-3">
+                          <h3 className="font-semibold text-gray-900 mb-1">
+                            {status.program.name || 'Programa sin nombre'}
+                          </h3>
+                          {status.program.description && (
+                            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                              {status.program.description}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            {status.program.type && (
+                              <Badge variant="outline" className="text-xs">
+                                {status.program.type}
+                              </Badge>
+                            )}
+                            {status.program.cohortCode && (
+                              <Badge variant="outline" className="text-xs">
+                                {status.program.cohortCode}
+                              </Badge>
+                            )}
+                            {status.program.year && (
+                              <Badge variant="outline" className="text-xs">
+                                {status.program.year}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="flex items-center gap-4 text-sm">
                         <span className="font-medium text-gray-900">0%</span>
                         <span className="text-gray-600">0 / 7 pasos</span>
@@ -208,7 +250,7 @@ export default function EntrepreneurDashboardClient() {
                         onClick={() => router.push(`/onboarding/${status.programId}`)}
                         className="h-8 px-3"
                       >
-                        Aplicar
+                        Unirme
                       </Button>
                     </div>
                   </div>
@@ -235,7 +277,7 @@ export default function EntrepreneurDashboardClient() {
             {grouped.active.map((status, idx) => (
               <Card key={status.applicationId || idx} className="border-l-4 border-l-blue-500">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         {getStatusIcon(status)}
@@ -244,6 +286,38 @@ export default function EntrepreneurDashboardClient() {
                         </span>
                         <span className="text-sm text-gray-500">#{status.applicationId?.slice(-6)}</span>
                       </div>
+                      
+                      {/* Program Details */}
+                      {status.program && (
+                        <div className="mb-3">
+                          <h3 className="font-semibold text-gray-900 mb-1">
+                            {status.program.name || 'Programa sin nombre'}
+                          </h3>
+                          {status.program.description && (
+                            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                              {status.program.description}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            {status.program.type && (
+                              <Badge variant="outline" className="text-xs">
+                                {status.program.type}
+                              </Badge>
+                            )}
+                            {status.program.cohortCode && (
+                              <Badge variant="outline" className="text-xs">
+                                {status.program.cohortCode}
+                              </Badge>
+                            )}
+                            {status.program.year && (
+                              <Badge variant="outline" className="text-xs">
+                                {status.program.year}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="flex items-center gap-4 text-sm">
                         <span className="font-medium text-gray-900">{status.progress}%</span>
                         <span className="text-gray-600">✔ {status.completedSteps?.length || 0} / 7 pasos</span>
@@ -287,7 +361,7 @@ export default function EntrepreneurDashboardClient() {
             {grouped.completed.map((status, idx) => (
               <Card key={status.applicationId || idx} className="border-l-4 border-l-green-500">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         {getStatusIcon(status)}
@@ -296,6 +370,38 @@ export default function EntrepreneurDashboardClient() {
                         </span>
                         <span className="text-sm text-gray-500">#{status.applicationId?.slice(-6)}</span>
                       </div>
+                      
+                      {/* Program Details */}
+                      {status.program && (
+                        <div className="mb-3">
+                          <h3 className="font-semibold text-gray-900 mb-1">
+                            {status.program.name || 'Programa sin nombre'}
+                          </h3>
+                          {status.program.description && (
+                            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                              {status.program.description}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            {status.program.type && (
+                              <Badge variant="outline" className="text-xs">
+                                {status.program.type}
+                              </Badge>
+                            )}
+                            {status.program.cohortCode && (
+                              <Badge variant="outline" className="text-xs">
+                                {status.program.cohortCode}
+                              </Badge>
+                            )}
+                            {status.program.year && (
+                              <Badge variant="outline" className="text-xs">
+                                {status.program.year}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="flex items-center gap-4 text-sm">
                         <span className="font-medium text-green-600">100%</span>
                         <span className="text-gray-600">✔ 7 / 7 pasos</span>

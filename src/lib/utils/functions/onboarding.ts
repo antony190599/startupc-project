@@ -126,6 +126,15 @@ export async function getOnboardingStatus(programId: string | undefined = undefi
   programId?: string
   createdAt?: string
   updatedAt?: string
+  program?: {
+    name: string
+    description: string
+    type: string
+    cohortCode: string
+    startDate: string
+    endDate: string
+    year: string
+  }
 }[]> {
   try {
     const response = await fetcher(`/api/onboarding/status/${programId ? programId : ''}`, {

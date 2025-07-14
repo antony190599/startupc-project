@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const programId = 'null';
+    const programId = null;
 
     // Get user
     const user = await prisma.user.findUnique({
@@ -29,12 +29,12 @@ export async function GET(request: NextRequest) {
     }
 
     // If programId is null or undefined, return all project applications for the user
-    if (!programId || programId === 'null' || programId === 'undefined') {
+    if (!programId || programId === null || programId === 'undefined') {
       const projectApplications = await prisma.projectApplication.findMany({
         where: {
           users: { some: { id: user.id } },
         },
-        include: { teamMembers: true },
+        include: { teamMembers: true, program: true },
       });
 
       // Map each application to the same structure as the single response
@@ -68,7 +68,16 @@ export async function GET(request: NextRequest) {
           applicationId: projectApplication.id,
           programId: projectApplication.programId,
           createdAt: projectApplication.createdAt,
-          updatedAt: projectApplication.updatedAt
+          updatedAt: projectApplication.updatedAt,
+          program: {
+            name: projectApplication.program?.name,
+            description: projectApplication.program?.description,
+            type: projectApplication.program?.programType,
+            cohortCode: projectApplication.program?.cohortCode,
+            startDate: projectApplication.program?.startDate,
+            endDate: projectApplication.program?.endDate,
+            year: projectApplication.program?.year,
+          }
         };
       });
 
@@ -89,7 +98,16 @@ export async function GET(request: NextRequest) {
         applicationId: null,
         createdAt: null,
         updatedAt: null,
-        programId: program.id
+        programId: program.id,
+        program: {
+          name: program.name,
+          description: program.description,
+          type: program.programType,
+          cohortCode: program.cohortCode,
+          cohortStartDate: program.startDate,
+          cohortEndDate: program.endDate,
+          year: program.year,
+        }
       }))];
 
       return NextResponse.json({

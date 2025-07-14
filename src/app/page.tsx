@@ -174,7 +174,7 @@ function ProgramsList({ handleJoinProgram }: { handleJoinProgram: (programId: st
               )}
               {isApplied && !isCompleted && (
                 <Button className="w-full mt-4" onClick={() => handleJoinProgram(program.id)}>
-                  Completar proyecto
+                  Continuar
                 </Button>
               )}
             </CardContent>
