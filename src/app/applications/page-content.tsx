@@ -5,6 +5,7 @@ import { TransformedApplication } from "@/lib/api/applications/transformer-appli
 import { DataTable, DataTableToolbar, DataTableFacetedFilter, DataTableViewOptions } from "@/components/ui/data-table"
 import { columns } from "./columns"
 import { ApplicationsTableSkeleton } from "./applications-skeleton"
+import { ProjectStatus } from "@/lib/enum"
 
 interface ApplicationsResponse {
   rows: TransformedApplication[]
@@ -125,24 +126,28 @@ export function ApplicationsPageContent() {
                 title="Estado"
                 options={[
                   {
-                    label: "Pendiente",
-                    value: "pending",
+                    label: "Creado",
+                    value: ProjectStatus.CREATED,
                   },
                   {
-                    label: "En Revisión",
-                    value: "reviewing",
+                    label: "Pendiente de Revisión",
+                    value: ProjectStatus.PENDING_INTAKE,
                   },
                   {
                     label: "Aprobado",
-                    value: "approved",
+                    value: ProjectStatus.APPROVED,
                   },
                   {
                     label: "Rechazado",
-                    value: "rejected",
+                    value: ProjectStatus.REJECTED,
                   },
                   {
-                    label: "Completado",
-                    value: "completed",
+                    label: "Revisión Técnica",
+                    value: ProjectStatus.TECHNICAL_REVIEW,
+                  },
+                  {
+                    label: "Aceptado",
+                    value: ProjectStatus.ACCEPTED,
                   },
                 ]}
               />
