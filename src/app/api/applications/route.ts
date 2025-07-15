@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || undefined;
     const projectApplicationIds = searchParams.get('projectApplicationId') || undefined;
     const programType = searchParams.get('programType') || undefined;
+    const programId = searchParams.get('programId') || undefined;
     const category = searchParams.get('category') || undefined;
     const industry = searchParams.get('industry') || undefined;
     const stage = searchParams.get('stage') || undefined;
@@ -37,6 +38,8 @@ export async function GET(request: NextRequest) {
     const isCompleted = searchParams.get('isCompleted') !== null 
       ? searchParams.get('isCompleted') === 'true'
       : undefined;
+
+    const projectStatusArray = projectStatus ? projectStatus.split(',') : undefined;
 
     // For entrepreneurs, force the projectApplicationId to their own application
     let effectiveProjectApplicationIds: string[] | undefined = projectApplicationIds
@@ -82,10 +85,11 @@ export async function GET(request: NextRequest) {
       search,
       projectApplicationIds: effectiveProjectApplicationIds,
       programType,
+      programId,
       category,
       industry,
       stage,
-      projectStatus,
+      projectStatus: projectStatusArray,
       isCompleted,
     });
 

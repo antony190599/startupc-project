@@ -9,10 +9,11 @@ export interface GetApplicationsParams {
   search?: string;
   projectApplicationIds?: string[];
   programType?: string;
+  programId?: string;
   category?: string;
   industry?: string;
   stage?: string;
-  projectStatus?: string;
+  projectStatus?: string[];
   isCompleted?: boolean;
 }
 
@@ -32,6 +33,7 @@ export async function getApplicationsOrThrow(params: GetApplicationsParams = {})
     search,
     projectApplicationIds,
     programType,
+    programId,
     category,
     industry,
     stage,
@@ -58,6 +60,11 @@ export async function getApplicationsOrThrow(params: GetApplicationsParams = {})
     where.programType = programType;
   }
 
+  // Filter by program ID
+  if (programId) {
+    where.programId = programId;
+  }
+
   // Filter by category
   if (category) {
     where.category = category;
@@ -74,8 +81,10 @@ export async function getApplicationsOrThrow(params: GetApplicationsParams = {})
   }
 
   // Filter by project status
-  if (projectStatus) {
-    where.projectStatus = projectStatus;
+  if (projectStatus && projectStatus.length > 0) {
+    where.projectStatus = {
+      in: projectStatus,
+    };
   }
 
   // Filter by completion status
@@ -135,13 +144,16 @@ export async function getApplicationsOrThrow(params: GetApplicationsParams = {})
             dni: true,
           },
         },
+        program: {
+          select: {
+            name: true,
+          },
+        },
       },
       orderBy,
       skip: (validPage - 1) * validPageSize,
       take: validPageSize,
     });
-
-    console.log("applications", applications);
 
     return {
       applications,

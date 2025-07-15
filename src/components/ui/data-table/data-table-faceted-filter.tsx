@@ -24,14 +24,26 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string
     icon?: React.ComponentType<{ className?: string }>
   }[]
+  onValueChange?: (values: string[]) => void
+  value?: string[]
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  onValueChange,
+  value,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const selectedValues = new Set(column?.getFilterValue() as string[])
+  // Use external value if provided, otherwise use column filter value
+  const selectedValues = new Set(value || (column?.getFilterValue() as string[]) || [])
+
+  // Sync external value with column filter
+  React.useEffect(() => {
+    if (value && column) {
+      column.setFilterValue(value.length > 0 ? value : undefined)
+    }
+  }, [value, column])
 
   return (
     <DropdownMenu>
@@ -94,6 +106,8 @@ export function DataTableFacetedFilter<TData, TValue>({
                 column?.setFilterValue(
                   filterValues.length ? filterValues : undefined
                 )
+                // Call onValueChange callback if provided
+                onValueChange?.(filterValues)
               }}
             >
               <div
@@ -117,7 +131,11 @@ export function DataTableFacetedFilter<TData, TValue>({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuCheckboxItem
-              onCheckedChange={() => column?.setFilterValue(undefined)}
+              onCheckedChange={() => {
+                column?.setFilterValue(undefined)
+                // Call onValueChange callback with empty array when clearing
+                onValueChange?.([])
+              }}
               className="justify-center text-center"
             >
               Limpiar filtros

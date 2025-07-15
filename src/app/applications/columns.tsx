@@ -30,24 +30,13 @@ export const columns: ColumnDef<TransformedApplication>[] = [
     },
   },
   {
-    accessorKey: "programType",
-    header: "Tipo de Programa",
+    accessorKey: "programId",
+    header: "Programa",
     cell: ({ row }) => {
-      const programType = row.getValue("programType") as string
+      const application = row.original
+      const programName = application.programName as string
+      const programType = application.programType as string
       
-      const getProgramTypeLabel = (type: string) => {
-        switch (type) {
-          case "inqubalab":
-            return "Inqubalab"
-          case "idea-feedback":
-            return "Idea Feedback"
-          case "aceleracion":
-            return "Aceleración"
-          default:
-            return type || "No especificado"
-        }
-      }
-
       const getProgramTypeVariant = (type: string) => {
         switch (type) {
           case "inqubalab":
@@ -63,7 +52,7 @@ export const columns: ColumnDef<TransformedApplication>[] = [
 
       return (
         <Badge variant={getProgramTypeVariant(programType)}>
-          {getProgramTypeLabel(programType)}
+          {programName || "No especificado"}
         </Badge>
       )
     },

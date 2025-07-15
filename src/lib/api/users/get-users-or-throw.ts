@@ -101,7 +101,7 @@ export async function getUsersOrThrow(params: GetUsersParams = {}): Promise<GetU
             coverImage: true,
           },
         },
-        teamMember: {
+        teamMembers: {
           select: {
             id: true,
             firstName: true,

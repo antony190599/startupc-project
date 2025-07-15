@@ -102,7 +102,7 @@ export const columns: ColumnDef<TransformedUser>[] = [
     accessorKey: "teamMember",
     header: "Información Académica",
     cell: ({ row }) => {
-      const teamMember = row.getValue("teamMember") as TransformedUser["teamMember"]
+      const teamMember = row.getValue("teamMembers") as TransformedUser["teamMembers"]
 
       if (!teamMember) {
         return <span className="text-muted-foreground">No es miembro de equipo</span>
@@ -111,14 +111,14 @@ export const columns: ColumnDef<TransformedUser>[] = [
       return (
         <div className="space-y-1">
           <div className="font-medium">
-            {teamMember.firstName} {teamMember.lastName}
+            {teamMember[0].firstName} {teamMember[0].lastName}
           </div>
           <div className="text-sm text-muted-foreground">
-            {teamMember.universityDisplay || teamMember.otherUniversity || "Sin universidad"}
+            {teamMember[0].universityDisplay || teamMember[0].otherUniversity || "Sin universidad"}
           </div>
-          {teamMember.career && (
+          {teamMember[0].career && (
             <div className="text-xs text-muted-foreground">
-              {teamMember.career}
+              {teamMember[0].career}
             </div>
           )}
         </div>

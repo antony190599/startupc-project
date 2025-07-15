@@ -18,6 +18,9 @@ export interface ApplicationWithRelations extends ProjectApplication {
 }
 
 export interface ApplicationQueryResult extends ProjectApplication {
+  program: {
+    name: string;
+  } | null;
   teamMembers: Array<{
     id: string;
     firstName: string;
@@ -67,6 +70,8 @@ export interface TransformedApplication {
     otherUniversity: string | null;
     dni: string | null;
   }>;
+  programName: string | null;
+  programId: string | null;
 }
 
 export interface TransformedApplicationDetail extends TransformedApplication {
@@ -198,6 +203,8 @@ export function transformApplication(application: ApplicationQueryResult): Trans
       otherUniversity: member.otherUniversity,
       dni: member.dni,
     })),
+    programName: application.program?.name || null,
+    programId: application.programId || null,
   };
 }
 

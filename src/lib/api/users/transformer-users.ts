@@ -30,7 +30,7 @@ export interface UserQueryResult {
     avatar: string | null;
     coverImage: string | null;
   } | null;
-  teamMember: {
+  teamMembers: {
     id: string;
     firstName: string;
     lastName: string;
@@ -44,7 +44,7 @@ export interface UserQueryResult {
     linkedin: string | null;
     university: string | null;
     otherUniversity: string | null;
-  } | null;
+  }[] | null;
 }
 
 export interface TransformedUser {
@@ -71,7 +71,7 @@ export interface TransformedUser {
     avatar: string | null;
     coverImage: string | null;
   } | null;
-  teamMember: {
+  teamMembers: {
     id: string;
     firstName: string;
     lastName: string;
@@ -86,7 +86,7 @@ export interface TransformedUser {
     university: string | null;
     universityDisplay: string | null;
     otherUniversity: string | null;
-  } | null;
+  }[] | null;
 }
 
 export interface UsersResponse {
@@ -122,10 +122,10 @@ export function transformUser(user: UserQueryResult): TransformedUser {
     updatedAt: user.updatedAt,
     projectApplications: user.projectApplications,
     profile: user.profile,
-    teamMember: user.teamMember ? {
-      ...user.teamMember,
-      universityDisplay: getUniversityDisplay(user.teamMember.university),
-    } : null,
+    teamMembers: user.teamMembers ? user.teamMembers.map(teamMember => ({
+      ...teamMember,
+      universityDisplay: getUniversityDisplay(teamMember.university),
+    })) : null,
   };
 }
 
