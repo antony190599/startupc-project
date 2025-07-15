@@ -37,6 +37,7 @@ A comprehensive Next.js application for managing startup project applications an
 - **Team Overview**: Manage team members and their information
 - **Settings**: User profile and application preferences
 - **Individual Application View**: Detailed view of specific applications
+- **Advanced Filtering**: Filters (such as status and program) can be initialized from URL query parameters (e.g., `?projectStatus=created`) and are kept in sync with the UI and API. Filter state is controlled at the page level for consistency and performance.
 
 ### User Management
 - **User Dashboard**: Comprehensive user administration interface
@@ -46,6 +47,7 @@ A comprehensive Next.js application for managing startup project applications an
 - **Account Status**: Monitor user account status (Active, Locked, Failed attempts)
 - **User Actions**: View, edit, and manage user accounts
 - **Security Features**: Password protection and sensitive data handling
+- **Advanced Filtering**: Filters can be initialized from URL query parameters and are kept in sync with the UI and API. All filter state is managed at the page level.
 
 ## 🛠 Tech Stack
 
@@ -265,6 +267,7 @@ The application uses NextAuth.js with the following providers:
 - **Security**: Password exclusion and sensitive data protection
 - **University Display**: Enhanced university information with display values
 - **Team Member Data**: Complete team member information with academic details
+- **Prisma Query Best Practice**: Always use `teamMembers` (plural) in Prisma user queries. Using `teamMember` (singular) will result in a type error.
 
 ## 🎨 UI Components
 
@@ -276,6 +279,7 @@ The project uses Shadcn/ui components with Tailwind CSS:
 - **Feedback**: Alert, Dialog, Progress, Skeleton
 - **Data Display**: Table, Avatar, Badge, Calendar
 - **Media**: Aspect Ratio, Carousel
+- **Data Table Filters**: Includes `DataTableDropdownFacetedFilter` (for API-driven dropdown filters with search and async data) and improved `DataTableFacetedFilter` (now supports external state, query string-driven initial state, and table integration). All filter state and API calls are managed at the page level for performance and consistency.
 
 ## 🔒 Security Features
 
