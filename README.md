@@ -1,5 +1,7 @@
 # StartupC Project
 
+![StartupC Project Cover](./docs/images/image.png)
+
 A comprehensive Next.js application for managing startup project applications and onboarding processes. This platform provides a multi-step onboarding flow for entrepreneurs to submit their project applications with team member management, program selection, and application tracking.
 
 ## 🚀 Features
