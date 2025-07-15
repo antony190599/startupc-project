@@ -7,6 +7,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 interface Program {
   id: string;
@@ -36,9 +37,11 @@ interface ProgramsResponse {
 }
 
 function ProgramsList({ handleJoinProgram }: { handleJoinProgram: (programId: string) => void }) {
+  const { data: session } = useSession();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [joiningProgram, setJoiningProgram] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -116,11 +119,23 @@ function ProgramsList({ handleJoinProgram }: { handleJoinProgram: (programId: st
     );
   }
 
+  const handleJoinClick = async (programId: string) => {
+    setJoiningProgram(programId);
+    try {
+      await handleJoinProgram(programId);
+    } catch {
+      setJoiningProgram(null);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
       {programs.map((program) => {
         const isApplied = program.applicationCount === 1;
         const isCompleted = program.isCompleted;
+        console.log(joiningProgram)
+        console.log(program)
+        const isJoining = joiningProgram === program.id;
         return (
           <Card
             key={program.id}
@@ -168,13 +183,35 @@ function ProgramsList({ handleJoinProgram }: { handleJoinProgram: (programId: st
                 )}
               </div>
               {!isApplied && (
-                <Button className="w-full mt-4" onClick={() => handleJoinProgram(program.id)}>
-                  Unirme
+                <Button 
+                  className="w-full mt-4" 
+                  onClick={() => handleJoinClick(program.id)}
+                  disabled={session?.user?.role === 'admin' || isJoining}
+                >
+                  {isJoining ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uniendo...
+                    </>
+                  ) : (
+                    session?.user?.role === 'admin' ? 'No disponible para administradores' : 'Unirme'
+                  )}
                 </Button>
               )}
               {isApplied && !isCompleted && (
-                <Button className="w-full mt-4" onClick={() => handleJoinProgram(program.id)}>
-                  Continuar
+                <Button 
+                  className="w-full mt-4" 
+                  onClick={() => handleJoinClick(program.id)}
+                  disabled={session?.user?.role === 'admin' || isJoining}
+                >
+                  {isJoining ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Cargando...
+                    </>
+                  ) : (
+                    session?.user?.role === 'admin' ? 'No disponible para administradores' : 'Continuar'
+                  )}
                 </Button>
               )}
             </CardContent>
