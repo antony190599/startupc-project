@@ -160,10 +160,6 @@ export default function AdminDashboardClient() {
                     <Eye className="h-4 w-4 mr-1" />
                     Ver
                   </Button>
-                  <Button size="sm" variant="outline">
-                    <Download className="h-4 w-4 mr-1" />
-                    Descargar
-                  </Button>
                 </div>
               </div>
             ))}
