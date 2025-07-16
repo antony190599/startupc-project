@@ -338,7 +338,7 @@ export function CreateProgramSheet({ onProgramCreated }: CreateProgramSheetProps
               />
 
               {/* Botones de Acción */}
-              <div className="flex gap-3 pt-6">
+              <div className="flex gap-3 pt-6 pb-3">
                 <Button
                   type="button"
                   variant="outline"
