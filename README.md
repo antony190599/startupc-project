@@ -92,6 +92,11 @@ src/
 │   ├── entrepreneur/      # Entrepreneur-specific pages
 │   ├── login/             # Login page
 │   ├── onboarding/        # Onboarding flow
+│   │   └── [programId]/   # Dynamic onboarding steps and logic
+│   │       ├── steps/     # Step components (ProgramSelection, GeneralData, ImpactOrigin, Presentation, Team, Preferences, Consent)
+│   │       ├── form-schema.ts # Zod schema and types for onboarding
+│   │       ├── utils.ts   # Onboarding utilities
+│   │       └── page.tsx   # Main onboarding flow (handles conditional metrics step)
 │   ├── settings/          # User settings and profile
 │   ├── team/              # Team management
 │   ├── users/             # User management interface
@@ -112,6 +117,8 @@ src/
 │   └── zod/              # Zod schema definitions
 └── prisma/               # Database schema and migrations
 ```
+
+- The onboarding step for "Métricas de tu Startup" is conditionally rendered in `onboarding/[programId]/page.tsx` only for programs of type "aceleracion". There is no static `StepMetrics.tsx` file in the steps folder.
 
 ## 🚀 Getting Started
 
