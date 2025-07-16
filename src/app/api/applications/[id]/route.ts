@@ -158,6 +158,11 @@ export async function PUT(
         updatedAt: new Date(),
       },
       include: {
+        program: {
+          select: {
+            name: true,
+          },
+        },
         teamMembers: {
           select: {
             id: true,

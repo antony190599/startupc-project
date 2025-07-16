@@ -12,9 +12,12 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react"
+import { MoreHorizontal, Eye, Edit, Trash2, Settings } from "lucide-react"
 import { ProjectStatus } from "@/lib/enum"
 import { useRouter } from "next/navigation"
+import { StatusUpdateModal } from "./status-update-modal"
+import { useState } from "react"
+import { useSession } from "next-auth/react"
 
 export const columns: ColumnDef<TransformedApplication>[] = [
   {
@@ -115,21 +118,20 @@ export const columns: ColumnDef<TransformedApplication>[] = [
       }
 
       const getStatusVariant = (status: string, completed: boolean) => {
-        if (completed) return "default"
         
         switch (status) {
           case ProjectStatus.CREATED:
             return "outline"
           case ProjectStatus.PENDING_INTAKE:
-            return "secondary"
+            return "warning"
           case ProjectStatus.APPROVED:
-            return "default"
+            return "success"
           case ProjectStatus.REJECTED:
-            return "destructive"
+            return "error"
           case ProjectStatus.TECHNICAL_REVIEW:
-            return "secondary"
+            return "info"
           case ProjectStatus.ACCEPTED:
-            return "default"
+            return "success"
           default:
             return "outline"
         }
@@ -160,52 +162,77 @@ export const columns: ColumnDef<TransformedApplication>[] = [
     cell: ({ row }) => {
       const application = row.original
       const router = useRouter()
+      const { data: session } = useSession()
+      const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+
+      const handleStatusUpdate = () => {
+        // This will trigger a refresh of the data
+        // You might want to add a callback prop to refresh the table data
+        window.location.reload()
+      }
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menú</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => {
-                // Navigate to application detail
-                router.push(`/applications/${application.id}`)
-              }}
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Ver detalles
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => {
-                // Navigate to edit application
-                router.push(`/applications/${application.id}/edit`)
-              }}
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Editar
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => {
-                // Handle delete application
-                if (confirm('¿Estás seguro de que quieres eliminar esta aplicación?')) {
-                  // Delete logic here
-                  console.log('Delete application:', application.id)
-                }
-              }}
-              className="text-red-600"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Eliminar
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Abrir menú</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => {
+                  // Navigate to application detail
+                  router.push(`/applications/${application.id}`)
+                }}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                Ver detalles
+              </DropdownMenuItem>
+              {application.projectStatus !== ProjectStatus.CREATED && session?.user?.role === 'admin' && (
+                <DropdownMenuItem 
+                  onClick={() => setIsStatusModalOpen(true)}
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Actualizar estado
+                </DropdownMenuItem>
+              )}
+              {/* <DropdownMenuItem 
+                onClick={() => {
+                  // Navigate to edit application
+                  router.push(`/applications/${application.id}/edit`)
+                }}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => {
+                  // Handle delete application
+                  if (confirm('¿Estás seguro de que quieres eliminar esta aplicación?')) {
+                    // Delete logic here
+                    console.log('Delete application:', application.id)
+                  }
+                }}
+                className="text-red-600"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Eliminar
+              </DropdownMenuItem> */}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <StatusUpdateModal
+            application={application}
+            isOpen={isStatusModalOpen}
+            onClose={() => setIsStatusModalOpen(false)}
+            onStatusUpdate={handleStatusUpdate}
+          />
+        </>
       )
     },
   },

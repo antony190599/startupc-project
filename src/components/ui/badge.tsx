@@ -21,6 +21,16 @@ const badgeVariants = cva(
           "border-transparent bg-role-admin text-role-admin-foreground [a&]:hover:bg-role-admin/90",
         roleEntrepreneur:
           "border-transparent bg-role-entrepreneur text-role-entrepreneur-foreground [a&]:hover:bg-role-entrepreneur/90",
+        success:
+          "border-transparent bg-success text-success-foreground [a&]:hover:bg-success/90",
+        error:
+          "border-transparent bg-error text-error-foreground [a&]:hover:bg-error/90",
+        warning:
+          "border-transparent bg-warning text-warning-foreground [a&]:hover:bg-warning/90",
+        info:
+          "border-transparent bg-info text-info-foreground [a&]:hover:bg-info/90",
+        neutral:
+          "border-transparent bg-neutral text-neutral-foreground [a&]:hover:bg-neutral/90",
       },
     },
     defaultVariants: {

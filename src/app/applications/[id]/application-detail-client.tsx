@@ -8,6 +8,7 @@ import { CalendarIcon, UserIcon, BuildingIcon, ClockIcon } from 'lucide-react';
 import ApplicationSteps from './application-steps';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { ProjectStatus } from '@/lib/enum';
 
 interface ApplicationDetailClientProps {
   id: string;
@@ -52,17 +53,43 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
     }
   };
 
-  // Helper function to get status badge variant
+    // Helper function to get status badge variant
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'default';
-      case 'in_progress':
-        return 'secondary';
-      case 'pending':
+      case ProjectStatus.CREATED:
+        return 'outline';
+      case ProjectStatus.PENDING_INTAKE:
+        return 'outline';
+      case ProjectStatus.APPROVED:
+        return 'outline';
+      case ProjectStatus.REJECTED:
+        return 'outline';
+      case ProjectStatus.TECHNICAL_REVIEW:
+        return 'outline';
+      case ProjectStatus.ACCEPTED:
         return 'outline';
       default:
         return 'outline';
+    }
+  };
+
+  // Helper function to get status label
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case ProjectStatus.CREATED:
+        return 'Creado';
+      case ProjectStatus.PENDING_INTAKE:
+        return 'Pendiente de revisión';
+      case ProjectStatus.APPROVED:
+        return 'Aprobado';
+      case ProjectStatus.REJECTED:
+        return 'Rechazado';
+      case ProjectStatus.TECHNICAL_REVIEW:
+        return 'En Revisión Técnica';
+      case ProjectStatus.ACCEPTED:
+        return 'Aceptado';
+      default:
+        return status || 'Sin estado';
     }
   };
 
@@ -130,10 +157,8 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
             <div className="space-y-3">
               <div>
                 <div className="text-xs text-muted-foreground">Estado</div>
-                <Badge variant={getStatusVariant(application.projectStatus || 'pending')} className="text-xs px-3 py-1">
-                  {application.projectStatus === 'completed' ? 'Completado' : 
-                   application.projectStatus === 'in_progress' ? 'En Progreso' : 
-                   application.projectStatus === 'pending' ? 'Pendiente' : 'Pendiente'}
+                <Badge variant={getStatusVariant(application.projectStatus || '') as any} className="text-xs px-3 py-1">
+                  {getStatusLabel(application.projectStatus || '')}
                 </Badge>
               </div>
               <div>
