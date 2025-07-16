@@ -121,6 +121,20 @@ model ProjectApplication {
   customerProfile  String?
   impact           String?
 
+  // Paso 2.5: Métricas (solo para aceleracion)
+  hasSales String?
+  totalSales String?
+  salesCurrency String?
+  hasPilot String?
+  pilotLink String?
+  pilotDescription String?
+  solutionApplication String?
+  technologyUsed String?
+  hasTechTeam String?
+  hasExternalInvestment String?
+  investmentAmount String?
+  investmentCurrency String?
+
   // Paso 3: Presentación
   videoUrl        String?
   videoFileName   String? // Para almacenar el nombre del archivo subido
