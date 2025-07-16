@@ -84,9 +84,12 @@ src/
 │   ├── api/               # API routes
 │   │   ├── applications/  # Application management API
 │   │   │   └── [id]/      # Individual application CRUD operations
+│   │   ├── programs/      # Programs management API
 │   │   ├── auth/          # Authentication endpoints
 │   │   ├── onboarding/    # Onboarding API
-│   │   └── users/         # User management API
+│   │   ├── users/         # User management API
+│   │   ├── team-members/  # Team members API
+│   │   ├── internal/      # Internal/admin API endpoints
 │   ├── applications/      # Application tracking page
 │   ├── dashboard/         # User dashboard (role-based)
 │   ├── entrepreneur/      # Entrepreneur-specific pages
@@ -117,6 +120,22 @@ src/
 │   └── zod/              # Zod schema definitions
 └── prisma/               # Database schema and migrations
 ```
+
+### Main API Endpoints Implemented
+
+- `/api/applications` — List, filter, and create project applications
+- `/api/applications/[id]` — Get, update, or delete a specific application
+- `/api/applications/[id]/status` — Update application status (admin only)
+- `/api/applications/[id]/route.ts` — Handles GET, PUT, DELETE for applications
+- `/api/programs` — List, create, and manage programs
+- `/api/users` — List, filter, and manage users
+- `/api/team-members` — List and manage team members for applications
+- `/api/internal` — Internal endpoints for system or admin operations
+- `/api/onboarding/[step]` — Get or save onboarding step data
+- `/api/onboarding/current-step` — Get current onboarding step for a user/program
+- `/api/onboarding/status` — Get onboarding status
+- `/api/auth/[...nextauth]` — NextAuth.js authentication endpoints
+- `/api/auth/signup` — User registration
 
 - The onboarding step for "Métricas de tu Startup" is conditionally rendered in `onboarding/[programId]/page.tsx` only for programs of type "aceleracion". There is no static `StepMetrics.tsx` file in the steps folder.
 
