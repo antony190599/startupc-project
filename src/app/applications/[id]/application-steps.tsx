@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { CheckCircle, Circle, Clock, ExternalLink, Video, Users, Target, Lightbulb, FileText, Shield } from 'lucide-react';
+import { CheckCircle, Circle, Clock, ExternalLink, Video, Users, Target, Lightbulb, FileText, Shield, ListChecks } from 'lucide-react';
 
 import { ApplicationStepsProps } from './types';
 import { steps } from '@/lib/enum';
@@ -320,6 +320,13 @@ export default function ApplicationSteps({ application }: ApplicationStepsProps)
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <ListChecks className="h-6 w-6 text-green-600" />
+          <h2 className="text-xl font-semibold">Pasos de la Aplicación</h2>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Paso Actual:</span>

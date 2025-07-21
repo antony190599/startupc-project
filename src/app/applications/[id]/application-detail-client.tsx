@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { CalendarIcon, UserIcon, BuildingIcon, ClockIcon } from 'lucide-react';
 import ApplicationSteps from './application-steps';
+import ApplicationAI from './application-ai';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { ProjectStatus } from '@/lib/enum';
@@ -15,9 +17,13 @@ interface ApplicationDetailClientProps {
 }
 
 export default function ApplicationDetailClient({ id }: ApplicationDetailClientProps) {
+  const { data: session } = useSession();
   const [application, setApplication] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('application');
+  
+  // Check if user is admin
+  const isAdmin = session?.user?.role === 'admin';
 
   useEffect(() => {
     async function fetchData() {
@@ -200,12 +206,20 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
       <Card>
         <CardContent className="py-5">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-1">
+            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
               <TabsTrigger value="application">Pasos de la Aplicación</TabsTrigger>
+              {isAdmin && (
+                <TabsTrigger value="ai">Análisis de IA</TabsTrigger>
+              )}
             </TabsList>
             <TabsContent value="application" className="space-y-4">
               <ApplicationSteps application={application} />
             </TabsContent>
+            {isAdmin && (
+              <TabsContent value="ai" className="space-y-4">
+                <ApplicationAI application={application} />
+              </TabsContent>
+            )}
           </Tabs>
         </CardContent>
       </Card>
