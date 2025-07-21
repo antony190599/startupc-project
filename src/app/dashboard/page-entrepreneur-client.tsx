@@ -429,7 +429,9 @@ export default function EntrepreneurDashboardClient() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
-                      <Button size="sm" variant="outline" className="h-8 px-3">
+                      <Button size="sm" variant="outline" className="h-8 px-3"
+                        onClick={() => router.push(`/applications/${status.applicationId}`)}
+                      >
                         Ver detalles
                       </Button>
                     </div>
