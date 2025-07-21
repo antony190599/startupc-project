@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth/utils';
 import { getApplicationByIdOrThrow } from '@/lib/api/applications';
 import { transformApplicationDetail } from '@/lib/api/applications/transformer-applications';
 import { prisma } from '@/lib/db';
+import { getAIApplicationAnalysis } from '@/lib/utils/functions/cache';
 
 export async function GET(
   request: NextRequest,
@@ -55,8 +56,19 @@ export async function GET(
     // Get the application with all related data
     const application = await getApplicationByIdOrThrow({ id });
 
+    const aiAnalysis = await getAIApplicationAnalysis(id);
+
+    let aiAnalysisJson: unknown = null;
+    if (aiAnalysis === null || aiAnalysis === '') {
+      aiAnalysisJson = null;
+    } else if (typeof aiAnalysis === 'string') {
+      aiAnalysisJson = JSON.parse(aiAnalysis);
+    } else {
+      aiAnalysisJson = aiAnalysis;
+    }
+
     // Transform the application data for the response
-    const transformedApplication = transformApplicationDetail(application);
+    const transformedApplication = transformApplicationDetail(application, aiAnalysisJson);
 
     return NextResponse.json({
       success: true,
@@ -202,8 +214,20 @@ export async function PUT(
       },
     });
 
+    //verify if the application has ai analysis
+    const aiAnalysis = await getAIApplicationAnalysis(id);
+
+    let aiAnalysisJson: unknown = null;
+    if (aiAnalysis === null || aiAnalysis === '') {
+      aiAnalysisJson = null;
+    } else if (typeof aiAnalysis === 'string') {
+      aiAnalysisJson = JSON.parse(aiAnalysis);
+    } else {
+      aiAnalysisJson = aiAnalysis;
+    }
+
     // Transform the updated application data
-    const transformedApplication = transformApplicationDetail(updatedApplication);
+    const transformedApplication = transformApplicationDetail(updatedApplication, aiAnalysisJson);
 
     return NextResponse.json({
       success: true,

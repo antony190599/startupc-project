@@ -36,7 +36,7 @@ interface AIResult {
 
 export default function ApplicationAI({ application }: ApplicationAIProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiResult, setAiResult] = useState<AIResult | null>(null);
+  const [aiResult, setAiResult] = useState<AIResult | null>(application.aiAnalysis);
   const [error, setError] = useState<string | null>(null);
 
   const isCompleted = useMemo(() => {

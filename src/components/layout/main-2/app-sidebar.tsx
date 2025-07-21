@@ -20,6 +20,9 @@ import {
   BookOpen,
 } from "lucide-react"
 
+import Image from 'next/image';
+import StartupcLogo from "@/public/startupc.svg"
+
 import { NavMain } from "@/components/layout/main-2/nav-main"
 import { NavProjects } from "@/components/layout/main-2/nav-projects"
 import { NavUser } from "@/components/layout/main-2/nav-user"
@@ -32,6 +35,15 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { ProjectStatus } from "@/lib/enum"
+
+// Use a React component for the logo (inline SVG)
+const StartupcLogoComponent = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M0 2.78773L1.69202 0L4.85271 5.57545L1.69202 11.1509L0 8.25993L1.69202 5.57545L0 2.78773Z" fill="white"/>
+    <path d="M6.19495 2.78773L7.88697 0L11.0477 5.57545L7.88697 11.1509L6.19495 8.25993L7.88697 5.57545L6.19495 2.78773Z" fill="white"/>
+    <path d="M16 2.78773L14.348 0L11.0477 5.57545L14.348 11.3574L16 8.15668L14.348 5.57545L16 2.78773Z" fill="white"/>
+  </svg>
+);
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession()
@@ -258,7 +270,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const teams = [
     {
       name: "Plataforma StartupC",
-      logo: GalleryVerticalEnd,
+      logo: StartupcLogoComponent,
       plan: "Empresa",
     }
   ]

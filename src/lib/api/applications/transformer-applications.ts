@@ -95,6 +95,7 @@ export interface TransformedApplicationDetail extends TransformedApplication {
   favoriteMovieGenre: string | null;
   privacyConsent: boolean | null;
   onboardingStep: string | null;
+  aiAnalysis: unknown | null;
 }
 
 export interface ApplicationsResponse {
@@ -208,7 +209,7 @@ export function transformApplication(application: ApplicationQueryResult): Trans
   };
 }
 
-export function transformApplicationDetail(application: ApplicationQueryResult): TransformedApplicationDetail {
+export function transformApplicationDetail(application: ApplicationQueryResult, aiAnalysis: unknown = null): TransformedApplicationDetail {
   const baseApplication = transformApplication(application);
   
   return {
@@ -232,6 +233,7 @@ export function transformApplicationDetail(application: ApplicationQueryResult):
     favoriteMovieGenre: getMovieGenreDisplay(application.favoriteMovieGenre),
     privacyConsent: application.privacyConsent,
     onboardingStep: getStepDisplay(application.onboardingStep),
+    aiAnalysis: aiAnalysis,
   };
 }
 
