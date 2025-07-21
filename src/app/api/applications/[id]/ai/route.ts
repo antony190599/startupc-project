@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/utils';
 import { prisma } from '@/lib/db';
 import { sendPrompt } from '@/lib/openai';
+import { getAIApplicationAnalysis, setAIApplicationAnalysis } from '@/lib/utils/functions/cache';
 
 export async function POST(req: NextRequest, 
     args: {
@@ -19,6 +20,12 @@ export async function POST(req: NextRequest,
 
     if (!applicationId) {
       return NextResponse.json({ error: 'ID de aplicación requerido' }, { status: 400 });
+    }
+
+    const cachedAnalysis = await getAIApplicationAnalysis(applicationId);
+
+    if (cachedAnalysis) {
+      return NextResponse.json({ success: true, ai: cachedAnalysis });
     }
 
     // Fetch application with all relevant data
@@ -111,12 +118,18 @@ export async function POST(req: NextRequest,
 
         ---
 
-        Por favor, proporciona un análisis detallado, identifica fortalezas y debilidades, y sugiere recomendaciones para mejorar la aplicación.`;
+        Por favor solo devolver el JSON, no agregar ningún comentario adicional.`;
 
     // Call OpenAI
     const aiResponse = await sendPrompt(prompt);
 
-    return NextResponse.json({ success: true, ai: aiResponse });
+    setAIApplicationAnalysis(applicationId, aiResponse).then(() => {
+      console.log('AI analysis cached');
+    }).catch((error: any) => {
+      console.error('Error caching AI analysis:', error);
+    });
+
+    return NextResponse.json({ success: true, ai: typeof aiResponse === 'string' ? JSON.parse(aiResponse) : aiResponse });
   } catch (error: any) {
     console.error('AI analysis error:', error);
     return NextResponse.json({ error: error.message || 'Error interno del servidor' }, { status: 500 });

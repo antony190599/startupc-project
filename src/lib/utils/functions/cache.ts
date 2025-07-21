@@ -12,3 +12,12 @@ export const setProgramJoinIntent = async (user: UserProps, programId: string) =
 export const setUniqueSessionId = async (sessionId: string, nextUrl: string) => {
     await redis.set(`unique-session-id:${sessionId}`, nextUrl);
 }
+
+export const setAIApplicationAnalysis = async (applicationId: string, analysis: string) => {
+    await redis.set(`ai-application-analysis:${applicationId}`, analysis);
+}
+
+export const getAIApplicationAnalysis = async (applicationId: string) => {
+    const analysis = await redis.get(`ai-application-analysis:${applicationId}`);
+    return analysis;
+}

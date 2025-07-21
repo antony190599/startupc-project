@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +39,12 @@ export default function ApplicationAI({ application }: ApplicationAIProps) {
   const [aiResult, setAiResult] = useState<AIResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const isCompleted = useMemo(() => {
+    return application.isCompleted;
+  }, [application]);
+
   const handleAnalyze = async () => {
+    if (!isCompleted) return;
     setIsAnalyzing(true);
     setError(null);
     setAiResult(null);
@@ -54,9 +59,8 @@ export default function ApplicationAI({ application }: ApplicationAIProps) {
       // Try to parse JSON from OpenAI response
       let parsed: AIResult | null = null;
       try {
-        parsed = JSON.parse(data.ai);
+        parsed = typeof data.ai === 'string' ? JSON.parse(data.ai) : data.ai;
       } catch (e) {
-        // If not valid JSON, fallback to text
         setError('La respuesta de IA no tiene el formato esperado.');
         setAiResult(null);
         setIsAnalyzing(false);
@@ -78,23 +82,6 @@ export default function ApplicationAI({ application }: ApplicationAIProps) {
           <Brain className="h-6 w-6 text-purple-600" />
           <h2 className="text-xl font-semibold">Análisis de IA</h2>
         </div>
-        <Button 
-          onClick={handleAnalyze} 
-          disabled={isAnalyzing}
-          className="bg-purple-600 hover:bg-purple-700"
-        >
-          {isAnalyzing ? (
-            <>
-              <Clock className="h-4 w-4 mr-2 animate-spin" />
-              Analizando...
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4 mr-2" />
-              Analizar Proyecto
-            </>
-          )}
-        </Button>
       </div>
 
       {/* Error State */}
@@ -106,6 +93,54 @@ export default function ApplicationAI({ application }: ApplicationAIProps) {
             <div className="text-sm text-muted-foreground">{error}</div>
           </AlertDescription>
         </Alert>
+      )}
+
+      {/* Not completed warning */}
+      {!isCompleted && (
+        <div className="text-center py-8 text-muted-foreground">
+          <AlertCircle className="h-8 w-8 mx-auto mb-2 text-yellow-400" />
+          <p className='text-base'>Debes completar todos los pasos de la aplicación antes de solicitar el análisis de IA.</p>
+          <Button 
+            disabled
+            className="bg-purple-300 cursor-not-allowed m-4"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Analizar Proyecto
+          </Button>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {isAnalyzing && (
+        <div className="flex items-center space-x-3">
+          <Clock className="h-5 w-5 animate-spin text-purple-600" />
+          <span className="text-muted-foreground">Analizando proyecto con IA...</span>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {isCompleted && !error && !aiResult && !isAnalyzing && (
+        <div className="text-center py-8 text-muted-foreground">
+          <Sparkles className="h-8 w-8 mx-auto mb-2 text-purple-400" />
+          <p className='text-base'>Haz clic en <span className="font-semibold">"Analizar Proyecto"</span> para obtener un análisis inteligente de esta aplicación.</p>
+          <Button 
+            onClick={handleAnalyze} 
+            disabled={isAnalyzing || !isCompleted}
+            className="bg-purple-600 hover:bg-purple-700 m-4"
+          >
+            {isAnalyzing ? (
+              <>
+                <Clock className="h-4 w-4 mr-2 animate-spin" />
+                Analizando...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 mr-2" />
+                Analizar Proyecto
+              </>
+            )}
+          </Button>
+        </div>
       )}
 
       {/* Project Score (AI) */}
@@ -139,15 +174,6 @@ export default function ApplicationAI({ application }: ApplicationAIProps) {
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Loading State */}
-      {isAnalyzing && (
-        
-            <div className="flex items-center space-x-3">
-              <Clock className="h-5 w-5 animate-spin text-purple-600" />
-              <span className="text-muted-foreground">Analizando proyecto con IA...</span>
-            </div>
       )}
 
       {/* AI Recommendations */}
