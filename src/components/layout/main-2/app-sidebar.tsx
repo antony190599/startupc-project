@@ -134,25 +134,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             },
           ],
         },
-        {
-          title: "Reportes",
-          url: "/reports",
-          icon: TrendingUp,
-          items: [
-            {
-              title: "Analíticas",
-              url: "/reports",
-            },
-            {
-              title: "Rendimiento",
-              url: "/reports/performance",
-            },
-            {
-              title: "Tendencias",
-              url: "/reports/trends",
-            },
-          ],
-        },
+
         {
           title: "Configuración",
           url: "/settings",
