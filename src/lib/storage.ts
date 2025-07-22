@@ -82,6 +82,7 @@ class StorageClient {
       aws: {
         signQuery: true,
         allHeaders: true,
+        region: process.env.STORAGE_REGION || "",
       },
     });
 
