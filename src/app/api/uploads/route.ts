@@ -5,7 +5,7 @@ import { nanoid } from '@/lib/utils/functions/nanoid';
 
 const R2_URL = process.env.R2_URL || "";
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
     try {
         // Check authentication
         const session = await getSession();
@@ -30,7 +30,11 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const key = `videos/video_${nanoid(7)}`;
+        // Get extension from body
+        const body = await request.json();
+        const extension = body.extension ? String(body.extension).replace(/[^a-zA-Z0-9]/g, '') : 'mp4';
+
+        const key = `videos/video_${nanoid(7)}.${extension}`;
 
         const signedUrl = await storage.getSignedUrl(key);
 

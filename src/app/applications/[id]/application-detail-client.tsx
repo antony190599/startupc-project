@@ -11,6 +11,7 @@ import ApplicationAI from './application-ai';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { ProjectStatus } from '@/lib/enum';
+import ApplicationVideo from './application-video';
 
 interface ApplicationDetailClientProps {
   id: string;
@@ -206,11 +207,12 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
       <Card>
         <CardContent className="py-5">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
               <TabsTrigger value="application">Pasos de la Aplicación</TabsTrigger>
               {isAdmin && (
                 <TabsTrigger value="ai">Análisis de IA</TabsTrigger>
               )}
+              <TabsTrigger value="videos">Videos</TabsTrigger>
             </TabsList>
             <TabsContent value="application" className="space-y-4">
               <ApplicationSteps application={application} />
@@ -220,6 +222,9 @@ export default function ApplicationDetailClient({ id }: ApplicationDetailClientP
                 <ApplicationAI application={application} />
               </TabsContent>
             )}
+            <TabsContent value="videos" className="space-y-4">
+              <ApplicationVideo application={application} />
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>

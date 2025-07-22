@@ -25,7 +25,12 @@ const StepPresentation: React.FC<StepPresentationProps> = ({ form }) => {
       
       //const res = await executeAsync({});
 
-      const res = await fetch('/api/uploads');
+      const extension = file.name.split('.').pop();
+
+      const res = await fetch('/api/uploads', {
+        method: 'POST',
+        body: JSON.stringify({ extension }),
+      });
 
       const data = await res.json();
 
