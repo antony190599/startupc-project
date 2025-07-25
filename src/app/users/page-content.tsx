@@ -5,6 +5,7 @@ import { DataTable, DataTableToolbar, DataTableFacetedFilter, DataTableViewOptio
 import { columns } from "./columns"
 import { TransformedUser } from "@/lib/api/users/transformer-users"
 import { UsersTableSkeleton } from "./users-skeleton"
+import { useSearchParams } from "next/navigation"
 
 interface UsersResponse {
   rows: TransformedUser[]
@@ -19,6 +20,8 @@ interface UsersResponse {
 }
 
 export function UsersPageContent() {
+  const searchParams = useSearchParams()
+  const role = searchParams.get("role") || ""
   const [data, setData] = useState<TransformedUser[]>([])
   const [pagination, setPagination] = useState({
     page: 1,
@@ -32,6 +35,7 @@ export function UsersPageContent() {
   const [searchValue, setSearchValue] = useState("")
   const [sortBy, setSortBy] = useState("createdAt")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
+  const [selectedRole, setSelectedRole] = useState<string[]>(role ? [role] : [])
 
   const fetchUsers = async (
     page: number = 1,
@@ -47,6 +51,7 @@ export function UsersPageContent() {
         pageSize: pageSize.toString(),
         sortBy,
         sortOrder,
+        ...(selectedRole.length > 0 && { role: selectedRole.join(",") }),
         ...(search && { search }),
       })
 
@@ -68,7 +73,7 @@ export function UsersPageContent() {
 
   useEffect(() => {
     fetchUsers(pagination.page, pagination.pageSize, searchValue, sortBy, sortOrder)
-  }, [pagination.page, pagination.pageSize, searchValue, sortBy, sortOrder])
+  }, [pagination.page, pagination.pageSize, searchValue, sortBy, sortOrder, selectedRole])
 
   const handlePageChange = (page: number) => {
     setPagination(prev => ({ ...prev, page }))
@@ -83,6 +88,11 @@ export function UsersPageContent() {
     setPagination(prev => ({ ...prev, page: 1 }))
   }
 
+  const handleRoleChange = (values: string[]) => {
+    setSelectedRole(values)
+    setPagination(prev => ({ ...prev, page: 1 }))
+  }
+
   // Custom toolbar component for users
   const UsersToolbar = ({ table, onSearch, searchValue }: any) => {
     const roles = [
@@ -94,6 +104,11 @@ export function UsersPageContent() {
       <DataTableToolbar
         table={table}
         onSearch={onSearch}
+        onClearFilters={() => {
+          setSelectedRole([])
+          setSearchValue("")
+          setPagination(prev => ({ ...prev, page: 1 }))
+        }}
         searchValue={searchValue}
         searchPlaceholder="Buscar usuarios..."
         filters={
@@ -101,6 +116,8 @@ export function UsersPageContent() {
             column={table.getColumn("role")}
             title="Rol"
             options={roles}
+            value={selectedRole}
+            onValueChange={handleRoleChange}
           />
         }
         viewOptions={

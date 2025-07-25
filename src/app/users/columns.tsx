@@ -98,6 +98,7 @@ export const columns: ColumnDef<TransformedUser>[] = [
       )
     },
   },
+  /*
   {
     accessorKey: "teamMember",
     header: "Información Académica",
@@ -125,6 +126,7 @@ export const columns: ColumnDef<TransformedUser>[] = [
       )
     },
   },
+  */
   {
     id: "status",
     header: "Estado",

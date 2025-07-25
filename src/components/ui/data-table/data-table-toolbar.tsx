@@ -16,6 +16,7 @@ interface DataTableToolbarProps<TData> {
   searchPlaceholder?: string
   filters?: React.ReactNode
   viewOptions?: React.ReactNode
+  onClearFilters?: () => void
 }
 
 export function DataTableToolbar<TData>({
@@ -25,8 +26,16 @@ export function DataTableToolbar<TData>({
   searchPlaceholder = "Buscar...",
   filters,
   viewOptions,
+  onClearFilters,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
+
+  const handleClearFilters = () => {
+    table.resetColumnFilters()
+    table.resetPagination()
+
+    onClearFilters?.()
+  }
 
   return (
     <div className="flex items-center justify-between">
@@ -45,7 +54,7 @@ export function DataTableToolbar<TData>({
         {isFiltered && (
           <Button
             variant="ghost"
-            onClick={() => table.resetColumnFilters()}
+            onClick={handleClearFilters}
             className="h-8 px-2 lg:px-3"
           >
             Limpiar

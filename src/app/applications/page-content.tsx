@@ -26,7 +26,6 @@ export function ApplicationsPageContent() {
   const searchParams = useSearchParams()
   const projectStatus = searchParams.get("projectStatus") || ""
 
-  console.log("projectStatus", projectStatus)
   const [data, setData] = useState<TransformedApplication[]>([])
   const [pagination, setPagination] = useState({
     page: 1,
@@ -146,6 +145,12 @@ export function ApplicationsPageContent() {
       <DataTableToolbar
         table={table}
         onSearch={onSearch}
+        onClearFilters={() => {
+          setSelectedProjectStatus([])
+          setSelectedProgramId("")
+          setSearchValue("")
+          setPagination(prev => ({ ...prev, page: 1 }))
+        }}
         searchValue={searchValue}
         searchPlaceholder="Buscar aplicaciones..."
         filters={
